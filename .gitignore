@@ -1,0 +1,5 @@
+node_modules/
+build/
+.figma_cache/
+.DS_Store
+*.log
