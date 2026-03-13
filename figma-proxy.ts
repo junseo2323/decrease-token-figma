@@ -19,19 +19,36 @@ export class FigmaProxy {
         );
     }
 
+    private extractComponentName(text: string): string {
+        // JSX 포맷: function ComponentName
+        const jsxMatch = text.match(/function\s+([A-Za-z0-9_]+)/);
+        if (jsxMatch) return jsxMatch[1];
+
+        // XML 포맷: 첫 번째 name 속성에서 추출 후 유효한 식별자로 변환
+        const xmlMatch = text.match(/name="([^"]+)"/);
+        if (xmlMatch) {
+            return xmlMatch[1]
+                .replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase())
+                .replace(/^[^a-zA-Z]/, 'C')
+                .substring(0, 40) || 'UnknownComponent';
+        }
+
+        return 'UnknownComponent';
+    }
+
     private async ensureCacheDir() {
         await fs.mkdir(this.cacheDir, { recursive: true }).catch(() => { });
     }
 
     public async connect() {
         await this.client.connect(this.transport);
-        console.log("✅ 로컬 Figma MCP (포트 3845)에 성공적으로 연결되었습니다.");
+        console.error("✅ 로컬 Figma MCP (포트 3845)에 성공적으로 연결되었습니다.");
     }
 
     public async getSelectionContext() {
         await this.ensureCacheDir();
         try {
-            console.log("⏳ 피그마에서 현재 선택된 요소를 가져오는 중...");
+            console.error("⏳ 피그마에서 현재 선택된 요소를 가져오는 중...");
             const response = await this.client.callTool({
                 name: "get_design_context",
                 arguments: {}
@@ -40,8 +57,8 @@ export class FigmaProxy {
             const rawText = contentArray.find((c: any) => c.type === 'text')?.text;
             if (!rawText) throw new Error("응답이 비어있습니다. 피그마에서 요소를 선택했는지 확인해주세요.");
 
-            const match = rawText.match(/function\s+([A-Za-z0-9_]+)/);
-            const componentName = match ? match[1] : "UnknownComponent";
+            // JSX(function 키워드) 또는 XML(name 속성)에서 컴포넌트명 추출
+            const componentName = this.extractComponentName(rawText);
             const cachePath = path.join(this.cacheDir, `selection_${componentName}.tsx`);
 
             await fs.writeFile(cachePath, rawText, 'utf-8');
@@ -53,19 +70,32 @@ export class FigmaProxy {
     }
 
     // 💡 새롭게 추가된 스크린샷 캡처 함수!
-    public async getScreenshot() {
+    public async getScreenshot(nodeId?: string) {
         try {
-            console.log("📸 피그마에서 스크린샷 캡처 중...");
+            console.error(`📸 피그마 스크린샷 캡처 중...${nodeId ? ` (nodeId: ${nodeId})` : ''}`);
+            const args: Record<string, string> = {};
+            if (nodeId) args.nodeId = nodeId;
             const response = await this.client.callTool({
                 name: "get_screenshot",
-                arguments: {}
+                arguments: args,
             });
-            // 이미지 데이터(base64 배열)를 그대로 반환합니다.
             return response.content as any[];
         } catch (error) {
-            console.error("❌ 스크린샷 가져오기 실패 (생략하고 텍스트만 전달합니다):", error);
+            console.error(`❌ 스크린샷 가져오기 실패${nodeId ? ` (${nodeId})` : ''}: ${(error as Error).message}`);
             return null;
         }
+    }
+
+    // 여러 nodeId에 대해 스크린샷을 순차적으로 가져옴
+    public async getScreenshots(nodeIds: string[]): Promise<any[]> {
+        const results: any[] = [];
+        for (const nodeId of nodeIds) {
+            const content = await this.getScreenshot(nodeId);
+            if (content && content.length > 0) {
+                results.push(...content);
+            }
+        }
+        return results;
     }
 
     public async disconnect() {

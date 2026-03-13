@@ -41,12 +41,34 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         await proxy.connect();
         // 1. 코드 가져오기
         const rawText = await proxy.getSelectionContext();
-        // 2. 스크린샷 이미지 가져오기
-        const screenshotContent = await proxy.getScreenshot();
+
+        // 2. 스크린샷 가져오기 — XML(복수 선택)이면 최상위 프레임별로 각각 캡처
+        const isXml = rawText.trimStart().startsWith('<') && !rawText.includes('function ');
+        let screenshotContent: any[] | null;
+
+        if (isXml) {
+            // 들여쓰기 없이 시작하는 최상위 <frame id="..."> 추출
+            const topLevelIds = [...rawText.matchAll(/^<frame id="([^"]+)"/gm)].map(m => m[1]);
+            if (topLevelIds.length > 1) {
+                console.error(`🖼️  복수 선택 감지 (${topLevelIds.length}개) — 각 프레임 스크린샷 개별 캡처`);
+                screenshotContent = await proxy.getScreenshots(topLevelIds);
+            } else {
+                screenshotContent = await proxy.getScreenshot(topLevelIds[0]);
+            }
+        } else {
+            screenshotContent = await proxy.getScreenshot();
+        }
+
         await proxy.disconnect();
 
-        const match = rawText.match(/function\s+([A-Za-z0-9_]+)/);
-        const componentName = match ? match[1] : "UnknownComponent";
+        // JSX(function 키워드) 또는 XML(name 속성)에서 컴포넌트명 추출
+        const jsxMatch = rawText.match(/function\s+([A-Za-z0-9_]+)/);
+        const xmlMatch = rawText.match(/name="([^"]+)"/);
+        const componentName = jsxMatch
+            ? jsxMatch[1]
+            : xmlMatch
+                ? xmlMatch[1].replace(/[^a-zA-Z0-9]+(.)/g, (_: string, c: string) => c.toUpperCase()).replace(/^[^a-zA-Z]/, 'C').substring(0, 40)
+                : 'UnknownComponent';
 
         // 3. 코드 정제 (V3 무손실 압축)
         const tokens = await normalizer.extractTokens(componentName);
