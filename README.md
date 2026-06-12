@@ -1,4 +1,4 @@
-# 🎨 Figma Cost Optimizer Bridge (V4)
+# 🎨 Figma Cost Optimizer Bridge (V5)
 
 <div align="right">
   <strong>🇺🇸 English</strong> | <a href="./README_KR.md">🇰🇷 한국어</a>
@@ -98,6 +98,84 @@ Takes a screenshot of the selection.
 Downloads images to the configured assets directory and losslessly compresses the code.
 
 Returns the sanitized Markdown skeleton code (handoff.md) combined with the screenshot to the AI.
+
+## 🧠 V5 Usage Guide — "The Bridge That Remembers"
+
+Starting with V5, the bridge remembers every design it has seen. It never sends the same thing twice, and only reports what changed.
+
+### Tool Input Options
+
+The `get_optimized_figma_handoff` tool accepts the following arguments (all optional).
+
+| Argument | Values | Default | Description |
+|---|---|---|---|
+| `projectRoot` | absolute path | `FIGMA_BRIDGE_ROOT` or cwd | Project root for assets and cache |
+| `screenshot` | `path` / `inline` / `none` | `path` | `path` saves the PNG to the cache and returns **only its absolute path**. The AI reads it with the Read tool only when needed, saving image tokens. Use `inline` for clients without filesystem access (e.g. Claude Desktop) |
+| `mode` | `auto` / `full` / `diff` | `auto` | `auto` returns a diff when a previous version of the same component exists in the cache, otherwise a full handoff |
+| `force_refresh` | boolean | `false` | Ignore the cache and rerun the full pipeline even when the hash matches |
+
+### Hash Cache
+
+Results are stored keyed by the SHA-256 hash of the raw Figma response. If the design hasn't changed, the bridge skips the Figma round-trip, normalization, and Ollama analysis entirely.
+
+```text
+.figma_cache/
+  nodes/ChatScreen_a3f29c01/
+    raw.txt          # raw Figma response
+    handoff.md       # full normalized handoff (always kept complete)
+    diff.md          # generated only in diff mode
+    screenshot.png   # screenshot
+    meta.json        # component name, hash, timestamps
+  registry.json      # local component registry
+```
+
+Only the 2 most recent versions per component are kept; older ones are pruned automatically.
+
+### Repeated Subtree Deduplication
+
+When the same structure repeats **3+ times** (with 3+ elements each), it is compressed into one component definition plus instance calls. Differences in text, image sources, and classes are automatically promoted to props; repetitions beyond 5 instances are summarized in an instance data table. Chat lists and card grids benefit the most.
+
+### Local Component Registry (Local Code Connect)
+
+Components extracted by the bridge are automatically registered in `.figma_cache/registry.json` with their structure hash. When the same structure appears in a later handoff, the definition is replaced with a **one-line "reuse the existing component" instruction**.
+
+To register components you've already written, call the `sync_component_registry` tool. It scans `<projectRoot>/src/components/*.tsx` and adds component names and props to the registry.
+
+### Diff Handoff
+
+When you re-fetch a screen the designer modified (`mode: auto`), the bridge compares it against the previous version and sends **only what changed**:
+
+```markdown
+# Diff Handoff: ChatInput (previous a3f29c01 -> current 9b1d44e2)
+
+This screen is already implemented. Apply only the changes below.
+
+1. Text change: "전송" -> "보내기"
+2. className change: "bg-[#3B82F6]" -> "bg-[#2563EB]"
+```
+
+If more than 40% of the lines changed, the diff is meaningless, so the bridge automatically falls back to a full handoff.
+
+### npm Scripts
+
+```bash
+npm run build     # TypeScript build (build/)
+npm test          # unit tests (tests/)
+npm run setup     # install Ollama, start server, pull llama3.2 (opt-in)
+npm run measure   # measure compression ratio vs raw
+```
+
+### Verifying Results with the Demo App
+
+`test/` is a Vite + React + Tailwind app for rendering generated components.
+
+```bash
+cd test
+npm install
+npm run dev   # http://localhost:5173
+```
+
+Drop generated components into `test/src/components/` and import them from `App.tsx`.
 
 ⚠️ LLM Prompt Guidelines (Behavioral Guidelines)
 When an AI Agent (like Claude) works alongside this pipeline, it MUST strictly follow these rules:

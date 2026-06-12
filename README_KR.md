@@ -1,4 +1,4 @@
-# 🎨 Figma Cost Optimizer Bridge (V4)
+# 🎨 Figma Cost Optimizer Bridge (V5)
 
 <div align="right">
   <a href="./README.md">🇺🇸 English</a> | <strong>🇰🇷 한국어</strong>
@@ -66,6 +66,86 @@ Ollama 부트스트랩 환경변수:
    - 스크린샷을 찍습니다.
    - 설정된 에셋 디렉토리에 이미지를 다운로드하고 코드를 무손실 압축합니다.
    - 정제된 마크다운 뼈대 코드(`handoff.md`)와 스크린샷 이미지를 AI에게 반환합니다.
+
+---
+
+## 🧠 V5 사용 가이드 — "기억하는 브리지"
+
+V5부터 브리지는 한 번 본 디자인을 기억합니다. 같은 것을 두 번 보내지 않고, 바뀐 것만 말합니다.
+
+### 도구 입력 옵션
+
+`get_optimized_figma_handoff` 도구는 다음 인자를 받습니다 (전부 선택 사항).
+
+| 인자 | 값 | 기본값 | 설명 |
+|---|---|---|---|
+| `projectRoot` | 절대 경로 | `FIGMA_BRIDGE_ROOT` 또는 cwd | 에셋·캐시를 저장할 프로젝트 루트 |
+| `screenshot` | `path` / `inline` / `none` | `path` | `path`는 PNG를 캐시에 저장하고 **절대 경로만** 전달합니다. AI가 필요할 때만 Read 도구로 읽으므로 이미지 토큰을 아낍니다. 파일시스템 접근이 없는 클라이언트(Claude Desktop 등)는 `inline`을 쓰세요 |
+| `mode` | `auto` / `full` / `diff` | `auto` | `auto`는 같은 컴포넌트의 이전 버전이 캐시에 있으면 diff, 없으면 전체 핸드오프를 반환합니다 |
+| `force_refresh` | boolean | `false` | 해시가 같아도 캐시를 무시하고 전체 파이프라인을 다시 실행합니다 |
+
+### 해시 캐시
+
+Figma 원본 응답의 SHA-256 해시를 키로 결과를 저장합니다. 디자인이 바뀌지 않았으면 Figma 재요청·정제·Ollama 분석을 전부 건너뜁니다.
+
+```text
+.figma_cache/
+  nodes/ChatScreen_a3f29c01/
+    raw.txt          # Figma 원본 응답
+    handoff.md       # 정제된 전체 핸드오프 (항상 전체본 유지)
+    diff.md          # diff 모드일 때만 생성
+    screenshot.png   # 스크린샷
+    meta.json        # 컴포넌트명, 해시, 생성 시각
+  registry.json      # 로컬 컴포넌트 레지스트리
+```
+
+컴포넌트당 최신 2개 버전만 유지하고 나머지는 자동 삭제됩니다.
+
+### 반복 컴포넌트 중복 제거
+
+같은 구조가 **3회 이상** 반복되면(엘리먼트 3개 이상 크기) 컴포넌트 정의 1개 + 인스턴스 호출로 압축합니다. 텍스트·이미지·클래스 차이는 자동으로 props로 승격되고, 5회를 넘는 반복은 인스턴스 데이터 표로 따로 정리됩니다. 채팅 목록·카드 그리드처럼 반복이 많은 화면에서 효과가 가장 큽니다.
+
+### 로컬 컴포넌트 레지스트리 (Local Code Connect)
+
+브리지가 추출한 컴포넌트는 `.figma_cache/registry.json`에 구조 해시와 함께 자동 등록됩니다. 다음 핸드오프에서 같은 구조가 발견되면 정의를 다시 보내지 않고 **"기존 컴포넌트를 재사용하라"는 한 줄 지시**로 치환합니다.
+
+이미 작성된 프로젝트 컴포넌트를 등록하려면 `sync_component_registry` 도구를 호출하세요. `<projectRoot>/src/components/*.tsx`를 스캔해 컴포넌트명과 props를 레지스트리에 추가합니다.
+
+### Diff 핸드오프
+
+디자이너가 수정한 화면을 다시 가져오면(`mode: auto`), 이전 버전과 비교해 **바뀐 것만** 전달합니다:
+
+```markdown
+# Diff Handoff: ChatInput (이전 버전 a3f29c01 -> 현재 9b1d44e2)
+
+이 화면은 이미 구현되어 있다. 아래 변경 사항만 코드에 반영하라.
+
+1. 텍스트 변경: "전송" -> "보내기"
+2. className 변경: "bg-[#3B82F6]" -> "bg-[#2563EB]"
+```
+
+변경량이 전체의 40%를 넘으면 diff가 의미 없으므로 자동으로 전체 핸드오프로 폴백합니다.
+
+### npm 스크립트
+
+```bash
+npm run build     # TypeScript 빌드 (build/)
+npm test          # 단위 테스트 (tests/)
+npm run setup     # Ollama 설치·서버 실행·llama3.2 다운로드 (옵트인)
+npm run measure   # 원본 대비 압축률 측정
+```
+
+### 데모 앱으로 결과 확인
+
+`test/`는 생성된 컴포넌트를 실제 렌더링해보는 Vite + React + Tailwind 앱입니다.
+
+```bash
+cd test
+npm install
+npm run dev   # http://localhost:5173
+```
+
+생성된 컴포넌트를 `test/src/components/`에 넣고 `App.tsx`에서 import해 확인하세요.
 
 ---
 
