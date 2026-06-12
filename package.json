@@ -9,7 +9,9 @@
   "scripts": {
     "build": "tsc",
     "postinstall": "node ./scripts/postinstall.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "setup": "node ./scripts/setup-ollama.js",
+    "test": "node --test --import tsx tests/*.test.ts",
+    "measure": "node scripts/measure.js"
   },
   "keywords": [],
   "author": "",

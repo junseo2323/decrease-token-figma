@@ -52,7 +52,7 @@ Plaintext
 
 💡 Inline SVG Sanitization: A major culprit of token waste, inline <svg> blocks are replaced with PascalCase comments like {/* SVG Icon: ChevronRight */} to guide precise mapping to libraries like lucide-react.
 
-🤖 All-in-One AI Setup (Ollama Auto-installer): Upon global package installation, a postinstall script checks if Ollama is installed on the target PC. If not, it attempts auto-installation and silently pulls the llama3.2 model for local inference.
+🤖 Required Local AI Bootstrap: Ollama is required for local design-token pre-analysis. When the MCP server starts, it checks for Ollama, installs it when possible, starts the server, and pulls the default `llama3.2` model.
 
 🚀 Installation
 This package is designed to run anywhere natively as a global CLI tool.
@@ -67,7 +67,7 @@ cd decrease-token-figma
 npm run build
 sudo npm link 
 # or sudo npm install -g .
-※ When npm link executes, the postinstall hook runs. If Ollama isn't found on your PC, it attempts automatic installation and pulls the llama3.2 model in the background.
+Ollama is prepared automatically when `figma-bridge` starts. You can run `npm run setup` ahead of time to install Ollama, start the server, and pull the default `llama3.2` model manually.
 
 🛠 Usage
 Once installed, you can start the proxy MCP server from any directory on your machine by simply running:
@@ -75,6 +75,15 @@ Once installed, you can start the proxy MCP server from any directory on your ma
 Bash
 figma-bridge
 Workflow Details
+
+For global MCP clients whose working directory may not be your app project, pass `projectRoot` to the `get_optimized_figma_handoff` tool or set `FIGMA_BRIDGE_ROOT=/absolute/path/to/project`. Assets are written to `<projectRoot>/src/assets` by default. You can also override `FIGMA_BRIDGE_CACHE_DIR` and `FIGMA_BRIDGE_ASSET_DIR`.
+
+Ollama bootstrap environment variables:
+
+- `OLLAMA_BIN=/absolute/path/to/ollama`: use a specific Ollama binary.
+- `FIGMA_BRIDGE_OLLAMA_MODEL=llama3.2`: change the required model.
+- `FIGMA_BRIDGE_OLLAMA_AUTO_INSTALL=0`: disable runtime auto-install and fail if Ollama is missing.
+- `FIGMA_BRIDGE_OLLAMA_AUTO_PULL=0`: disable runtime model download and fail if the model is missing.
 
 Connects to the local API of the Figma Desktop App running in the background (Port 3845).
 
@@ -86,7 +95,7 @@ figma-bridge fetches the original raw code.
 
 Takes a screenshot of the selection.
 
-Downloads images to src/assets and losslessly compresses the code.
+Downloads images to the configured assets directory and losslessly compresses the code.
 
 Returns the sanitized Markdown skeleton code (handoff.md) combined with the screenshot to the AI.
 

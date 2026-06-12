@@ -17,7 +17,7 @@
 - 📥 **에셋 자동 다운로드 (Asset Auto-fetcher):** 컴포넌트에 포함된 피그마 로컬 이미지 URL을 추적하여 자동으로 현재 프로젝트의 `src/assets` 폴더에 다운로드하고 import 문을 생성합니다. (파일명 충돌 방지 로직 포함)
 - 🎨 **디자인 토큰 자동 추출:** 하드코딩된 HEX/RGBA 색상 코드를 긁어모아 사용된 컬러 팔레트를 요약 제공함으로써 LLM이 일관된 테마를 구성하도록 돕습니다.
 - 💡 **인라인 SVG 정제:** 토큰 낭비의 주범인 인라인 `<svg>` 코드를 `{/* SVG Icon: ChevronRight */}`와 같은 PascalCase 주석으로 치환하여 `lucide-react` 매핑을 돕습니다.
-- 🤖 **올인원 AI 환경 세팅 (Ollama Auto-installer):** 패키지 글로벌 설치 시 타겟 PC에 Ollama가 없으면 자동 설치하고, 로컬 추론을 위한 `llama3.2` 모델까지 스크립트가 1-Click 베이스로 알아서 다운로드합니다.
+- 🤖 **필수 로컬 AI 부트스트랩:** 로컬 디자인 토큰 사전 분석을 위해 Ollama를 필수로 사용합니다. MCP 서버가 시작될 때 Ollama 설치 여부를 확인하고, 가능하면 자동 설치, 서버 실행, 기본 `llama3.2` 모델 다운로드까지 수행합니다.
 
 ---
 
@@ -37,7 +37,7 @@ sudo npm link
 # 또는 sudo npm install -g .
 ```
 
-*※ `npm link` 실행 시 `postinstall` 훅이 작동하여 PC에 Ollama 런타임이 없다면 자동 설치를 진행하고 `llama3.2` 모델을 백그라운드에서 다운로드합니다.*
+Ollama는 `figma-bridge` 시작 시 자동으로 준비됩니다. 미리 준비하려면 `npm run setup`을 실행해 Ollama 설치, 서버 실행, 기본 `llama3.2` 모델 다운로드를 수동으로 수행할 수 있습니다.
 
 ---
 
@@ -49,13 +49,22 @@ sudo npm link
 figma-bridge
 ```
 
+Claude Desktop 같은 전역 MCP 클라이언트의 작업 디렉토리가 앱 프로젝트가 아닐 수 있습니다. 이 경우 `get_optimized_figma_handoff` 도구에 `projectRoot`를 전달하거나 `FIGMA_BRIDGE_ROOT=/absolute/path/to/project` 환경변수를 설정하세요. 에셋은 기본적으로 `<projectRoot>/src/assets`에 저장됩니다. 필요하면 `FIGMA_BRIDGE_CACHE_DIR`, `FIGMA_BRIDGE_ASSET_DIR`도 별도로 지정할 수 있습니다.
+
+Ollama 부트스트랩 환경변수:
+
+- `OLLAMA_BIN=/absolute/path/to/ollama`: 특정 Ollama 실행 파일을 사용합니다.
+- `FIGMA_BRIDGE_OLLAMA_MODEL=llama3.2`: 필수 모델명을 바꿉니다.
+- `FIGMA_BRIDGE_OLLAMA_AUTO_INSTALL=0`: 런타임 자동 설치를 끄고, Ollama가 없으면 실패합니다.
+- `FIGMA_BRIDGE_OLLAMA_AUTO_PULL=0`: 런타임 모델 다운로드를 끄고, 모델이 없으면 실패합니다.
+
 ### 작동 프로세스
 1. 백그라운드에서 실행 중인 **Figma 데스크탑 앱 로컬 API(포트 3845)**와 연결됩니다.
 2. AI(Claude 데스크탑 등)에게 `get_optimized_figma_handoff` 라는 도구를 제공합니다.
 3. 사용자가 피그마 화면에서 변환할 컴포넌트를 선택하고 AI에게 렌더링을 지시하면:
    - figma-bridge가 원본 코드를 가져옵니다.
    - 스크린샷을 찍습니다.
-   - `src/assets`에 이미지를 다운로드하고 코드를 무손실 압축합니다.
+   - 설정된 에셋 디렉토리에 이미지를 다운로드하고 코드를 무손실 압축합니다.
    - 정제된 마크다운 뼈대 코드(`handoff.md`)와 스크린샷 이미지를 AI에게 반환합니다.
 
 ---

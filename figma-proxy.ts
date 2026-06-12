@@ -19,21 +19,8 @@ export class FigmaProxy {
         );
     }
 
-    private extractComponentName(text: string): string {
-        // JSX 포맷: function ComponentName
-        const jsxMatch = text.match(/function\s+([A-Za-z0-9_]+)/);
-        if (jsxMatch) return jsxMatch[1];
-
-        // XML 포맷: 첫 번째 name 속성에서 추출 후 유효한 식별자로 변환
-        const xmlMatch = text.match(/name="([^"]+)"/);
-        if (xmlMatch) {
-            return xmlMatch[1]
-                .replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase())
-                .replace(/^[^a-zA-Z]/, 'C')
-                .substring(0, 40) || 'UnknownComponent';
-        }
-
-        return 'UnknownComponent';
+    public static extractComponentName(text: string, fallback: string = 'UnknownComponent'): string {
+        return extractComponentName(text, fallback);
     }
 
     private async ensureCacheDir() {
@@ -58,7 +45,7 @@ export class FigmaProxy {
             if (!rawText) throw new Error("응답이 비어있습니다. 피그마에서 요소를 선택했는지 확인해주세요.");
 
             // JSX(function 키워드) 또는 XML(name 속성)에서 컴포넌트명 추출
-            const componentName = this.extractComponentName(rawText);
+            const componentName = FigmaProxy.extractComponentName(rawText);
             const cachePath = path.join(this.cacheDir, `selection_${componentName}.tsx`);
 
             await fs.writeFile(cachePath, rawText, 'utf-8');
@@ -99,6 +86,23 @@ export class FigmaProxy {
     }
 
     public async disconnect() {
-        await this.transport.close();
+        await this.client.close();
     }
+}
+
+export function extractComponentName(text: string, fallback: string = 'UnknownComponent'): string {
+    // JSX 포맷: function ComponentName
+    const jsxMatch = text.match(/function\s+([A-Za-z0-9_]+)/);
+    if (jsxMatch) return jsxMatch[1];
+
+    // XML 포맷: 첫 번째 name 속성에서 추출 후 유효한 식별자로 변환
+    const xmlMatch = text.match(/name="([^"]+)"/);
+    if (xmlMatch) {
+        return xmlMatch[1]
+            .replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase())
+            .replace(/^[^a-zA-Z]/, 'C')
+            .substring(0, 40) || fallback;
+    }
+
+    return fallback;
 }
