@@ -8,14 +8,16 @@ const CHARS_PER_TOKEN = Number(process.env.CHARS_PER_TOKEN ?? 4);
 const IMAGE_PIXELS_PER_TOKEN = Number(process.env.IMAGE_PIXELS_PER_TOKEN ?? 750);
 
 async function main() {
-    const slug = process.argv[2];
+    const { slug, resultDir: resultDirArg } = parseArgs(process.argv.slice(2));
     if (!slug) {
-        console.error('Usage: node benchmarks/measure-tokens.mjs <slug>');
+        console.error('Usage: node benchmarks/measure-tokens.mjs <slug> [--result-dir <path>]');
         process.exit(1);
     }
 
     const fixtureDir = path.join(ROOT, 'benchmarks', 'fixtures', slug);
-    const resultDir = path.join(ROOT, 'benchmarks', 'results', slug);
+    const resultDir = resultDirArg
+        ? path.resolve(resultDirArg)
+        : path.join(ROOT, 'benchmarks', 'results', slug);
     const rawPath = path.join(fixtureDir, 'raw.figma.txt');
     const handoffPath = path.join(fixtureDir, 'handoff.md');
     const referencePath = path.join(fixtureDir, 'reference.png');
@@ -65,6 +67,20 @@ async function main() {
 
     await fs.writeFile(reportPath, JSON.stringify(report, null, 2) + '\n', 'utf-8');
     console.log(JSON.stringify(report, null, 2));
+}
+
+function parseArgs(args) {
+    let slug = '';
+    let resultDir = '';
+    for (let index = 0; index < args.length; index++) {
+        const arg = args[index];
+        if (arg === '--result-dir') {
+            resultDir = args[++index] ?? '';
+        } else if (!slug) {
+            slug = arg;
+        }
+    }
+    return { slug, resultDir };
 }
 
 function estimateTextTokens(value) {

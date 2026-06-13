@@ -194,6 +194,8 @@ npm run measure            # .figma_cache/handoff.md 문자/토큰 추정
 npm run benchmark:capture  # Figma fixture 캡처
 npm run benchmark:tokens   # raw vs bridge 토큰 측정
 npm run benchmark:diff     # Vite 렌더 + pixel diff
+npm run benchmark:blind    # 동일 LLM blind multi-run 생성/측정
+npm run benchmark:summary  # blind run 통계 재생성
 ```
 
 ---
@@ -217,6 +219,24 @@ npm run benchmark:diff -- ditto-battery-pro
 benchmarks/fixtures/<slug>/
 benchmarks/results/<slug>/
 ```
+
+### 동일 LLM blind 비교
+
+공신력 있는 비교를 하려면 같은 모델, 같은 temperature, 같은 스크린샷, 같은 출력 규칙을 고정하고 텍스트 입력만 raw와 bridge로 바꿔 여러 번 실행하세요.
+
+```bash
+export ANTHROPIC_API_KEY=...
+
+npm run benchmark:blind -- ditto-842-7750 \
+  --provider anthropic \
+  --model claude-sonnet-4-5-20250929 \
+  --runs 5 \
+  --temperature 0 \
+  --max-repairs 1 \
+  --experiment-id sonnet45-t0-r5
+```
+
+결과는 `benchmarks/results/<slug>/blind-runs/<experiment-id>/SUMMARY.md`에 평균, 표준편차, run별 similarity, compile-only repair 횟수와 함께 저장됩니다.
 
 ---
 

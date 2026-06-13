@@ -61,6 +61,75 @@ node benchmarks/render-and-diff.mjs ditto-battery-pro
 
 The renderer starts the existing Vite app in `test/`, temporarily mounts each result component, captures `vanilla.png` and `bridge.png`, writes diff images, and merges similarity percentages into `report.json`.
 
+## Blind Multi-Run LLM Benchmark
+
+For a publishable comparison, use the blind runner instead of hand-written `vanilla.tsx` and `bridge.tsx`. It keeps the provider, model, temperature, screenshot, output contract, and compile-repair policy identical while changing only the text input.
+
+Set exactly one provider key and choose the model explicitly:
+
+```bash
+export ANTHROPIC_API_KEY=...
+# or
+export OPENAI_API_KEY=...
+
+npm run benchmark:blind -- ditto-842-7750 \
+  --provider anthropic \
+  --model claude-sonnet-4-5-20250929 \
+  --runs 5 \
+  --temperature 0 \
+  --max-repairs 1 \
+  --experiment-id sonnet45-t0-r5
+```
+
+OpenAI works the same way:
+
+```bash
+npm run benchmark:blind -- ditto-842-7750 \
+  --provider openai \
+  --model gpt-5.1 \
+  --runs 5 \
+  --temperature 0 \
+  --max-repairs 1
+```
+
+Each run writes:
+
+```text
+benchmarks/results/<slug>/blind-runs/<experiment-id>/run-001/
+  vanilla.prompt.md
+  vanilla.attempt-1.response.txt
+  vanilla.tsx
+  bridge.prompt.md
+  bridge.attempt-1.response.txt
+  bridge.tsx
+  generation.json
+  report.json
+  vanilla.png
+  bridge.png
+  *.diff.png
+```
+
+The experiment directory also gets:
+
+```text
+summary.json
+SUMMARY.md
+```
+
+To recompute a summary later:
+
+```bash
+npm run benchmark:summary -- ditto-842-7750 sonnet45-t0-r5
+```
+
+### Reporting Rules
+
+Use language like:
+
+> In a 5-run blind benchmark with the same model, temperature 0, identical screenshot input, and one compile-only repair allowed, the bridge arm achieved X% mean input-token savings and Y percentage points mean similarity delta.
+
+Do not claim a universal accuracy win from one screen. Report model name, run count, temperature, repair count, prompt hashes, and whether any compile failures occurred.
+
 ## Add Another Screen
 
 1. Pick a slug, for example `settings-profile-card`.

@@ -12,14 +12,16 @@ const TEST_DIR = path.join(ROOT, 'test');
 const SUBJECT_PATH = path.join(TEST_DIR, 'src', 'components', 'BenchmarkSubject.tsx');
 
 async function main() {
-    const slug = process.argv[2];
+    const { slug, resultDir: resultDirArg } = parseArgs(process.argv.slice(2));
     if (!slug) {
-        console.error('Usage: node benchmarks/render-and-diff.mjs <slug>');
+        console.error('Usage: node benchmarks/render-and-diff.mjs <slug> [--result-dir <path>]');
         process.exit(1);
     }
 
     const fixtureDir = path.join(ROOT, 'benchmarks', 'fixtures', slug);
-    const resultDir = path.join(ROOT, 'benchmarks', 'results', slug);
+    const resultDir = resultDirArg
+        ? path.resolve(resultDirArg)
+        : path.join(ROOT, 'benchmarks', 'results', slug);
     const referencePath = path.join(fixtureDir, 'reference.png');
     const metaPath = path.join(fixtureDir, 'meta.json');
     const reportPath = path.join(resultDir, 'report.json');
@@ -78,6 +80,20 @@ async function main() {
         await fs.writeFile(SUBJECT_PATH, originalSubject, 'utf-8');
         vite.kill('SIGTERM');
     }
+}
+
+function parseArgs(args) {
+    let slug = '';
+    let resultDir = '';
+    for (let index = 0; index < args.length; index++) {
+        const arg = args[index];
+        if (arg === '--result-dir') {
+            resultDir = args[++index] ?? '';
+        } else if (!slug) {
+            slug = arg;
+        }
+    }
+    return { slug, resultDir };
 }
 
 async function screenshot(browser, port, viewport, outputPath, mode) {
