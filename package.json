@@ -1,13 +1,21 @@
 {
   "name": "decrease-token-figma",
   "version": "1.0.0",
-  "description": "",
+  "description": "Local MCP bridge that compresses Figma design context into token-efficient React handoffs with screenshots.",
   "main": "build/index.js",
   "bin": {
     "figma-bridge": "./build/index.js"
   },
+  "files": [
+    "build/*.js",
+    "scripts",
+    "README.md",
+    "README_KR.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
+    "prepack": "npm run build",
     "postinstall": "node ./scripts/postinstall.js",
     "setup": "node ./scripts/setup-ollama.js",
     "test": "node --test --import tsx tests/*.test.ts",
@@ -16,9 +24,24 @@
     "benchmark:tokens": "node benchmarks/measure-tokens.mjs",
     "benchmark:diff": "node benchmarks/render-and-diff.mjs"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "figma",
+    "mcp",
+    "model-context-protocol",
+    "react",
+    "token-optimization",
+    "design-to-code"
+  ],
+  "author": "Jun Seo Oh",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/junseo2323/decrease-token-figma.git"
+  },
+  "bugs": {
+    "url": "https://github.com/junseo2323/decrease-token-figma/issues"
+  },
+  "homepage": "https://junseo2323.github.io/decrease-token-figma/",
   "type": "commonjs",
   "devDependencies": {
     "@types/node": "^25.5.0",
