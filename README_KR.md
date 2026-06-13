@@ -44,14 +44,14 @@ Ditto `BatteryPro` 화면(node `2478-32218`) 기준 실제 캡처/렌더/diff �
 
 ## 설치
 
-npm 배포 후에는 다음처럼 설치합니다.
+권장 설치 방법은 npm 전역 설치입니다.
 
 ```bash
 npm install -g decrease-token-figma
 figma-bridge
 ```
 
-아직 npm 배포 전이거나 GitHub에서 직접 설치하려면:
+GitHub에서 직접 설치하려면:
 
 ```bash
 npm install -g github:junseo2323/decrease-token-figma

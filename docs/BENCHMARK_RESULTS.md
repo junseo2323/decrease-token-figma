@@ -94,7 +94,7 @@ Do not use Vercel/Render/Fly as the main runtime for the MCP bridge unless you r
 
 ### Example MCP Client Config
 
-After publishing to npm:
+Recommended npm install:
 
 ```json
 {
@@ -110,7 +110,7 @@ After publishing to npm:
 }
 ```
 
-Before npm publishing, users can install from GitHub:
+Users can also install directly from GitHub:
 
 ```bash
 npm install -g github:junseo2323/decrease-token-figma

@@ -21,7 +21,7 @@ Figma 디자인 컨텍스트를 LLM이 구현하기 좋은 **토큰 효율적인
 
 ## 설치
 
-npm 배포 후:
+npm 전역 설치:
 
 ```bash
 npm install -g decrease-token-figma
