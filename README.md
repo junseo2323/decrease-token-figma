@@ -21,6 +21,8 @@ Latest benchmark:
 
 See the full visual report: [docs/BENCHMARK_RESULTS.md](./docs/BENCHMARK_RESULTS.md)
 
+Korean docs are available in [README_KR.md](./README_KR.md) and on GitHub Pages: https://junseo2323.github.io/decrease-token-figma/index.ko.html
+
 Based on a local precision modeling test of a single UI component:
 
 ```text

@@ -1,5 +1,9 @@
 # Benchmark Results: Ditto BatteryPro
 
+<div align="right">
+  <strong>English</strong> | <a href="./BENCHMARK_RESULTS_KR.html">한국어</a>
+</div>
+
 This document records the first reproducible benchmark for the V5 Figma Cost Optimizer Bridge.
 
 - Fixture: `ditto-battery-pro`

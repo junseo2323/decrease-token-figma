@@ -1,5 +1,9 @@
 # Figma Cost Optimizer Bridge
 
+<div align="right">
+  <strong>English</strong> | <a href="./index.ko.html">한국어</a>
+</div>
+
 Local MCP bridge that compresses Figma design context into token-efficient React handoffs with screenshots.
 
 ## Benchmark Snapshot
@@ -12,6 +16,8 @@ Local MCP bridge that compresses Figma design context into token-efficient React
 **Estimated saving: 43.86%.**
 
 [Read the full benchmark report](./BENCHMARK_RESULTS.md)
+
+[한국어 페이지 보기](./index.ko.html)
 
 ![Bridge render](./assets/benchmarks/ditto-battery-pro/bridge.png)
 

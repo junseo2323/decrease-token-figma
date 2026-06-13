@@ -1,166 +1,247 @@
-# 🎨 Figma Cost Optimizer Bridge (V5)
+# Figma Cost Optimizer Bridge (V5)
 
 <div align="right">
-  <a href="./README.md">🇺🇸 English</a> | <strong>🇰🇷 한국어</strong>
+  <a href="./README.md">English</a> | <strong>한국어</strong>
 </div>
 
-**Figma Cost Optimizer Bridge**는 LLM(Claude, GPT 등)을 활용한 프론트엔드 UI/UX 자동화 개발 시 발생하는 **치명적인 토큰 소모 및 컨텍스트 오염을 방지**하기 위해 구축된 커스텀 로컬 프록시 MCP(Model Context Protocol) 파이프라인입니다.
+**Figma Cost Optimizer Bridge**는 Claude, ChatGPT, Codex 같은 LLM이 Figma 화면을 구현할 때 발생하는 **과도한 토큰 사용량과 컨텍스트 오염**을 줄이기 위한 로컬 MCP(Model Context Protocol) 브리지입니다.
 
-기존 공식 Figma MCP 도구(`get_design_context`)가 무분별하게 내뿜는 방대한 메타데이터, 인라인 SVG 코드, 고정 픽셀 좌표들을 가로채어 **"초경량 반응형 뼈대 코드 + 화면 스크린샷"** 형태로 무손실 압축하여 반환합니다. 이를 통해 API 호출 비용을 최대 80% 절감하면서도 AI의 코드 렌더링 정확도를 극대화할 수 있습니다.
+공식 Figma MCP의 `get_design_context`는 실제 구현에 필요하지 않은 메타데이터, 절대 좌표, 인라인 SVG, 반복되는 긴 `className` 문자열을 많이 포함합니다. 이 브리지는 해당 출력을 받아 **정제된 React 뼈대 코드 + 스크린샷 경로 + 반복 인스턴스 데이터** 형태로 압축해 LLM에게 전달합니다.
 
----
-
-## ✨ 핵심 기능 (V4 Pipeline)
-
-- 💸 **비용 최소화 (Token Optimization):** 방대한 메타데이터, 선택되지 않은 노드 정보, 불필요한 속성(`data-node-id` 등)을 완벽히 제거하여 한 번의 호출 당 15,000 토큰 -> **대략 2,000 ~ 4,000 토큰**으로 대폭 압축합니다.
-- 📱 **반응형 뼈대 변환 (Responsive Skeleton):** 피그마의 절대 좌표(`absolute`, `top`, `left`)와 고정 너비/높이 픽셀을 정규식으로 제거하고, 남겨진 구조와 스크린샷 이미지를 통해 LLM이 완벽한 Flex/Grid 기반 Tailwind 반응형 코드를 짜도록 유도합니다.
-- 📥 **에셋 자동 다운로드 (Asset Auto-fetcher):** 컴포넌트에 포함된 피그마 로컬 이미지 URL을 추적하여 자동으로 현재 프로젝트의 `src/assets` 폴더에 다운로드하고 import 문을 생성합니다. (파일명 충돌 방지 로직 포함)
-- 🎨 **디자인 토큰 자동 추출:** 하드코딩된 HEX/RGBA 색상 코드를 긁어모아 사용된 컬러 팔레트를 요약 제공함으로써 LLM이 일관된 테마를 구성하도록 돕습니다.
-- 💡 **인라인 SVG 정제:** 토큰 낭비의 주범인 인라인 `<svg>` 코드를 `{/* SVG Icon: ChevronRight */}`와 같은 PascalCase 주석으로 치환하여 `lucide-react` 매핑을 돕습니다.
-- 🤖 **필수 로컬 AI 부트스트랩:** 로컬 디자인 토큰 사전 분석을 위해 Ollama를 필수로 사용합니다. MCP 서버가 시작될 때 Ollama 설치 여부를 확인하고, 가능하면 자동 설치, 서버 실행, 기본 `llama3.2` 모델 다운로드까지 수행합니다.
+> 핵심 아이디어: 구조와 디자인 토큰은 텍스트로, 실제 레이아웃 판단은 스크린샷으로 보낸다.
 
 ---
 
-## 🚀 설치 방법
+## 최신 벤치마크
 
-이 패키지는 로컬 환경 어디서든 글로벌 CLI 모드로 실행 가능하도록 설계되었습니다.
+Ditto `BatteryPro` 화면(node `2478-32218`) 기준 실제 캡처/렌더/diff 결과입니다.
+
+| 경로 | 입력 문자 수 | 추정 텍스트 토큰 | 이미지 토큰 | 총 추정 토큰 | 픽셀 유사도 |
+|---|---:|---:|---:|---:|---:|
+| 공식 Figma MCP raw | 52,696 | 13,174 | 510 | 13,684 | 92.97% |
+| Bridge handoff | 30,727 | 7,682 | 0 | 7,682 | 96.77% |
+
+**추정 입력 토큰 절감률: 43.86%**
+
+반복 인스턴스 데이터 표는 기존 병목이던 26KB 수준에서 **3,978자**까지 줄었습니다. 자세한 이미지 비교는 [한국어 벤치마크 리포트](./docs/BENCHMARK_RESULTS_KR.md)를 참고하세요.
+
+---
+
+## 주요 기능
+
+- **토큰 절감:** Figma 원본의 불필요한 메타데이터, 절대 좌표, 반복 className, data 속성을 제거하거나 압축합니다.
+- **스크린샷 path 모드:** 이미지를 인라인으로 보내지 않고 로컬 PNG 경로만 전달해 기본 호출의 이미지 토큰을 줄입니다.
+- **반복 구조 dedupe:** 3회 이상 반복되는 JSX 구조를 컴포넌트 정의 + 인스턴스 호출 + 데이터 표로 압축합니다.
+- **공통 className 토큰 분리:** 모든 인스턴스가 공유하는 Tailwind 토큰은 템플릿에 1회만 남기고, prop에는 차이 토큰만 전달합니다.
+- **최빈값 기본값화:** 슬롯별 최빈값을 컴포넌트 기본 파라미터로 빼서 같은 값의 prop 전달을 생략합니다.
+- **해시 캐시:** 같은 Figma 응답은 재분석하지 않고 캐시된 handoff를 재사용합니다.
+- **Diff handoff:** 이전 버전이 있으면 바뀐 부분만 전달하고, 변경량이 크면 전체 handoff로 자동 폴백합니다.
+- **로컬 컴포넌트 레지스트리:** 이미 추출한 반복 구조와 프로젝트 컴포넌트를 재사용 후보로 기억합니다.
+- **Ollama 사전 분석:** 로컬 Ollama로 색상/텍스트/요약을 분석합니다. MCP 서버 시작 시 설치/실행/모델 준비를 도와줍니다.
+- **벤치마크 하니스:** raw vs bridge 입력 토큰, Playwright 렌더 스크린샷, pixelmatch 유사도를 재현 가능하게 측정합니다.
+
+---
+
+## 설치
+
+npm 배포 후에는 다음처럼 설치합니다.
 
 ```bash
-# 1. 저장소 클론
-git clone https://github.com/사용자계정/decrease-token-figma.git
-cd decrease-token-figma
-
-# 2. 전역(Global) 패키지로 빌드 및 링크
-# (주의: Mac/Linux 환경에선 권한 문제로 sudo가 필요할 수 있습니다.)
-npm run build
-sudo npm link 
-# 또는 sudo npm install -g .
-```
-
-Ollama는 `figma-bridge` 시작 시 자동으로 준비됩니다. 미리 준비하려면 `npm run setup`을 실행해 Ollama 설치, 서버 실행, 기본 `llama3.2` 모델 다운로드를 수동으로 수행할 수 있습니다.
-
----
-
-## 🛠 사용 방법
-
-설치가 완료되면 PC의 어느 디렉토리에서든 아래 커맨드를 통해 프록시 서버(MCP)를 실행할 수 있습니다.
-
-```bash
+npm install -g decrease-token-figma
 figma-bridge
 ```
 
-Claude Desktop 같은 전역 MCP 클라이언트의 작업 디렉토리가 앱 프로젝트가 아닐 수 있습니다. 이 경우 `get_optimized_figma_handoff` 도구에 `projectRoot`를 전달하거나 `FIGMA_BRIDGE_ROOT=/absolute/path/to/project` 환경변수를 설정하세요. 에셋은 기본적으로 `<projectRoot>/src/assets`에 저장됩니다. 필요하면 `FIGMA_BRIDGE_CACHE_DIR`, `FIGMA_BRIDGE_ASSET_DIR`도 별도로 지정할 수 있습니다.
+아직 npm 배포 전이거나 GitHub에서 직접 설치하려면:
 
-Ollama 부트스트랩 환경변수:
+```bash
+npm install -g github:junseo2323/decrease-token-figma
+figma-bridge
+```
 
-- `OLLAMA_BIN=/absolute/path/to/ollama`: 특정 Ollama 실행 파일을 사용합니다.
-- `FIGMA_BRIDGE_OLLAMA_MODEL=llama3.2`: 필수 모델명을 바꿉니다.
-- `FIGMA_BRIDGE_OLLAMA_AUTO_INSTALL=0`: 런타임 자동 설치를 끄고, Ollama가 없으면 실패합니다.
-- `FIGMA_BRIDGE_OLLAMA_AUTO_PULL=0`: 런타임 모델 다운로드를 끄고, 모델이 없으면 실패합니다.
+개발용 로컬 설치:
 
-### 작동 프로세스
-1. 백그라운드에서 실행 중인 **Figma 데스크탑 앱 로컬 API(포트 3845)**와 연결됩니다.
-2. AI(Claude 데스크탑 등)에게 `get_optimized_figma_handoff` 라는 도구를 제공합니다.
-3. 사용자가 피그마 화면에서 변환할 컴포넌트를 선택하고 AI에게 렌더링을 지시하면:
-   - figma-bridge가 원본 코드를 가져옵니다.
-   - 스크린샷을 찍습니다.
-   - 설정된 에셋 디렉토리에 이미지를 다운로드하고 코드를 무손실 압축합니다.
-   - 정제된 마크다운 뼈대 코드(`handoff.md`)와 스크린샷 이미지를 AI에게 반환합니다.
+```bash
+git clone https://github.com/junseo2323/decrease-token-figma.git
+cd decrease-token-figma
+npm install
+npm run build
+npm link
+figma-bridge
+```
+
+Ollama는 `figma-bridge` 시작 시 자동 준비됩니다. 미리 준비하려면 다음을 실행하세요.
+
+```bash
+npm run setup
+```
 
 ---
 
-## 🧠 V5 사용 가이드 — "기억하는 브리지"
+## MCP 클라이언트 설정
 
-V5부터 브리지는 한 번 본 디자인을 기억합니다. 같은 것을 두 번 보내지 않고, 바뀐 것만 말합니다.
+Claude Desktop, Codex, Cursor 등 MCP 클라이언트에 아래처럼 등록합니다.
 
-### 도구 입력 옵션
+```json
+{
+  "mcpServers": {
+    "figma-cost-optimizer-bridge": {
+      "command": "npx",
+      "args": ["-y", "decrease-token-figma"],
+      "env": {
+        "FIGMA_BRIDGE_ROOT": "/absolute/path/to/your/app"
+      }
+    }
+  }
+}
+```
 
-`get_optimized_figma_handoff` 도구는 다음 인자를 받습니다 (전부 선택 사항).
+GitHub 설치 버전을 바로 쓰려면:
+
+```json
+{
+  "mcpServers": {
+    "figma-cost-optimizer-bridge": {
+      "command": "npx",
+      "args": ["-y", "github:junseo2323/decrease-token-figma"],
+      "env": {
+        "FIGMA_BRIDGE_ROOT": "/absolute/path/to/your/app"
+      }
+    }
+  }
+}
+```
+
+### 필수 전제
+
+- Figma Desktop 앱 실행
+- Figma local MCP 서버가 `127.0.0.1:3845`에서 동작
+- 변환할 Figma 노드 선택
+- 로컬 프로젝트 경로를 `FIGMA_BRIDGE_ROOT` 또는 도구 인자 `projectRoot`로 지정
+
+---
+
+## 제공 MCP 도구
+
+### `get_optimized_figma_handoff`
+
+현재 선택된 Figma 노드를 가져와 최적화된 handoff markdown과 스크린샷 정보를 반환합니다.
 
 | 인자 | 값 | 기본값 | 설명 |
 |---|---|---|---|
-| `projectRoot` | 절대 경로 | `FIGMA_BRIDGE_ROOT` 또는 cwd | 에셋·캐시를 저장할 프로젝트 루트 |
-| `screenshot` | `path` / `inline` / `none` | `path` | `path`는 PNG를 캐시에 저장하고 **절대 경로만** 전달합니다. AI가 필요할 때만 Read 도구로 읽으므로 이미지 토큰을 아낍니다. 파일시스템 접근이 없는 클라이언트(Claude Desktop 등)는 `inline`을 쓰세요 |
-| `mode` | `auto` / `full` / `diff` | `auto` | `auto`는 같은 컴포넌트의 이전 버전이 캐시에 있으면 diff, 없으면 전체 핸드오프를 반환합니다 |
-| `force_refresh` | boolean | `false` | 해시가 같아도 캐시를 무시하고 전체 파이프라인을 다시 실행합니다 |
+| `projectRoot` | 절대 경로 | `FIGMA_BRIDGE_ROOT` 또는 cwd | 에셋과 캐시를 저장할 프로젝트 루트 |
+| `screenshot` | `path` / `inline` / `none` | `path` | `path`는 PNG를 캐시에 저장하고 절대 경로만 전달합니다. `inline`은 파일 접근이 없는 클라이언트용입니다 |
+| `mode` | `auto` / `full` / `diff` | `auto` | 이전 버전이 있으면 diff, 없으면 full handoff |
+| `force_refresh` | boolean | `false` | 해시가 같아도 캐시를 무시하고 다시 캡처 |
 
-### 해시 캐시
+### `sync_component_registry`
 
-Figma 원본 응답의 SHA-256 해시를 키로 결과를 저장합니다. 디자인이 바뀌지 않았으면 Figma 재요청·정제·Ollama 분석을 전부 건너뜁니다.
+`<projectRoot>/src/components/*.tsx`를 스캔해 로컬 컴포넌트 레지스트리를 갱신합니다. 이후 handoff에서 구조가 비슷한 컴포넌트를 발견하면 재사용 힌트를 제공합니다.
+
+---
+
+## 작동 흐름
+
+1. 사용자가 Figma Desktop에서 노드를 선택합니다.
+2. LLM이 `get_optimized_figma_handoff`를 호출합니다.
+3. 브리지가 공식 Figma MCP에서 raw design context와 screenshot을 가져옵니다.
+4. 이미지 에셋을 프로젝트의 `src/assets` 또는 설정된 asset dir에 저장합니다.
+5. raw TSX를 정제하고 반복 구조를 압축합니다.
+6. Ollama가 요약/색상/텍스트를 사전 분석합니다.
+7. LLM은 handoff markdown과 screenshot을 기반으로 실제 React/Tailwind 구현을 작성합니다.
+
+---
+
+## 캐시 구조
 
 ```text
 .figma_cache/
   nodes/ChatScreen_a3f29c01/
-    raw.txt          # Figma 원본 응답
-    handoff.md       # 정제된 전체 핸드오프 (항상 전체본 유지)
-    diff.md          # diff 모드일 때만 생성
-    screenshot.png   # 스크린샷
-    meta.json        # 컴포넌트명, 해시, 생성 시각
-  registry.json      # 로컬 컴포넌트 레지스트리
+    raw.txt
+    handoff.md
+    diff.md
+    screenshot.png
+    meta.json
+  registry.json
 ```
 
-컴포넌트당 최신 2개 버전만 유지하고 나머지는 자동 삭제됩니다.
+- raw 응답 해시가 같으면 Figma 재요청과 정제를 건너뜁니다.
+- 컴포넌트당 최신 2개 버전을 유지합니다.
+- `mode: auto`에서는 이전 버전이 있을 때 diff handoff를 생성합니다.
 
-### 반복 컴포넌트 중복 제거
+---
 
-같은 구조가 **3회 이상** 반복되면(엘리먼트 3개 이상 크기) 컴포넌트 정의 1개 + 인스턴스 호출로 압축합니다. 텍스트·이미지·클래스 차이는 자동으로 props로 승격되고, 5회를 넘는 반복은 인스턴스 데이터 표로 따로 정리됩니다. 채팅 목록·카드 그리드처럼 반복이 많은 화면에서 효과가 가장 큽니다.
+## 환경 변수
 
-### 로컬 컴포넌트 레지스트리 (Local Code Connect)
+| 변수 | 설명 |
+|---|---|
+| `FIGMA_BRIDGE_ROOT` | 프로젝트 루트. 에셋/캐시 기준 경로 |
+| `FIGMA_BRIDGE_CACHE_DIR` | 캐시 디렉토리 override |
+| `FIGMA_BRIDGE_ASSET_DIR` | 이미지 에셋 저장 디렉토리 override |
+| `OLLAMA_BIN` | 사용할 Ollama 실행 파일 경로 |
+| `FIGMA_BRIDGE_OLLAMA_MODEL` | 사용할 Ollama 모델. 기본 `llama3.2` |
+| `FIGMA_BRIDGE_OLLAMA_AUTO_INSTALL=0` | Ollama 자동 설치 비활성화 |
+| `FIGMA_BRIDGE_OLLAMA_AUTO_PULL=0` | 모델 자동 다운로드 비활성화 |
 
-브리지가 추출한 컴포넌트는 `.figma_cache/registry.json`에 구조 해시와 함께 자동 등록됩니다. 다음 핸드오프에서 같은 구조가 발견되면 정의를 다시 보내지 않고 **"기존 컴포넌트를 재사용하라"는 한 줄 지시**로 치환합니다.
+---
 
-이미 작성된 프로젝트 컴포넌트를 등록하려면 `sync_component_registry` 도구를 호출하세요. `<projectRoot>/src/components/*.tsx`를 스캔해 컴포넌트명과 props를 레지스트리에 추가합니다.
-
-### Diff 핸드오프
-
-디자이너가 수정한 화면을 다시 가져오면(`mode: auto`), 이전 버전과 비교해 **바뀐 것만** 전달합니다:
-
-```markdown
-# Diff Handoff: ChatInput (이전 버전 a3f29c01 -> 현재 9b1d44e2)
-
-이 화면은 이미 구현되어 있다. 아래 변경 사항만 코드에 반영하라.
-
-1. 텍스트 변경: "전송" -> "보내기"
-2. className 변경: "bg-[#3B82F6]" -> "bg-[#2563EB]"
-```
-
-변경량이 전체의 40%를 넘으면 diff가 의미 없으므로 자동으로 전체 핸드오프로 폴백합니다.
-
-### npm 스크립트
+## npm 스크립트
 
 ```bash
-npm run build     # TypeScript 빌드 (build/)
-npm test          # 단위 테스트 (tests/)
-npm run setup     # Ollama 설치·서버 실행·llama3.2 다운로드 (옵트인)
-npm run measure   # 원본 대비 압축률 측정
+npm run build              # TypeScript 빌드
+npm test                   # 단위 테스트
+npm run setup              # Ollama 설치/서버 실행/모델 다운로드
+npm run measure            # .figma_cache/handoff.md 문자/토큰 추정
+npm run benchmark:capture  # Figma fixture 캡처
+npm run benchmark:tokens   # raw vs bridge 토큰 측정
+npm run benchmark:diff     # Vite 렌더 + pixel diff
 ```
 
-### 데모 앱으로 결과 확인
+---
 
-`test/`는 생성된 컴포넌트를 실제 렌더링해보는 Vite + React + Tailwind 앱입니다.
+## 벤치마크 재현
 
 ```bash
-cd test
 npm install
-npm run dev   # http://localhost:5173
+npm run build
+npx playwright install chromium
+
+# Figma Desktop에서 대상 노드를 선택한 상태로 실행
+npm run benchmark:capture -- ditto-battery-pro 2478-32218 WlvYAu5ONnUe7kVcDtmuqk
+npm run benchmark:tokens -- ditto-battery-pro
+npm run benchmark:diff -- ditto-battery-pro
 ```
 
-생성된 컴포넌트를 `test/src/components/`에 넣고 `App.tsx`에서 import해 확인하세요.
+결과는 다음 경로에 저장됩니다.
+
+```text
+benchmarks/fixtures/<slug>/
+benchmarks/results/<slug>/
+```
 
 ---
 
-## ⚠️ LLM 프롬프트 가이드라인 (Behavioral Guidelines)
+## GitHub Pages
 
-AI 에이전트(Claude 등)가 이 파이프라인과 함께 작업할 때는 다음 수칙을 준수해야 합니다.
+문서 사이트:
 
-1. **시각적 레이아웃은 '스크린샷'에 의존:** 전달되는 코드는 뼈대일 뿐입니다. 스크린샷 이미지의 여백과 배치를 눈으로 확인하고 Tailwind `flex`, `gap`, `p-*`, `rounded-*` 클래스를 직접 유추해 작성하세요.
-2. **텍스트 및 데이터는 '뼈대 코드'에 의존:** 헥스 색상 코드와 실제 서비스 문구는 환각 방지를 위해 뼈대 코드에 기록된 텍스트를 100% 반영하세요.
-3. **에셋 변수명 리팩토링:** `Component_imgVariant.png` 처럼 기계적인 이름으로 추출된 에셋들은 `avatarImage`, `logoIcon` 등 시맨틱한 변수명으로 리팩토링해 적용하세요.
-4. **인라인 SVG 하드코딩 금지:** 주석 처리된 아이콘 영역(`{/* SVG Icon: 이름 */}`)은 스크린샷을 참고하여 `lucide-react` 컴포넌트로 반드시 직접 교체하세요.
+- English: https://junseo2323.github.io/decrease-token-figma/
+- 한국어: https://junseo2323.github.io/decrease-token-figma/index.ko.html
+- 한국어 벤치마크: https://junseo2323.github.io/decrease-token-figma/BENCHMARK_RESULTS_KR.html
+
+이 프로젝트는 원격 서버에 배포해서 쓰는 서비스가 아닙니다. 사용자의 Figma Desktop, 로컬 파일시스템, 선택된 Figma 노드에 접근해야 하므로 **로컬 MCP 서버로 실행**하는 방식이 맞습니다. 원격 배포는 GitHub Pages 같은 문서/랜딩 페이지 용도로만 사용하세요.
 
 ---
 
-## 📝 라이센스
+## LLM 구현 가이드
 
-MIT License. 자유롭게 수정하고 활용하세요. 
-프론트엔드 생산성 혁신을 응원합니다! 🎉
+- 레이아웃은 스크린샷을 보고 결정합니다.
+- 텍스트, 색상, spacing token은 handoff 코드에서 가져옵니다.
+- 이미지 변수명은 역할에 맞게 리팩토링합니다.
+- 인라인 SVG를 그대로 복사하지 말고 가능한 한 `lucide-react` 등 아이콘 컴포넌트로 대체합니다.
+- 반복 인스턴스 데이터 표에서 `·`는 컴포넌트 기본값과 같다는 뜻입니다.
+
+---
+
+## 라이선스
+
+MIT License. 자유롭게 수정하고 활용하세요.
