@@ -1,6 +1,6 @@
 {
   "name": "decrease-token-figma",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Local MCP bridge that compresses Figma design context into token-efficient React handoffs with screenshots.",
   "main": "build/index.js",
   "bin": {

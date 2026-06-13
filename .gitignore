@@ -12,3 +12,8 @@ benchmarks/fixtures/*/reference.png
 !benchmarks/fixtures/ditto-battery-pro/reference.png
 .DS_Store
 *.log
+PLAN*.md
+HANDOFF*.md
+test/DEMO.md
+test/SUCCESS.md
+test/src/components/*_handoff.md

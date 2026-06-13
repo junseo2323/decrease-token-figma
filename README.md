@@ -1,204 +1,236 @@
-# 🎨 Figma Cost Optimizer Bridge (V5)
+# Figma Cost Optimizer Bridge
 
 <div align="right">
-  <strong>🇺🇸 English</strong> | <a href="./README_KR.md">🇰🇷 한국어</a>
+  <strong>English</strong> | <a href="./README_KR.md">한국어</a>
 </div>
 
-**Figma Cost Optimizer Bridge** is a custom local proxy MCP (Model Context Protocol) pipeline built to prevent **catastrophic token consumption and context pollution** that occur during automated frontend UI/UX development using LLMs (Claude, GPT, etc.).
+Figma Cost Optimizer Bridge is a local MCP server that turns Figma Desktop design context into compact, implementation-ready React handoffs for LLM coding agents.
 
-It intercepts the massive metadata, inline SVG codes, and fixed pixel coordinates recklessly emitted by the existing official Figma MCP tool (`get_design_context`). It then losslessly compresses them into a **"ultra-lightweight responsive skeleton code + screen screenshot"** format. This drastically reduces API call costs by up to 80% while maximizing the AI's code rendering accuracy.
+It sits between an MCP client and the local Figma Desktop MCP endpoint. Instead of forwarding raw `get_design_context` output full of metadata, absolute coordinates, repeated class strings, and inline SVG, the bridge returns a smaller Markdown handoff with cleaned React skeleton code, design tokens, reusable repeated structures, and a screenshot path.
 
----
+The result is lower input-token cost and less context noise while still preserving the information a coding agent needs to build the UI accurately.
 
-## 📊 Performance (Token Optimization)
+## Benchmark Snapshot
 
-Latest benchmark:
+Latest reproducible fixture: Ditto `BatteryPro`, Figma node `2478-32218`, measured on `2026-06-13`.
 
-- `ditto-battery-pro` official raw input: **13,684 estimated total tokens**
-- V5 bridge handoff: **7,682 estimated total tokens**
-- Input-token saving: **43.86%**
-- Pixel similarity: raw baseline **92.97%**, bridge implementation **96.77%**
+| Path | Input chars | Est. text tokens | Image tokens | Total est. tokens | Pixel similarity |
+|---|---:|---:|---:|---:|---:|
+| Official Figma MCP raw | 52,696 | 13,174 | 510 | 13,684 | 92.97% |
+| Bridge handoff | 30,727 | 7,682 | 0 | 7,682 | 96.77% |
 
-See the full visual report: [docs/BENCHMARK_RESULTS.md](./docs/BENCHMARK_RESULTS.md)
+**Estimated input-token saving: 43.86%.**
 
-Korean docs are available in [README_KR.md](./README_KR.md) and on GitHub Pages: https://junseo2323.github.io/decrease-token-figma/index.ko.html
+The repeated instance data section that previously dominated the handoff is now **3,978 chars**, under the 10KB target. See the full report in [docs/BENCHMARK_RESULTS.md](./docs/BENCHMARK_RESULTS.md).
 
-Based on a local precision modeling test of a single UI component:
+## Features
 
-```text
-[ Official Figma MCP ] 🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥 8,200 Tokens (32,933 chars)
-[ V4 Pipeline Bridge ] 🟩🟩🟩🟩🟩🟩🟩⬜️⬜️⬜️ 5,900 Tokens (23,986 chars)
+- **Token-efficient handoffs:** removes or compresses noisy Figma metadata, absolute positioning, repeated Tailwind tokens, `data-*` attributes, and inline SVG blocks.
+- **Screenshot path mode:** saves the screenshot locally and returns its absolute path instead of inlining image data by default.
+- **Repeated subtree dedupe:** converts repeated JSX structures into one component definition plus instance data.
+- **Shared class extraction:** keeps class tokens shared by all instances in the component template and only passes differences as props.
+- **Default prop values:** promotes common slot values to component defaults so repeated instances can omit them.
+- **Hash cache:** reuses previous handoffs when the raw Figma response has not changed.
+- **Diff handoff:** returns only changed lines for previously seen components, with automatic fallback to full handoff when the diff is too large.
+- **Local component registry:** records extracted or scanned project components and suggests reuse in later handoffs.
+- **Optional Ollama pre-analysis:** uses local Ollama for color, text, and summary analysis when available; the pipeline continues if Ollama is unavailable.
+- **Benchmark harness:** measures raw vs bridge input tokens, renders outputs in Playwright, and computes pixel similarity with `pixelmatch`.
 
-🔥 Net Savings: ~2,300 Tokens Saved (27.2% Reduction)
-💡 Note: The savings scale exponentially. For complex, full-page designs with multiple inline SVGs and absolute coordinates, the reduction rate reaches up to 80%!
+## Install
 
-🏗️ Architecture & Workflow
-Plaintext
- ┌───────────────────┐       (1) Call `get_optimized_figma_handoff`
- │ AI Agent (Claude) │ ───────────────────────────────────────────────┐
- └─────────▲─────────┘                                                │
-           │                                                          ▼
-           │ (4) Returns:                                ┌──────────────────────────┐
-           │     1. Lightweight Skeleton (handoff.md)    │ 🌉 Figma Bridge (MCP)    │
-           │     2. Selected UI Screenshot               │    (Cost Optimizer)      │
-           │                                             └────────────┬─────────────┘
-           │                                                          │
-           │ (3) Process:                                             │ (2) Request:
-           │     - Strip absolute/fixed coordinates                   │     - Raw Node Code
-           │     - Clean massive metadata & inline SVGs               │     - Screenshot
-           │     - Download images to `src/assets/`                   │     - Image Assets
-           │                                                          ▼
- ┌─────────┴─────────┐                                   ┌──────────────────────────┐
- │ 📁 Local Project  │ ◀────── Auto-save Assets ──────── │ 🎨 Figma Desktop App     │
- │   └─ /src/assets  │                                   │    (Local Port 3845)     │
- └───────────────────┘                                   └──────────────────────────┘
-✨ Key Features (V4 Pipeline)
-💸 Cost Minimization (Token Optimization): Completely eliminates massive metadata, unselected node information, and unnecessary attributes (like data-node-id), compressing a payload of ~15,000 tokens down to roughly 2,000 ~ 4,000 tokens per call.
+Install from npm:
 
-📱 Responsive Skeleton Conversion: Uses regex to strip out Figma's absolute coordinates (absolute, top, left) and fixed width/height pixels. By providing the remaining structure alongside a screenshot, it forces the LLM to write perfect Flex/Grid-based Tailwind responsive code.
-
-📥 Asset Auto-fetcher: Tracks local Figma image URLs embedded in the component, automatically downloads them to your project's src/assets folder, and generates the corresponding import statements (includes collision prevention logic).
-
-🎨 Design Token Extraction: Scrapes hardcoded HEX/RGBA color codes to provide a summarized palette of used colors, helping the LLM construct consistent theming.
-
-💡 Inline SVG Sanitization: A major culprit of token waste, inline <svg> blocks are replaced with PascalCase comments like {/* SVG Icon: ChevronRight */} to guide precise mapping to libraries like lucide-react.
-
-🤖 Required Local AI Bootstrap: Ollama is required for local design-token pre-analysis. When the MCP server starts, it checks for Ollama, installs it when possible, starts the server, and pulls the default `llama3.2` model.
-
-🚀 Installation
-This package is designed to run anywhere natively as a global CLI tool.
-
-Bash
-# 1. Clone the repository
-git clone [https://github.com/YourUsername/decrease-token-figma.git](https://github.com/YourUsername/decrease-token-figma.git)
-cd decrease-token-figma
-
-# 2. Build and link as a global package
-# (Note: sudo may be required on Mac/Linux environments due to permissions)
-npm run build
-sudo npm link 
-# or sudo npm install -g .
-Ollama is prepared automatically when `figma-bridge` starts. You can run `npm run setup` ahead of time to install Ollama, start the server, and pull the default `llama3.2` model manually.
-
-🛠 Usage
-Once installed, you can start the proxy MCP server from any directory on your machine by simply running:
-
-Bash
+```bash
+npm install -g decrease-token-figma
 figma-bridge
-Workflow Details
+```
 
-For global MCP clients whose working directory may not be your app project, pass `projectRoot` to the `get_optimized_figma_handoff` tool or set `FIGMA_BRIDGE_ROOT=/absolute/path/to/project`. Assets are written to `<projectRoot>/src/assets` by default. You can also override `FIGMA_BRIDGE_CACHE_DIR` and `FIGMA_BRIDGE_ASSET_DIR`.
+Install directly from GitHub:
 
-Ollama bootstrap environment variables:
+```bash
+npm install -g github:junseo2323/decrease-token-figma
+figma-bridge
+```
 
-- `OLLAMA_BIN=/absolute/path/to/ollama`: use a specific Ollama binary.
-- `FIGMA_BRIDGE_OLLAMA_MODEL=llama3.2`: change the required model.
-- `FIGMA_BRIDGE_OLLAMA_AUTO_INSTALL=0`: disable runtime auto-install and fail if Ollama is missing.
-- `FIGMA_BRIDGE_OLLAMA_AUTO_PULL=0`: disable runtime model download and fail if the model is missing.
+For local development:
 
-Connects to the local API of the Figma Desktop App running in the background (Port 3845).
+```bash
+git clone https://github.com/junseo2323/decrease-token-figma.git
+cd decrease-token-figma
+npm install
+npm run build
+npm link
+figma-bridge
+```
 
-Provides the AI (e.g., Claude Desktop app) with the get_optimized_figma_handoff tool.
+Ollama is prepared automatically when `figma-bridge` starts. To prepare it manually:
 
-When you select a component in Figma and instruct the AI to render it:
+```bash
+npm run setup
+```
 
-figma-bridge fetches the original raw code.
+## MCP Client Configuration
 
-Takes a screenshot of the selection.
+Use this configuration in Claude Desktop, Codex, Cursor, or another MCP client:
 
-Downloads images to the configured assets directory and losslessly compresses the code.
+```json
+{
+  "mcpServers": {
+    "figma-cost-optimizer-bridge": {
+      "command": "npx",
+      "args": ["-y", "decrease-token-figma"],
+      "env": {
+        "FIGMA_BRIDGE_ROOT": "/absolute/path/to/your/app"
+      }
+    }
+  }
+}
+```
 
-Returns the sanitized Markdown skeleton code (handoff.md) combined with the screenshot to the AI.
+To run the GitHub version directly:
 
-## 🧠 V5 Usage Guide — "The Bridge That Remembers"
+```json
+{
+  "mcpServers": {
+    "figma-cost-optimizer-bridge": {
+      "command": "npx",
+      "args": ["-y", "github:junseo2323/decrease-token-figma"],
+      "env": {
+        "FIGMA_BRIDGE_ROOT": "/absolute/path/to/your/app"
+      }
+    }
+  }
+}
+```
 
-Starting with V5, the bridge remembers every design it has seen. It never sends the same thing twice, and only reports what changed.
+## Requirements
 
-### Tool Input Options
+- Figma Desktop is running.
+- Figma's local MCP endpoint is available on `127.0.0.1:3845`.
+- A Figma node is selected before requesting a handoff.
+- `FIGMA_BRIDGE_ROOT` or the tool argument `projectRoot` points to the local app project.
 
-The `get_optimized_figma_handoff` tool accepts the following arguments (all optional).
+## MCP Tools
+
+### `get_optimized_figma_handoff`
+
+Fetches the selected Figma node and returns an optimized Markdown handoff plus screenshot information.
 
 | Argument | Values | Default | Description |
 |---|---|---|---|
 | `projectRoot` | absolute path | `FIGMA_BRIDGE_ROOT` or cwd | Project root for assets and cache |
-| `screenshot` | `path` / `inline` / `none` | `path` | `path` saves the PNG to the cache and returns **only its absolute path**. The AI reads it with the Read tool only when needed, saving image tokens. Use `inline` for clients without filesystem access (e.g. Claude Desktop) |
-| `mode` | `auto` / `full` / `diff` | `auto` | `auto` returns a diff when a previous version of the same component exists in the cache, otherwise a full handoff |
-| `force_refresh` | boolean | `false` | Ignore the cache and rerun the full pipeline even when the hash matches |
+| `screenshot` | `path` / `inline` / `none` | `path` | `path` stores the PNG in cache and returns only its absolute path. `inline` is for clients without filesystem access |
+| `mode` | `auto` / `full` / `diff` | `auto` | Return a diff when a previous version exists, otherwise a full handoff |
+| `force_refresh` | boolean | `false` | Ignore the cache and capture again even if the raw hash matches |
 
-### Hash Cache
+### `sync_component_registry`
 
-Results are stored keyed by the SHA-256 hash of the raw Figma response. If the design hasn't changed, the bridge skips the Figma round-trip, normalization, and Ollama analysis entirely.
+Scans `<projectRoot>/src/components/*.tsx` and updates the local component registry. Later handoffs can use this registry to recommend or enforce component reuse.
+
+## Workflow
+
+1. Select a node in Figma Desktop.
+2. The LLM calls `get_optimized_figma_handoff`.
+3. The bridge fetches raw design context and a screenshot from the local Figma MCP endpoint.
+4. Image assets are written to `src/assets` or the configured asset directory.
+5. Raw TSX is cleaned, repeated structures are deduped, and optional Ollama analysis is added.
+6. The LLM implements the UI from the handoff Markdown and screenshot.
+
+## Cache Layout
 
 ```text
 .figma_cache/
   nodes/ChatScreen_a3f29c01/
-    raw.txt          # raw Figma response
-    handoff.md       # full normalized handoff (always kept complete)
-    diff.md          # generated only in diff mode
-    screenshot.png   # screenshot
-    meta.json        # component name, hash, timestamps
-  registry.json      # local component registry
+    raw.txt
+    handoff.md
+    diff.md
+    screenshot.png
+    meta.json
+  registry.json
 ```
 
-Only the 2 most recent versions per component are kept; older ones are pruned automatically.
+- Unchanged raw responses reuse cached handoffs.
+- The two latest versions per component are retained.
+- `mode: auto` creates a diff handoff when a previous version is available.
 
-### Repeated Subtree Deduplication
+## Environment Variables
 
-When the same structure repeats **3+ times** (with 3+ elements each), it is compressed into one component definition plus instance calls. Differences in text, image sources, and classes are automatically promoted to props; repetitions beyond 5 instances are summarized in an instance data table. Chat lists and card grids benefit the most.
+| Variable | Description |
+|---|---|
+| `FIGMA_BRIDGE_ROOT` | Project root for assets and cache |
+| `FIGMA_BRIDGE_CACHE_DIR` | Override cache directory |
+| `FIGMA_BRIDGE_ASSET_DIR` | Override image asset directory |
+| `OLLAMA_BIN` | Path to a specific Ollama binary |
+| `FIGMA_BRIDGE_OLLAMA_MODEL` | Ollama model to use. Default: `llama3.2` |
+| `FIGMA_BRIDGE_OLLAMA_AUTO_INSTALL=0` | Disable runtime Ollama auto-install |
+| `FIGMA_BRIDGE_OLLAMA_AUTO_PULL=0` | Disable runtime model download |
 
-### Local Component Registry (Local Code Connect)
-
-Components extracted by the bridge are automatically registered in `.figma_cache/registry.json` with their structure hash. When the same structure appears in a later handoff, the definition is replaced with a **one-line "reuse the existing component" instruction**.
-
-To register components you've already written, call the `sync_component_registry` tool. It scans `<projectRoot>/src/components/*.tsx` and adds component names and props to the registry.
-
-### Diff Handoff
-
-When you re-fetch a screen the designer modified (`mode: auto`), the bridge compares it against the previous version and sends **only what changed**:
-
-```markdown
-# Diff Handoff: ChatInput (previous a3f29c01 -> current 9b1d44e2)
-
-This screen is already implemented. Apply only the changes below.
-
-1. Text change: "전송" -> "보내기"
-2. className change: "bg-[#3B82F6]" -> "bg-[#2563EB]"
-```
-
-If more than 40% of the lines changed, the diff is meaningless, so the bridge automatically falls back to a full handoff.
-
-### npm Scripts
+## npm Scripts
 
 ```bash
-npm run build     # TypeScript build (build/)
-npm test          # unit tests (tests/)
-npm run setup     # install Ollama, start server, pull llama3.2 (opt-in)
-npm run measure   # measure compression ratio vs raw
+npm run build              # TypeScript build
+npm test                   # Unit tests
+npm run setup              # Install/start Ollama and pull the default model
+npm run measure            # Estimate token size for .figma_cache/handoff.md
+npm run benchmark:capture  # Capture a Figma benchmark fixture
+npm run benchmark:tokens   # Measure raw vs bridge input tokens
+npm run benchmark:diff     # Render with Vite and compute pixel diff
+npm run benchmark:blind    # Run blind multi-run LLM benchmark
+npm run benchmark:summary  # Rebuild blind benchmark summary
 ```
 
-### Verifying Results with the Demo App
-
-`test/` is a Vite + React + Tailwind app for rendering generated components.
+## Reproduce The Benchmark
 
 ```bash
-cd test
 npm install
-npm run dev   # http://localhost:5173
+npm run build
+npx playwright install chromium
+
+# Keep Figma Desktop open, enable local MCP on port 3845,
+# and select the target node before capturing.
+npm run benchmark:capture -- ditto-battery-pro 2478-32218 WlvYAu5ONnUe7kVcDtmuqk
+npm run benchmark:tokens -- ditto-battery-pro
+npm run benchmark:diff -- ditto-battery-pro
 ```
 
-Drop generated components into `test/src/components/` and import them from `App.tsx`.
+Artifacts are written to:
 
-⚠️ LLM Prompt Guidelines (Behavioral Guidelines)
-When an AI Agent (like Claude) works alongside this pipeline, it MUST strictly follow these rules:
+```text
+benchmarks/fixtures/<slug>/
+benchmarks/results/<slug>/
+```
 
-Rely on the 'Screenshot' for Visual Layout: The provided code is merely a skeleton. Visually inspect the margins and arrangements in the screenshot to deduce and manually write Tailwind flex, gap, p-*, and rounded-* classes.
+For a stricter comparison, run the blind benchmark with the same model, temperature, screenshot input, output contract, and compile-repair policy while changing only the text input:
 
-Rely on the 'Skeleton Code' for Text and Data: To prevent hallucinations, perfectly reflect the hardcoded text, hex colors, and font weights present in the skeleton code.
+```bash
+export ANTHROPIC_API_KEY=...
 
-Refactor Asset Variable Names: Mechanically extracted names like Component_imgVariant.png should be meaningfully refactored to semantic variables like avatarImage or logoIcon before applying them to the component.
+npm run benchmark:blind -- ditto-842-7750 \
+  --provider anthropic \
+  --model claude-sonnet-4-5-20250929 \
+  --runs 5 \
+  --temperature 0 \
+  --max-repairs 1 \
+  --experiment-id sonnet45-t0-r5
+```
 
-NO Hardcoding Inline SVGs: Do NOT write raw <svg> tags. For commented areas like {/* SVG Icon: IconName */}, look at the screenshot and substitute it directly with an equivalent component from lucide-react.
+## Runtime Model
 
-📝 License
-MIT License. Feel free to modify and use it.
-Cheers to frontend productivity innovation! 🎉
+This project is not meant to run primarily as a hosted web service. The bridge must access the user's local Figma Desktop selection, local filesystem, and optional local Ollama server. Use npm or GitHub installation for the actual runtime, and use GitHub Pages for documentation and benchmark reports.
+
+Documentation:
+
+- English Pages: https://junseo2323.github.io/decrease-token-figma/
+- Korean Pages: https://junseo2323.github.io/decrease-token-figma/index.ko.html
+- Benchmark report: https://junseo2323.github.io/decrease-token-figma/BENCHMARK_RESULTS.html
+
+## LLM Implementation Guidelines
+
+- Use the screenshot to decide visual layout, spacing rhythm, and alignment.
+- Use the handoff code for exact text, colors, font weights, and design tokens.
+- Rename mechanically extracted asset variables to semantic names when implementing.
+- Replace inline SVG placeholders with icon components such as `lucide-react` when possible.
+
+## License
+
+MIT
