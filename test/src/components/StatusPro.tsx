@@ -1,4 +1,3 @@
-import React from 'react';
 import { Wifi, Signal } from 'lucide-react';
 
 export interface StatusProProps {

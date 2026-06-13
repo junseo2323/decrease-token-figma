@@ -12,6 +12,15 @@ It intercepts the massive metadata, inline SVG codes, and fixed pixel coordinate
 
 ## 📊 Performance (Token Optimization)
 
+Latest benchmark:
+
+- `ditto-battery-pro` official raw input: **13,684 estimated total tokens**
+- V5 bridge handoff: **7,682 estimated total tokens**
+- Input-token saving: **43.86%**
+- Pixel similarity: raw baseline **92.97%**, bridge implementation **96.77%**
+
+See the full visual report: [docs/BENCHMARK_RESULTS.md](./docs/BENCHMARK_RESULTS.md)
+
 Based on a local precision modeling test of a single UI component:
 
 ```text

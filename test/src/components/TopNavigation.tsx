@@ -1,4 +1,3 @@
-import React from 'react';
 import { ChevronLeft, MoreHorizontal } from 'lucide-react';
 
 export interface TopNavigationProps {

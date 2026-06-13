@@ -84,6 +84,8 @@ Return exactly this JSON structure:
                     model: this.model,
                     prompt,
                     stream: false,
+                    // 소형 모델이 JSON 외 형식을 섞어 반환하는 것을 막는다
+                    format: 'json',
                 }),
                 signal: AbortSignal.timeout(90000),
             });

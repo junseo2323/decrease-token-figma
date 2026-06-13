@@ -11,7 +11,10 @@
     "postinstall": "node ./scripts/postinstall.js",
     "setup": "node ./scripts/setup-ollama.js",
     "test": "node --test --import tsx tests/*.test.ts",
-    "measure": "node scripts/measure.js"
+    "measure": "node scripts/measure.js",
+    "benchmark:capture": "node benchmarks/capture.mjs",
+    "benchmark:tokens": "node benchmarks/measure-tokens.mjs",
+    "benchmark:diff": "node benchmarks/render-and-diff.mjs"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +22,9 @@
   "type": "commonjs",
   "devDependencies": {
     "@types/node": "^25.5.0",
+    "pixelmatch": "^7.2.0",
+    "playwright": "^1.60.0",
+    "pngjs": "^7.0.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"

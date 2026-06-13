@@ -68,6 +68,39 @@ test('deduplicateSubtrees extracts repeated structures only at three or more ins
     assert.equal(unchanged.components.length, 0);
 });
 
+test('className slots keep common tokens in the template and only diffs as prop values', () => {
+    const deduped = deduplicateSubtrees(repeatedCode);
+    // 공통 토큰 'bubble'은 템플릿 리터럴로 1회만, prop 값에는 left/right 차이만 남는다
+    assert.match(deduped.code, /className=\{`bubble \$\{variant\}`\}/);
+    assert.match(deduped.code, /variant = "left"/);
+    assert.match(deduped.code, /variant="right"/);
+    assert.doesNotMatch(deduped.code, /variant="bubble left"/);
+});
+
+test('instance defaults omit most frequent className props from repeated calls', () => {
+    const repeatedWithDefaultVariant = `function Palette() {
+  return (
+    <section>
+      <div className="item rounded px-2 bg-red"><span>Label</span><strong>OK</strong></div>
+      <div className="item rounded px-2 bg-red"><span>Label</span><strong>OK</strong></div>
+      <div className="item rounded px-2 bg-blue"><span>Label</span><strong>OK</strong></div>
+      <div className="item rounded px-2 bg-red"><span>Label</span><strong>OK</strong></div>
+    </section>
+  );
+}`;
+
+    const deduped = deduplicateSubtrees(repeatedWithDefaultVariant);
+    assert.match(deduped.code, /variant = "bg-red"/);
+    assert.match(deduped.code, /className=\{`item rounded px-2 \$\{variant\}`\}/);
+
+    const bareInstances = deduped.code.match(/<RepeatedDiv \/>/g) ?? [];
+    assert.equal(bareInstances.length, 3);
+    assert.equal((deduped.code.match(/variant="bg-blue"/g) ?? []).length, 1);
+    assert.doesNotMatch(deduped.code, /<RepeatedDiv variant="bg-red"/);
+    assert.match(deduped.instanceDataMarkdown, /기본값: `variant="bg-red"`/);
+    assert.match(deduped.instanceDataMarkdown, /\| 1 \| `·` \|/);
+});
+
 test('registry hash match replaces repeated component definition with reuse instruction', () => {
     const first = deduplicateSubtrees(repeatedCode);
     const reused = deduplicateSubtrees(repeatedCode, {

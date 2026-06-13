@@ -1,4 +1,3 @@
-import React from 'react';
 import { CheckCheck } from 'lucide-react';
 
 export interface MessageBubbleProps {
