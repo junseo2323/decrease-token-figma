@@ -4,5 +4,11 @@ build/
 src/assets/
 test/node_modules/
 test/dist/
+benchmarks/.cache/
+benchmarks/results/*
+!benchmarks/results/ditto-battery-pro/
+!benchmarks/results/ditto-battery-pro/**
+benchmarks/fixtures/*/reference.png
+!benchmarks/fixtures/ditto-battery-pro/reference.png
 .DS_Store
 *.log

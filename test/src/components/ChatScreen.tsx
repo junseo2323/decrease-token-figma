@@ -1,4 +1,3 @@
-import React from 'react';
 import ContentBadgeContentBadge from './ContentBadgeContentBadge';
 import MessageBubble from './MessageBubble';
 import StatusPro from './StatusPro';

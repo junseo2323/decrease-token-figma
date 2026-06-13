@@ -40,6 +40,10 @@ interface PropSlot {
     name: string;
     firstValue: string;
     values: string[];
+    /** className 슬롯: 모든 인스턴스에 공통인 클래스 토큰 (템플릿에 1회만 기록) */
+    commonClasses?: string;
+    /** 최빈값 — 컴포넌트 정의의 기본값으로 빠지고, 인스턴스는 다른 값일 때만 prop을 넘긴다 */
+    defaultValue?: string;
 }
 
 export function deduplicateSubtrees(code: string, registry?: ComponentRegistryData): DeduplicationResult {
@@ -101,7 +105,7 @@ export function deduplicateSubtrees(code: string, registry?: ComponentRegistryDa
 
         if (!reusedFrom) {
             const template = buildTemplate(group[0].source, slots);
-            definitions.push(buildComponentDefinition(componentName, props, template));
+            definitions.push(buildComponentDefinition(componentName, slots, template));
         }
 
         const instanceLimit = group.length > 5 ? 3 : group.length;
@@ -257,12 +261,25 @@ function addDifferingSlots(slots: PropSlot[], kind: PropSlot['kind'], matrix: st
         if (new Set(values).size <= 1) continue;
         const baseName = kind === 'text' ? 'text' : kind === 'src' ? 'imageSrc' : 'variant';
         const sameKindCount = slots.filter(slot => slot.kind === kind).length;
-        slots.push({
+        const slot: PropSlot = {
             kind,
             name: sameKindCount === 0 ? baseName : `${baseName}${sameKindCount + 1}`,
             firstValue: values[0],
             values,
-        });
+        };
+
+        // className은 인스턴스 간 공통 토큰을 템플릿으로 빼고, prop 값에는 차이 토큰만 남긴다
+        // (긴 Tailwind 문자열이 인스턴스 표 행마다 통째로 반복되는 것을 방지)
+        if (kind === 'className') {
+            const tokenLists = values.map(value => value.split(/\s+/).filter(Boolean));
+            const common = tokenLists[0].filter(token => tokenLists.every(tokens => tokens.includes(token)));
+            const commonSet = new Set(common);
+            slot.commonClasses = common.join(' ');
+            slot.values = tokenLists.map(tokens => tokens.filter(token => !commonSet.has(token)).join(' '));
+        }
+
+        slot.defaultValue = mostFrequent(slot.values);
+        slots.push(slot);
     }
 }
 
@@ -297,24 +314,41 @@ function buildTemplate(source: string, slots: PropSlot[]): string {
             result = result.replace(`src="${slot.firstValue}"`, `src={${slot.name}}`);
             result = result.replace(`src={${slot.firstValue}}`, `src={${slot.name}}`);
         } else {
-            result = result.replace(`className="${slot.firstValue}"`, `className={${slot.name}}`);
-            result = result.replace(`className={${slot.firstValue}}`, `className={${slot.name}}`);
+            const replacement = slot.commonClasses
+                ? `className={\`${slot.commonClasses} \${${slot.name}}\`}`
+                : `className={${slot.name}}`;
+            result = result.replace(`className="${slot.firstValue}"`, replacement);
+            result = result.replace(`className={${slot.firstValue}}`, replacement);
         }
     }
     return result;
 }
 
-function buildComponentDefinition(name: string, props: string[], template: string): string {
-    if (props.length === 0) {
+function buildComponentDefinition(name: string, slots: PropSlot[], template: string): string {
+    if (slots.length === 0) {
         return `function ${name}() {\n  return (\n${indent(template, 4)}\n  );\n}`;
     }
 
-    const typeShape = props.map(prop => `${prop}: string`).join('; ');
-    return `function ${name}({ ${props.join(', ')} }: { ${typeShape} }) {\n  return (\n${indent(template, 4)}\n  );\n}`;
+    // 최빈값을 기본값으로 선언해 인스턴스 호출에서 반복을 제거한다
+    const defaultComment = slots.some(slot => slot.defaultValue !== undefined)
+        ? `// 기본값: ${slots
+            .filter(slot => slot.defaultValue !== undefined)
+            .map(slot => `${slot.name}=${JSON.stringify(slot.defaultValue)}`)
+            .join(', ')}\n`
+        : '';
+    const params = slots
+        .map(slot => slot.defaultValue !== undefined ? `${slot.name} = ${JSON.stringify(slot.defaultValue)}` : slot.name)
+        .join(', ');
+    const typeShape = slots
+        .map(slot => `${slot.name}${slot.defaultValue !== undefined ? '?' : ''}: string`)
+        .join('; ');
+    return `${defaultComment}function ${name}({ ${params} }: { ${typeShape} }) {\n  return (\n${indent(template, 4)}\n  );\n}`;
 }
 
 function buildInstance(name: string, slots: PropSlot[], index: number, reusedFrom?: RegistryComponent): string {
     const props = slots
+        // 기본값과 같은 값은 생략 — 다른 값일 때만 prop을 넘긴다
+        .filter(slot => reusedFrom || (slot.values[index] ?? '') !== slot.defaultValue)
         .map(slot => `${slot.name}=${JSON.stringify(slot.values[index] ?? '')}`)
         .join(' ');
     const reuseComment = reusedFrom
@@ -328,12 +362,25 @@ function buildInstanceDataSection(name: string, slots: PropSlot[], count: number
     const rows: string[] = [];
     rows.push(`## 반복 인스턴스 데이터: ${name}`);
     rows.push('');
+    const defaults = slots
+        .filter(slot => slot.defaultValue !== undefined)
+        .map(slot => `${slot.name}=${JSON.stringify(slot.defaultValue)}`);
+    if (defaults.length > 0) {
+        rows.push(`기본값: ${defaults.map(value => `\`${value}\``).join(', ')} (표의 \`·\`는 기본값과 동일)`);
+        rows.push('');
+    }
     rows.push('| # | ' + slots.map(slot => slot.name).join(' | ') + ' |');
     rows.push('|---|' + slots.map(() => '---|').join(''));
     for (let index = 0; index < count; index++) {
-        rows.push(`| ${index + 1} | ${slots.map(slot => `\`${escapePipe(slot.values[index] ?? '')}\``).join(' | ')} |`);
+        rows.push(`| ${index + 1} | ${slots.map(slot => formatInstanceCell(slot, index)).join(' | ')} |`);
     }
     return rows.join('\n');
+}
+
+function formatInstanceCell(slot: PropSlot, index: number): string {
+    const value = slot.values[index] ?? '';
+    if (value === slot.defaultValue) return '`·`';
+    return `\`${escapePipe(value)}\``;
 }
 
 function applyReplacements(code: string, replacements: Array<{ start: number; end: number; text: string }>): string {
@@ -357,6 +404,21 @@ function indent(value: string, spaces: number): string {
 
 function escapePipe(value: string): string {
     return value.replace(/\|/g, '\\|');
+}
+
+function mostFrequent(values: string[]): string {
+    const counts = new Map<string, number>();
+    for (const value of values) counts.set(value, (counts.get(value) ?? 0) + 1);
+
+    let best = values[0] ?? '';
+    let bestCount = 0;
+    for (const [value, count] of counts) {
+        if (count > bestCount) {
+            best = value;
+            bestCount = count;
+        }
+    }
+    return best;
 }
 
 function normalizeName(name: string): string {
