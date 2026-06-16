@@ -30,7 +30,7 @@ Open Figma Desktop, enable the local MCP server on port `3845`, select the targe
 
 ```bash
 npm run build
-npm run benchmark:capture -- ditto-battery-pro 2478-32218 WlvYAu5ONnUe7kVcDtmuqk
+npm run benchmark:capture -- dashstack-dashboard 2791-32584 WlvYAu5ONnUe7kVcDtmuqk
 ```
 
 The capture script writes the official raw context, a reference screenshot, metadata, and the bridge handoff. It uses `requireOllama: false`, so the handoff still generates if Ollama is offline.
@@ -38,7 +38,7 @@ The capture script writes the official raw context, a reference screenshot, meta
 ## Measure Tokens
 
 ```bash
-npm run benchmark:tokens -- ditto-battery-pro
+npm run benchmark:tokens -- dashstack-dashboard
 ```
 
 The report uses `chars / 4` for text token estimates. Vanilla image tokens are estimated as `width * height / 750`; bridge image tokens are `0` because the bridge passes a file path. Override with `CHARS_PER_TOKEN` or `IMAGE_PIXELS_PER_TOKEN` when you need a different estimate.
@@ -48,15 +48,15 @@ The report uses `chars / 4` for text token estimates. Vanilla image tokens are e
 Generate two components with the same implementation model and save them as:
 
 ```text
-benchmarks/results/ditto-battery-pro/vanilla.tsx
-benchmarks/results/ditto-battery-pro/bridge.tsx
+benchmarks/results/dashstack-dashboard/vanilla.tsx
+benchmarks/results/dashstack-dashboard/bridge.tsx
 ```
 
 Each file must default-export a React component. Then run:
 
 ```bash
 npx playwright install chromium
-npm run benchmark:diff -- ditto-battery-pro
+npm run benchmark:diff -- dashstack-dashboard
 ```
 
 The renderer starts the Vite app in `test/`, mounts each result component, captures `vanilla.png` and `bridge.png`, writes diff images, and merges similarity percentages into `report.json`.
@@ -72,7 +72,7 @@ export ANTHROPIC_API_KEY=...
 # or
 export OPENAI_API_KEY=...
 
-npm run benchmark:blind -- ditto-842-7750 \
+npm run benchmark:blind -- dashstack-dashboard \
   --provider anthropic \
   --model claude-sonnet-4-5-20250929 \
   --runs 5 \
@@ -84,7 +84,7 @@ npm run benchmark:blind -- ditto-842-7750 \
 OpenAI works the same way:
 
 ```bash
-npm run benchmark:blind -- ditto-842-7750 \
+npm run benchmark:blind -- dashstack-dashboard \
   --provider openai \
   --model gpt-5.1 \
   --runs 5 \
@@ -101,7 +101,7 @@ benchmarks/results/<slug>/blind-runs/<experiment-id>/
 The experiment directory also gets `summary.json` and `SUMMARY.md`. To recompute a summary later:
 
 ```bash
-npm run benchmark:summary -- ditto-842-7750 sonnet45-t0-r5
+npm run benchmark:summary -- dashstack-dashboard sonnet45-t0-r5
 ```
 
 ## Reporting Rules

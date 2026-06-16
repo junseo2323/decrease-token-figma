@@ -1,20 +1,20 @@
 {
-  "slug": "ditto-dashboard",
-  "measuredAt": "2026-06-16T01:59:34.423Z",
+  "slug": "dashstack-dashboard",
+  "measuredAt": "2026-06-16T02:18:15.876Z",
   "tokenEstimate": {
     "charsPerToken": 4,
     "imagePixelsPerToken": 750,
     "note": "Text tokens are a chars/4 estimate by default. Image tokens use pixels/750 unless overridden by env."
   },
   "vanilla": {
-    "inputPath": "benchmarks/fixtures/ditto-dashboard/raw.figma.txt",
+    "inputPath": "benchmarks/fixtures/dashstack-dashboard/raw.figma.txt",
     "inputChars": 51543,
     "estInputTokens": 12886,
     "imageTokens": 1040,
     "totalEstTokens": 13926
   },
   "bridge": {
-    "inputPath": "benchmarks/fixtures/ditto-dashboard/handoff.md",
+    "inputPath": "benchmarks/fixtures/dashstack-dashboard/handoff.md",
     "inputChars": 26929,
     "estInputTokens": 6733,
     "imageTokens": 0,
