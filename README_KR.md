@@ -14,16 +14,14 @@ Figma Cost Optimizer Bridge는 Figma Desktop의 디자인 컨텍스트를 LLM �
 
 ## 벤치마크 요약
 
-최신 재현 가능 fixture: Ditto `BatteryPro`, Figma node `2478-32218`, 측정일 `2026-06-13`.
+최신 재현 가능 fixture: `DashStack Dashboard`, Figma node `2791-32584`, 측정일 `2026-06-16`. 블라인드 3회 벤치마크(`anthropic / claude-sonnet-4-6`, temperature `0`, 컴파일 전용 수리 1회).
 
-| 경로 | 입력 문자 수 | 추정 텍스트 토큰 | 이미지 토큰 | 총 추정 토큰 | 픽셀 유사도 |
+| 경로 | 입력 문자 수 | 추정 텍스트 토큰 | 이미지 토큰 | 총 추정 토큰 | 픽셀 유사도(평균) |
 |---|---:|---:|---:|---:|---:|
-| 공식 Figma MCP raw | 52,696 | 13,174 | 510 | 13,684 | 92.97% |
-| Bridge handoff | 30,727 | 7,682 | 0 | 7,682 | 96.77% |
+| 공식 Figma MCP raw | 51,543 | 12,886 | 1,040 | 13,926 | 83.12% |
+| Bridge handoff | 26,929 | 6,733 | 0 | 6,733 | 84.76% |
 
-**추정 입력 토큰 절감률: 43.86%**
-
-기존 handoff에서 가장 큰 병목이던 반복 인스턴스 데이터 섹션은 이제 **3,978자**이며, 목표였던 10KB 아래로 줄었습니다. 전체 리포트는 [docs/BENCHMARK_RESULTS_KR.md](./docs/BENCHMARK_RESULTS_KR.md)를 참고하세요.
+**추정 입력 토큰 절감률: 51.65%** — 게다가 bridge 쪽이 평균 **+1.65 pp** 더 정확했습니다. 입력 토큰을 절반 가까이 아끼면서 시각적 정확도 손실이 없었습니다. 전체 리포트는 [docs/BENCHMARK_RESULTS_KR.md](./docs/BENCHMARK_RESULTS_KR.md)를 참고하세요.
 
 ## 주요 기능
 
@@ -237,9 +235,9 @@ npx playwright install chromium
 
 # Figma Desktop을 열고 local MCP를 3845 포트에서 활성화한 뒤,
 # 대상 노드를 선택한 상태에서 캡처합니다.
-npm run benchmark:capture -- ditto-battery-pro 2478-32218 WlvYAu5ONnUe7kVcDtmuqk
-npm run benchmark:tokens -- ditto-battery-pro
-npm run benchmark:diff -- ditto-battery-pro
+npm run benchmark:capture -- dashstack-dashboard 2791-32584 WlvYAu5ONnUe7kVcDtmuqk
+npm run benchmark:tokens -- dashstack-dashboard
+npm run benchmark:diff -- dashstack-dashboard
 ```
 
 산출물은 다음 경로에 저장됩니다.
@@ -254,7 +252,7 @@ benchmarks/results/<slug>/
 ```bash
 export ANTHROPIC_API_KEY=...
 
-npm run benchmark:blind -- ditto-842-7750 \
+npm run benchmark:blind -- dashstack-dashboard \
   --provider anthropic \
   --model claude-sonnet-4-5-20250929 \
   --runs 5 \

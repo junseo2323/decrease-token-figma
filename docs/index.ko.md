@@ -10,18 +10,18 @@ Figma Desktop 디자인 컨텍스트를 LLM 코딩 에이전트가 구현하기 
 
 ## 벤치마크 요약
 
-최신 fixture: Ditto `BatteryPro`, 측정일 `2026-06-13`.
+최신 fixture: `DashStack Dashboard`, 측정일 `2026-06-16` (블라인드 3회, `claude-sonnet-4-6`).
 
-| 경로 | 총 추정 입력 토큰 | 픽셀 유사도 |
+| 경로 | 총 추정 입력 토큰 | 픽셀 유사도(평균) |
 |---|---:|---:|
-| 공식 Figma MCP raw | 13,684 | 92.97% |
-| Bridge handoff | 7,682 | 96.77% |
+| 공식 Figma MCP raw | 13,926 | 83.12% |
+| Bridge handoff | 6,733 | 84.76% |
 
-**추정 입력 토큰 절감률: 43.86%**
+**추정 입력 토큰 절감률: 51.65%** — 게다가 bridge 쪽이 평균 +1.65 pp 더 정확했습니다.
 
 [전체 벤치마크 리포트 보기](./BENCHMARK_RESULTS_KR.html)
 
-![Bridge 렌더](./assets/benchmarks/ditto-battery-pro/bridge.png)
+![Bridge 렌더](./assets/benchmarks/dashstack-dashboard/bridge.png)
 
 ## 설치
 

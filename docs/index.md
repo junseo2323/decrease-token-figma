@@ -10,18 +10,18 @@ Local MCP bridge that compresses Figma Desktop design context into token-efficie
 
 ## Benchmark Snapshot
 
-Latest fixture: Ditto `BatteryPro`, measured on `2026-06-13`.
+Latest fixture: `DashStack Dashboard`, measured on `2026-06-16` (blind 3-run, `claude-sonnet-4-6`).
 
-| Path | Total estimated input tokens | Pixel similarity |
+| Path | Total estimated input tokens | Pixel similarity (mean) |
 |---|---:|---:|
-| Official Figma MCP raw | 13,684 | 92.97% |
-| Bridge handoff | 7,682 | 96.77% |
+| Official Figma MCP raw | 13,926 | 83.12% |
+| Bridge handoff | 6,733 | 84.76% |
 
-**Estimated input-token saving: 43.86%.**
+**Estimated input-token saving: 51.65%** — and the bridge arm was +1.65 pp more similar to the reference on average.
 
 [Read the full benchmark report](./BENCHMARK_RESULTS.html)
 
-![Bridge render](./assets/benchmarks/ditto-battery-pro/bridge.png)
+![Bridge render](./assets/benchmarks/dashstack-dashboard/bridge.png)
 
 ## Install
 

@@ -14,16 +14,14 @@ The result is lower input-token cost and less context noise while still preservi
 
 ## Benchmark Snapshot
 
-Latest reproducible fixture: Ditto `BatteryPro`, Figma node `2478-32218`, measured on `2026-06-13`.
+Latest reproducible fixture: `DashStack Dashboard`, Figma node `2791-32584`, measured on `2026-06-16` with a blind 3-run benchmark (`anthropic / claude-sonnet-4-6`, temperature `0`, one compile-only repair).
 
-| Path | Input chars | Est. text tokens | Image tokens | Total est. tokens | Pixel similarity |
+| Path | Input chars | Est. text tokens | Image tokens | Total est. tokens | Pixel similarity (mean) |
 |---|---:|---:|---:|---:|---:|
-| Official Figma MCP raw | 52,696 | 13,174 | 510 | 13,684 | 92.97% |
-| Bridge handoff | 30,727 | 7,682 | 0 | 7,682 | 96.77% |
+| Official Figma MCP raw | 51,543 | 12,886 | 1,040 | 13,926 | 83.12% |
+| Bridge handoff | 26,929 | 6,733 | 0 | 6,733 | 84.76% |
 
-**Estimated input-token saving: 43.86%.**
-
-The repeated instance data section that previously dominated the handoff is now **3,978 chars**, under the 10KB target. See the full report in [docs/BENCHMARK_RESULTS.md](./docs/BENCHMARK_RESULTS.md).
+**Estimated input-token saving: 51.65%**, while the bridge arm was **+1.65 pp** more similar to the reference on average — roughly half the input tokens with no loss of visual accuracy. See the full report in [docs/BENCHMARK_RESULTS.md](./docs/BENCHMARK_RESULTS.md).
 
 ## Features
 
@@ -237,9 +235,9 @@ npx playwright install chromium
 
 # Keep Figma Desktop open, enable local MCP on port 3845,
 # and select the target node before capturing.
-npm run benchmark:capture -- ditto-battery-pro 2478-32218 WlvYAu5ONnUe7kVcDtmuqk
-npm run benchmark:tokens -- ditto-battery-pro
-npm run benchmark:diff -- ditto-battery-pro
+npm run benchmark:capture -- dashstack-dashboard 2791-32584 WlvYAu5ONnUe7kVcDtmuqk
+npm run benchmark:tokens -- dashstack-dashboard
+npm run benchmark:diff -- dashstack-dashboard
 ```
 
 Artifacts are written to:
@@ -254,7 +252,7 @@ For a stricter comparison, run the blind benchmark with the same model, temperat
 ```bash
 export ANTHROPIC_API_KEY=...
 
-npm run benchmark:blind -- ditto-842-7750 \
+npm run benchmark:blind -- dashstack-dashboard \
   --provider anthropic \
   --model claude-sonnet-4-5-20250929 \
   --runs 5 \

@@ -17,3 +17,6 @@ benchmarks/fixtures/*/reference.png
 test/DEMO.md
 test/SUCCESS.md
 test/src/components/*_handoff.md
+.env
+.env.*
+benchmarks/results/*/blind-runs/
