@@ -12,6 +12,7 @@ import { resolveBridgePaths } from './paths.js';
 import { hashRawText, NodeCacheManager } from './cache-manager.js';
 import { ComponentRegistry } from './component-registry.js';
 import { buildDiffHandoff } from './diff-handoff.js';
+import { ensureAgentRuleFiles } from './agent-rules.js';
 
 type ScreenshotMode = 'path' | 'inline' | 'none';
 type HandoffMode = 'auto' | 'full' | 'diff';
@@ -83,6 +84,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     if (request.params.name === "sync_component_registry") {
         const args = request.params.arguments as { projectRoot?: string } | undefined;
         const bridgePaths = resolveBridgePaths(args?.projectRoot);
+        await ensureAgentRules(bridgePaths.projectRoot);
         const registry = new ComponentRegistry(bridgePaths.projectRoot, bridgePaths.cacheDir);
         const data = await registry.syncFromSourceComponents();
         return {
@@ -99,6 +101,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
     const args = request.params.arguments as HandoffArgs | undefined;
     const bridgePaths = resolveBridgePaths(args?.projectRoot);
+    await ensureAgentRules(bridgePaths.projectRoot);
     const cacheDir = bridgePaths.cacheDir;
     const screenshotMode = args?.screenshot ?? 'path';
     const mode = args?.mode ?? 'auto';
@@ -254,11 +257,24 @@ async function buildToolContent(
 }
 
 async function main() {
+    await ensureAgentRules(resolveBridgePaths().projectRoot);
+
     // Ollama 설치, 서버 실행, 기본 모델 준비까지 MCP가 필수로 보장한다.
     await ensureOllamaReady({ modelName: 'llama3.2' });
 
     const transport = new StdioServerTransport();
     await server.connect(transport);
+}
+
+async function ensureAgentRules(projectRoot: string): Promise<void> {
+    try {
+        const files = await ensureAgentRuleFiles(projectRoot);
+        if (files.length) {
+            console.error(`🧭 에이전트 규칙 파일 갱신: ${files.map(file => path.basename(file)).join(', ')}`);
+        }
+    } catch (error) {
+        console.error(`⚠️  에이전트 규칙 파일 작성 실패: ${(error as Error).message}`);
+    }
 }
 
 main().catch(console.error);

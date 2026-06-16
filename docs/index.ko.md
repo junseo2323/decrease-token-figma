@@ -72,6 +72,8 @@ codex mcp remove figma-cost-optimizer-bridge
 claude mcp remove figma-cost-optimizer-bridge
 ```
 
+브리지가 시작되면 `FIGMA_BRIDGE_ROOT`의 `AGENTS.md`와 `CLAUDE.md` 맨 위에 가드레일을 추가해, Figma 작업에서 `figma-cost-optimizer-bridge`만 사용하고 공식 Figma MCP로 폴백하지 않도록 안내합니다. 이 동작을 끄려면 `FIGMA_BRIDGE_WRITE_AGENT_RULES=0`을 설정하세요.
+
 ## 왜 로컬에서 실행하나요?
 
 이 브리지는 호스팅 웹 서비스가 아닙니다. 다음에 접근해야 합니다.

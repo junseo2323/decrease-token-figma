@@ -72,6 +72,8 @@ codex mcp remove figma-cost-optimizer-bridge
 claude mcp remove figma-cost-optimizer-bridge
 ```
 
+On startup, the bridge prepends a guardrail to `AGENTS.md` and `CLAUDE.md` in `FIGMA_BRIDGE_ROOT` so agents use only `figma-cost-optimizer-bridge` for Figma work and do not fall back to the official Figma MCP. Set `FIGMA_BRIDGE_WRITE_AGENT_RULES=0` to disable this.
+
 ## Why It Runs Locally
 
 This is not a hosted web service. The bridge needs access to:

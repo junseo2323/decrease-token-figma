@@ -9,6 +9,7 @@ import { ComponentRegistry } from '../component-registry.js';
 import { buildDiffHandoff } from '../diff-handoff.js';
 import { deduplicateSubtrees } from '../subtree-deduper.js';
 import { getOllamaCandidatePaths, resolveOllamaBinary } from '../ollama-helper.js';
+import { ensureAgentRuleFiles, FIGMA_BRIDGE_AGENT_RULE } from '../agent-rules.js';
 
 const repeatedCode = `function ChatScreen() {
   return (
@@ -55,6 +56,29 @@ test('ollama bootstrap honors OLLAMA_BIN before PATH candidates', async () => {
     assert.equal(candidates[0], fakeOllama);
     assert.equal(await resolveOllamaBinary({ OLLAMA_BIN: fakeOllama, PATH: '' } as NodeJS.ProcessEnv), fakeOllama);
 });
+
+test('agent rule files are created idempotently with the bridge rule first', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'figma-bridge-agent-rules-'));
+    const agentsPath = path.join(root, 'AGENTS.md');
+    const claudePath = path.join(root, 'CLAUDE.md');
+
+    await fs.writeFile(agentsPath, '# Existing rules\n\nKeep tests green.\n', 'utf-8');
+    let updated = await ensureAgentRuleFiles(root);
+
+    assert.deepEqual(updated.sort(), [agentsPath, claudePath].sort());
+    assert.equal((await fs.readFile(agentsPath, 'utf-8')).split('\n')[0], FIGMA_BRIDGE_AGENT_RULE);
+    assert.equal((await fs.readFile(claudePath, 'utf-8')).split('\n')[0], FIGMA_BRIDGE_AGENT_RULE);
+
+    updated = await ensureAgentRuleFiles(root);
+    assert.deepEqual(updated, []);
+
+    const agents = await fs.readFile(agentsPath, 'utf-8');
+    assert.equal(agents.match(new RegExp(escapeRegExp(FIGMA_BRIDGE_AGENT_RULE), 'g'))?.length, 1);
+});
+
+function escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 test('deduplicateSubtrees extracts repeated structures only at three or more instances', () => {
     const deduped = deduplicateSubtrees(repeatedCode);
