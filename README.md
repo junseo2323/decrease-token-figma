@@ -4,7 +4,7 @@
   <strong>English</strong> | <a href="./README_KR.md">한국어</a>
 </div>
 
-![Figma Cost Optimizer Bridge system overview](./docs/assets/system-overview.svg)
+![Figma Cost Optimizer Bridge system overview](./docs/assets/system-overview.png)
 
 Figma Cost Optimizer Bridge is a local MCP server that turns Figma Desktop design context into compact, implementation-ready React handoffs for LLM coding agents.
 

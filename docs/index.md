@@ -4,6 +4,8 @@
   <strong>English</strong> | <a href="./index.ko.html">한국어</a>
 </div>
 
+![Figma Cost Optimizer Bridge system overview](./assets/system-overview.png)
+
 Local MCP bridge that compresses Figma Desktop design context into token-efficient React handoffs for LLM coding agents.
 
 ## Benchmark Snapshot

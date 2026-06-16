@@ -4,6 +4,8 @@
   <a href="./index.html">English</a> | <strong>한국어</strong>
 </div>
 
+![Figma Cost Optimizer Bridge 시스템 개요](./assets/system-overview-kr.png)
+
 Figma Desktop 디자인 컨텍스트를 LLM 코딩 에이전트가 구현하기 좋은 토큰 효율적인 React handoff로 압축하는 로컬 MCP 브리지입니다.
 
 ## 벤치마크 요약
