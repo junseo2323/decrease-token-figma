@@ -1,0 +1,135 @@
+<svg width="1280" height="640" viewBox="0 0 1280 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Figma Cost Optimizer Bridge system overview</title>
+  <desc id="desc">A system diagram showing an MCP client calling the local bridge, the bridge fetching Figma design context and screenshots, optimizing the handoff through normalization, dedupe, cache, diff and registry steps, then returning compact React-ready markdown and screenshot paths.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="640" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F8FAFC"/>
+      <stop offset="0.52" stop-color="#EEF6F6"/>
+      <stop offset="1" stop-color="#FFF7ED"/>
+    </linearGradient>
+    <linearGradient id="bridge" x1="438" y1="108" x2="850" y2="532" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#12343B"/>
+      <stop offset="1" stop-color="#1E4F5F"/>
+    </linearGradient>
+    <filter id="shadow" x="-16" y="-16" width="132" height="132" filterUnits="objectBoundingBox" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#0F172A" flood-opacity="0.14"/>
+    </filter>
+    <marker id="arrowDark" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2 2L10 6L2 10" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arrowTeal" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2 2L10 6L2 10" stroke="#0F766E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      .sans { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .title { font-size: 34px; font-weight: 800; fill: #0F172A; }
+      .subtitle { font-size: 16px; font-weight: 500; fill: #475569; }
+      .panel-title { font-size: 17px; font-weight: 800; fill: #0F172A; }
+      .panel-copy { font-size: 13px; font-weight: 600; fill: #64748B; }
+      .bridge-title { font-size: 22px; font-weight: 850; fill: #FFFFFF; }
+      .bridge-copy { font-size: 13px; font-weight: 650; fill: #BFE8E3; }
+      .step-title { font-size: 15px; font-weight: 800; fill: #EFFFFB; }
+      .step-copy { font-size: 12px; font-weight: 600; fill: #BFE8E3; }
+      .small-title { font-size: 14px; font-weight: 800; fill: #0F172A; }
+      .small-copy { font-size: 12px; font-weight: 600; fill: #64748B; }
+      .badge { font-size: 13px; font-weight: 800; fill: #7C2D12; }
+      .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="640" rx="28" fill="url(#bg)"/>
+  <rect x="24" y="24" width="1232" height="592" rx="24" fill="white" fill-opacity="0.72" stroke="#D8E3E7"/>
+
+  <text x="72" y="76" class="sans title">Figma Cost Optimizer Bridge</text>
+  <text x="72" y="106" class="sans subtitle">Local MCP bridge that turns noisy Figma design context into compact, React-ready handoffs.</text>
+  <g transform="translate(956 56)">
+    <rect width="246" height="42" rx="21" fill="#FFEDD5" stroke="#FDBA74"/>
+    <text x="123" y="27" text-anchor="middle" class="sans badge">43.86% fewer input tokens</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="74" y="166" width="240" height="152" rx="18" fill="#FFFFFF" stroke="#CBD5E1"/>
+    <circle cx="116" cy="214" r="24" fill="#E0F2FE"/>
+    <path d="M104 216H124M116 204L128 216L116 228" stroke="#0369A1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="154" y="204" class="sans panel-title">MCP Client</text>
+    <text x="154" y="229" class="sans panel-copy">Codex, Claude, Cursor</text>
+    <text x="100" y="276" class="sans small-copy">Calls the handoff tool</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="74" y="388" width="240" height="120" rx="18" fill="#FFFFFF" stroke="#CBD5E1"/>
+    <circle cx="116" cy="431" r="23" fill="#ECFDF5"/>
+    <path d="M106 436C110 428 114 424 120 424C125 424 128 427 128 432C128 438 123 442 116 442C111 442 108 440 106 436Z" stroke="#047857" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="154" y="427" class="sans panel-title">Figma Desktop</text>
+    <text x="154" y="452" class="sans panel-copy">Local MCP endpoint</text>
+    <text x="100" y="486" class="mono small-copy">127.0.0.1:3845</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="430" y="140" width="420" height="394" rx="26" fill="url(#bridge)"/>
+    <text x="470" y="188" class="sans bridge-title">Bridge Pipeline</text>
+    <text x="470" y="214" class="sans bridge-copy">Runs locally, stores cache and assets on disk.</text>
+
+    <g transform="translate(470 244)">
+      <rect width="340" height="56" rx="14" fill="#FFFFFF" fill-opacity="0.1" stroke="#5EEAD4" stroke-opacity="0.58"/>
+      <circle cx="30" cy="28" r="15" fill="#5EEAD4"/>
+      <path d="M23 28H37M31 21L38 28L31 35" stroke="#12343B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="58" y="24" class="sans step-title">FigmaProxy</text>
+      <text x="58" y="43" class="sans step-copy">Fetch design context and screenshots</text>
+    </g>
+
+    <g transform="translate(470 316)">
+      <rect width="340" height="56" rx="14" fill="#FFFFFF" fill-opacity="0.1" stroke="#A7F3D0" stroke-opacity="0.58"/>
+      <circle cx="30" cy="28" r="15" fill="#A7F3D0"/>
+      <path d="M23 24H37M26 32H34M29 40H31" stroke="#12343B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="58" y="24" class="sans step-title">Normalizer + Dedupe</text>
+      <text x="58" y="43" class="sans step-copy">Strip noise, extract tokens, compress repeats</text>
+    </g>
+
+    <g transform="translate(470 388)">
+      <rect width="340" height="56" rx="14" fill="#FFFFFF" fill-opacity="0.1" stroke="#FED7AA" stroke-opacity="0.66"/>
+      <circle cx="30" cy="28" r="15" fill="#FED7AA"/>
+      <path d="M24 24H37V36H24V24ZM28 28H33M28 32H33" stroke="#12343B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="58" y="24" class="sans step-title">Cache + Diff + Registry</text>
+      <text x="58" y="43" class="sans step-copy">Reuse hashes, diffs and known components</text>
+    </g>
+
+    <g transform="translate(470 460)">
+      <rect width="340" height="44" rx="14" fill="#FFFFFF" fill-opacity="0.08" stroke="#C4B5FD" stroke-opacity="0.52"/>
+      <text x="22" y="28" class="sans step-title">Optional Ollama</text>
+      <text x="154" y="28" class="sans step-copy">Local color, text and summary hints</text>
+    </g>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="966" y="162" width="242" height="350" rx="20" fill="#FFFFFF" stroke="#CBD5E1"/>
+    <text x="1004" y="210" class="sans panel-title">Optimized Output</text>
+    <text x="1004" y="236" class="sans panel-copy">Small enough for coding agents,</text>
+    <text x="1004" y="255" class="sans panel-copy">structured enough to implement.</text>
+
+    <g transform="translate(1004 294)">
+      <rect width="166" height="44" rx="12" fill="#ECFEFF" stroke="#99F6E4"/>
+      <text x="18" y="28" class="sans small-title">Markdown handoff</text>
+    </g>
+    <g transform="translate(1004 354)">
+      <rect width="166" height="44" rx="12" fill="#F0FDF4" stroke="#BBF7D0"/>
+      <text x="18" y="28" class="sans small-title">React skeleton</text>
+    </g>
+    <g transform="translate(1004 414)">
+      <rect width="166" height="44" rx="12" fill="#FFF7ED" stroke="#FED7AA"/>
+      <text x="18" y="28" class="sans small-title">Screenshot paths</text>
+    </g>
+  </g>
+
+  <path d="M314 242C356 242 382 242 424 242" stroke="#334155" stroke-width="3" stroke-linecap="round" marker-end="url(#arrowDark)"/>
+  <text x="336" y="225" class="sans small-copy">tool call</text>
+  <path d="M314 438C358 438 386 438 424 438" stroke="#0F766E" stroke-width="3" stroke-linecap="round" marker-end="url(#arrowTeal)"/>
+  <text x="336" y="421" class="sans small-copy">design data</text>
+  <path d="M850 318C898 318 918 318 960 318" stroke="#334155" stroke-width="3" stroke-linecap="round" marker-end="url(#arrowDark)"/>
+  <text x="874" y="300" class="sans small-copy">compact handoff</text>
+
+  <g transform="translate(376 560)">
+    <rect width="528" height="38" rx="19" fill="#FFFFFF" stroke="#CBD5E1"/>
+    <text x="264" y="24" text-anchor="middle" class="sans small-copy">Writes .figma_cache, screenshots, handoff.md, diff.md and registry.json</text>
+  </g>
+</svg>

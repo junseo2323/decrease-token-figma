@@ -4,6 +4,8 @@
   <a href="./README.md">English</a> | <strong>한국어</strong>
 </div>
 
+![Figma Cost Optimizer Bridge 시스템 개요](./docs/assets/system-overview-kr.svg)
+
 Figma Cost Optimizer Bridge는 Figma Desktop의 디자인 컨텍스트를 LLM 코딩 에이전트가 구현하기 좋은 작고 실용적인 React handoff로 바꾸는 로컬 MCP 서버입니다.
 
 이 브리지는 MCP 클라이언트와 Figma Desktop의 로컬 MCP 엔드포인트 사이에 위치합니다. 메타데이터, 절대 좌표, 반복되는 class 문자열, 인라인 SVG로 가득한 원본 `get_design_context` 출력을 그대로 넘기지 않고, 정제된 React 뼈대 코드, 디자인 토큰, 재사용 가능한 반복 구조, 스크린샷 경로가 담긴 작은 Markdown handoff를 반환합니다.

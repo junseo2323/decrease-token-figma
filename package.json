@@ -9,6 +9,7 @@
   "files": [
     "build/*.js",
     "scripts",
+    "docs/assets",
     "README.md",
     "README_KR.md",
     "LICENSE"
