@@ -2,13 +2,13 @@
   <title id="title">Figma Cost Optimizer Bridge 로컬 아키텍처</title>
   <desc id="desc">MCP 클라이언트와 Figma Desktop이 로컬 브리지 파이프라인으로 들어가고, 브리지가 캡처, 정규화, 압축, 캐시를 거쳐 작은 React handoff를 반환하는 검정 배경 기술 다이어그램입니다.</desc>
   <defs>
-    <radialGradient id="glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(640 280) rotate(90) scale(360 560)">
-      <stop stop-color="#0F766E" stop-opacity="0.35"/>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(650 310) rotate(90) scale(390 620)">
+      <stop stop-color="#0F766E" stop-opacity="0.32"/>
       <stop offset="1" stop-color="#020617" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="bridgeFill" x1="390" y1="150" x2="890" y2="514" gradientUnits="userSpaceOnUse">
+    <linearGradient id="bridgeFill" x1="410" y1="150" x2="870" y2="520" gradientUnits="userSpaceOnUse">
       <stop stop-color="#0E3B43"/>
-      <stop offset="0.55" stop-color="#102A3A"/>
+      <stop offset="0.56" stop-color="#102A3A"/>
       <stop offset="1" stop-color="#17152D"/>
     </linearGradient>
     <linearGradient id="cardFill" x1="0" y1="0" x2="1" y2="1">
@@ -27,13 +27,13 @@
       .subtitle { font-size: 18px; font-weight: 650; fill: #CBD5E1; }
       .eyebrow { font-size: 13px; font-weight: 850; letter-spacing: 0.08em; fill: #5EEAD4; }
       .cardTitle { font-size: 24px; font-weight: 850; fill: #F8FAFC; }
-      .cardCopy { font-size: 16px; font-weight: 650; fill: #94A3B8; }
+      .cardCopy { font-size: 15px; font-weight: 700; fill: #94A3B8; }
       .bridgeTitle { font-size: 30px; font-weight: 850; fill: #FFFFFF; }
-      .bridgeCopy { font-size: 16px; font-weight: 650; fill: #BFE8E3; }
+      .bridgeCopy { font-size: 16px; font-weight: 700; fill: #BFE8E3; }
       .stageTitle { font-size: 18px; font-weight: 850; fill: #F8FAFC; }
-      .stageCopy { font-size: 13px; font-weight: 650; fill: #A7F3D0; }
+      .stageCopy { font-size: 13px; font-weight: 700; fill: #A7F3D0; }
       .outputTitle { font-size: 22px; font-weight: 850; fill: #F8FAFC; }
-      .outputCopy { font-size: 15px; font-weight: 700; fill: #CBD5E1; }
+      .outputCopy { font-size: 15px; font-weight: 750; fill: #CBD5E1; }
       .badge { font-size: 16px; font-weight: 850; fill: #FED7AA; }
       .tiny { font-size: 12px; font-weight: 750; fill: #94A3B8; }
       .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
@@ -41,81 +41,78 @@
   </defs>
 
   <rect width="1280" height="640" rx="30" fill="#020617"/>
-  <rect width="1280" height="640" rx="30" fill="url(#glowA)"/>
+  <rect width="1280" height="640" rx="30" fill="url(#glow)"/>
   <path d="M60 148H1220M60 244H1220M60 340H1220M60 436H1220M60 532H1220M184 72V568M348 72V568M512 72V568M676 72V568M840 72V568M1004 72V568M1168 72V568" stroke="#1E293B" stroke-width="1" opacity="0.45"/>
   <rect x="28" y="28" width="1224" height="584" rx="26" stroke="#1E293B"/>
 
   <text x="70" y="82" class="sans title">Figma Cost Optimizer Bridge</text>
-  <text x="70" y="116" class="sans subtitle">원본 Figma 컨텍스트를 작고 구현하기 좋은 React handoff로 바꾸는 로컬 MCP 브리지입니다.</text>
+  <text x="70" y="116" class="sans subtitle">Figma 컨텍스트를 작고 구현하기 좋은 React handoff로 바꾸는 로컬 MCP 미들웨어입니다.</text>
   <g transform="translate(946 58)">
     <rect width="246" height="48" rx="24" fill="#2A170B" stroke="#FB923C"/>
     <text x="123" y="31" text-anchor="middle" class="sans badge">입력 토큰 43.86% 절감</text>
   </g>
 
   <g filter="url(#shadow)">
-    <rect x="70" y="178" width="270" height="150" rx="22" fill="url(#cardFill)" stroke="#334155"/>
+    <rect x="70" y="178" width="300" height="150" rx="22" fill="url(#cardFill)" stroke="#334155"/>
     <text x="98" y="212" class="sans eyebrow">INPUT</text>
     <text x="98" y="250" class="sans cardTitle">MCP 클라이언트</text>
     <text x="98" y="280" class="sans cardCopy">Codex, Claude, Cursor</text>
-    <text x="98" y="310" class="mono tiny">get_optimized_figma_handoff</text>
+    <text x="98" y="310" class="mono tiny">get_optimized_figma_handoff 호출</text>
   </g>
 
   <g filter="url(#shadow)">
-    <rect x="70" y="382" width="270" height="140" rx="22" fill="url(#cardFill)" stroke="#334155"/>
+    <rect x="70" y="382" width="300" height="140" rx="22" fill="url(#cardFill)" stroke="#334155"/>
     <text x="98" y="416" class="sans eyebrow">LOCAL SOURCE</text>
     <text x="98" y="454" class="sans cardTitle">Figma Desktop</text>
-    <text x="98" y="484" class="sans cardCopy">선택된 노드 컨텍스트</text>
+    <text x="98" y="484" class="sans cardCopy">컨텍스트 + 스크린샷</text>
     <text x="98" y="512" class="mono tiny">127.0.0.1:3845</text>
   </g>
 
   <g filter="url(#shadow)">
-    <rect x="402" y="150" width="476" height="372" rx="30" fill="url(#bridgeFill)" stroke="#5EEAD4" stroke-opacity="0.55"/>
-    <text x="444" y="198" class="sans eyebrow">CLOUD가 아닌 사용자 컴퓨터에서 실행</text>
-    <text x="444" y="236" class="sans bridgeTitle">브리지 파이프라인</text>
-    <text x="444" y="264" class="sans bridgeCopy">Figma 출력을 읽고 노이즈를 줄이며 구현 신호는 보존합니다.</text>
+    <rect x="430" y="150" width="420" height="372" rx="30" fill="url(#bridgeFill)" stroke="#5EEAD4" stroke-opacity="0.55"/>
+    <text x="470" y="198" class="sans eyebrow">LOCAL ONLY</text>
+    <text x="470" y="236" class="sans bridgeTitle">브리지 파이프라인</text>
+    <text x="470" y="264" class="sans bridgeCopy">클라우드 중계 없이 로컬 파일로 처리합니다.</text>
 
-    <g transform="translate(444 296)">
-      <rect width="392" height="44" rx="14" fill="#0F172A" fill-opacity="0.72" stroke="#22D3EE" stroke-opacity="0.65"/>
+    <g transform="translate(470 296)">
+      <rect width="340" height="44" rx="14" fill="#0F172A" fill-opacity="0.72" stroke="#22D3EE" stroke-opacity="0.65"/>
       <circle cx="24" cy="22" r="12" fill="#22D3EE"/>
       <text x="48" y="20" class="sans stageTitle">1. 캡처</text>
-      <text x="146" y="20" class="sans stageCopy">디자인 컨텍스트 + 스크린샷</text>
+      <text x="146" y="20" class="sans stageCopy">Figma 데이터</text>
     </g>
-    <g transform="translate(444 350)">
-      <rect width="392" height="44" rx="14" fill="#0F172A" fill-opacity="0.72" stroke="#5EEAD4" stroke-opacity="0.65"/>
+    <g transform="translate(470 350)">
+      <rect width="340" height="44" rx="14" fill="#0F172A" fill-opacity="0.72" stroke="#5EEAD4" stroke-opacity="0.65"/>
       <circle cx="24" cy="22" r="12" fill="#5EEAD4"/>
       <text x="48" y="20" class="sans stageTitle">2. 정규화</text>
-      <text x="158" y="20" class="sans stageCopy">메타데이터, 좌표, SVG 노이즈 제거</text>
+      <text x="158" y="20" class="sans stageCopy">메타데이터, 좌표, SVG</text>
     </g>
-    <g transform="translate(444 404)">
-      <rect width="392" height="44" rx="14" fill="#0F172A" fill-opacity="0.72" stroke="#A7F3D0" stroke-opacity="0.65"/>
+    <g transform="translate(470 404)">
+      <rect width="340" height="44" rx="14" fill="#0F172A" fill-opacity="0.72" stroke="#A7F3D0" stroke-opacity="0.65"/>
       <circle cx="24" cy="22" r="12" fill="#A7F3D0"/>
       <text x="48" y="20" class="sans stageTitle">3. 압축</text>
-      <text x="146" y="20" class="sans stageCopy">반복 JSX를 컴포넌트 + props로 변환</text>
+      <text x="146" y="20" class="sans stageCopy">반복 JSX를 props로</text>
     </g>
-    <g transform="translate(444 458)">
-      <rect width="392" height="44" rx="14" fill="#0F172A" fill-opacity="0.72" stroke="#FBBF24" stroke-opacity="0.75"/>
+    <g transform="translate(470 458)">
+      <rect width="340" height="44" rx="14" fill="#0F172A" fill-opacity="0.72" stroke="#FBBF24" stroke-opacity="0.75"/>
       <circle cx="24" cy="22" r="12" fill="#FBBF24"/>
       <text x="48" y="20" class="sans stageTitle">4. 재사용</text>
-      <text x="158" y="20" class="sans stageCopy">해시 캐시, diff handoff, registry 힌트</text>
+      <text x="158" y="20" class="sans stageCopy">캐시, diff, registry</text>
     </g>
   </g>
 
   <g filter="url(#shadow)">
-    <rect x="940" y="196" width="270" height="276" rx="24" fill="url(#cardFill)" stroke="#334155"/>
-    <text x="970" y="232" class="sans eyebrow">OUTPUT</text>
-    <text x="970" y="270" class="sans outputTitle">최적화된 Handoff</text>
-    <text x="970" y="312" class="sans outputCopy">작은 Markdown</text>
-    <text x="970" y="348" class="sans outputCopy">정리된 React 뼈대</text>
-    <text x="970" y="384" class="sans outputCopy">디자인 토큰</text>
-    <text x="970" y="420" class="sans outputCopy">스크린샷 파일 경로</text>
+    <rect x="930" y="196" width="280" height="276" rx="24" fill="url(#cardFill)" stroke="#334155"/>
+    <text x="960" y="232" class="sans eyebrow">OUTPUT</text>
+    <text x="960" y="270" class="sans outputTitle">최적화된 Handoff</text>
+    <text x="960" y="312" class="sans outputCopy">작은 Markdown</text>
+    <text x="960" y="348" class="sans outputCopy">정리된 React 뼈대</text>
+    <text x="960" y="384" class="sans outputCopy">디자인 토큰</text>
+    <text x="960" y="420" class="sans outputCopy">스크린샷 파일 경로</text>
   </g>
 
-  <path d="M340 252H392" stroke="#5EEAD4" stroke-width="4" marker-end="url(#arrow)"/>
-  <text x="342" y="232" class="sans tiny">도구 호출</text>
-  <path d="M340 452H392" stroke="#5EEAD4" stroke-width="4" marker-end="url(#arrow)"/>
-  <text x="342" y="432" class="sans tiny">원본 Figma MCP 데이터</text>
-  <path d="M878 334H930" stroke="#5EEAD4" stroke-width="4" marker-end="url(#arrow)"/>
-  <text x="864" y="314" class="sans tiny">작은 handoff</text>
+  <path d="M370 253H420" stroke="#5EEAD4" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M370 452H420" stroke="#5EEAD4" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M850 334H920" stroke="#5EEAD4" stroke-width="4" marker-end="url(#arrow)"/>
 
   <g transform="translate(410 546)">
     <rect width="460" height="38" rx="19" fill="#020617" stroke="#334155"/>
