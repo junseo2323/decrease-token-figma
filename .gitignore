@@ -6,10 +6,10 @@ test/node_modules/
 test/dist/
 benchmarks/.cache/
 benchmarks/results/*
-!benchmarks/results/ditto-battery-pro/
-!benchmarks/results/ditto-battery-pro/**
+!benchmarks/results/ditto-dashboard/
+!benchmarks/results/ditto-dashboard/**
 benchmarks/fixtures/*/reference.png
-!benchmarks/fixtures/ditto-battery-pro/reference.png
+!benchmarks/fixtures/ditto-dashboard/reference.png
 .DS_Store
 *.log
 PLAN*.md

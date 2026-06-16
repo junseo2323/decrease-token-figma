@@ -1,0 +1,525 @@
+const imgALLEFVINICIUS343875Unsplash1 = "http://localhost:3845/assets/95bca3ecaf6d28d115834f85b6163b6e58e91c7c.png";
+const imgUkFlag1 = "http://localhost:3845/assets/7260fbd7cccd7993400c3b1165f33370bf034acd.png";
+const imgSeparator = "http://localhost:3845/assets/67557b9c347b0ce100458097e1859a8cba9f098f.svg";
+const imgProfit = "http://localhost:3845/assets/b9856c60effe7482ef820e46b398256208366815.svg";
+const imgSales = "http://localhost:3845/assets/e9ae66c1b9d1422eeb859d2b7f5c7ac328aa7f47.svg";
+const imgLine2 = "http://localhost:3845/assets/1d2887fb271885674f5c682c9728cbf1f1a2e38d.svg";
+const imgLine3 = "http://localhost:3845/assets/703130ac5a77511f2389bdc2d50d3192aaeb86c2.svg";
+const imgRightArrow = "http://localhost:3845/assets/3a17a9059817240f389d2178fc4418b693d8a6f5.svg";
+const imgLeft = "http://localhost:3845/assets/704b45a52d60359486273d57ed90a57926a5ba0e.svg";
+const imgBgColor = "http://localhost:3845/assets/08e95067c8568bb223447ff3fa61af3a3ce63e61.svg";
+const imgMainColor = "http://localhost:3845/assets/e1cfc5b6f69d4bfd64d73012c3bd1a90014e2510.svg";
+const imgOval = "http://localhost:3845/assets/757d0987e315393223eb8e26c43debd9c98a3c89.svg";
+const imgOval1 = "http://localhost:3845/assets/58c80df80e3b623886d742862b85d76274479e56.svg";
+const imgCard = "http://localhost:3845/assets/51bf2dea7362b5fbc78d4e03580767975253e37d.svg";
+const imgOval2 = "http://localhost:3845/assets/943c43543fa15239336edd79324e9154dd6f9897.svg";
+const imgOval3 = "http://localhost:3845/assets/79ef2f25300a2f57f127c82eadd74e70c3503865.svg";
+const imgLine = "http://localhost:3845/assets/c6237b219c43805d00c3baed4e90894d9e1c3256.svg";
+const imgGraph = "http://localhost:3845/assets/fde405b13e4f309340199c19e530c2630bec9c49.svg";
+const imgIconChevronDown = "http://localhost:3845/assets/98094285f71899a4b5b51c176a4ed82bda7b9ba2.svg";
+const imgMore = "http://localhost:3845/assets/733e2414c162107db1ee0f832841551afb048055.svg";
+const imgMask = "http://localhost:3845/assets/87504fc08b2ebf6068798677d97f297f31686b1e.svg";
+const imgALLEFVINICIUS343875Unsplash = "http://localhost:3845/assets/1448d3dc15a81a444171a09cf099c63f160c51e9.svg";
+const imgDropDown = "http://localhost:3845/assets/07cb7131e9657e6760e02e51cfa58886098cc2b7.svg";
+const imgUkFlag = "http://localhost:3845/assets/6ed61953b79de25795fd820514a92fcd0386f97e.svg";
+const imgIcon = "http://localhost:3845/assets/fbe7e2638f2a3da51c5730f1320badbe127acd7e.svg";
+const imgOval4 = "http://localhost:3845/assets/e4f0495babfa0cdfc33f6bfc86dfba5f78d24fb6.svg";
+const imgOval5 = "http://localhost:3845/assets/3e613dbd1a134fe915b1d4a320e53423329ddba5.svg";
+const imgPath = "http://localhost:3845/assets/25f7be80f5b1609336907fe78785aad874aee134.svg";
+const imgSearch = "http://localhost:3845/assets/f71c083f651fa420958872f0c0faa1ce381f8477.svg";
+const imgDivider = "http://localhost:3845/assets/9ed08cbe11df4dbfcebf8a1c76e947ad1d3857cf.svg";
+const imgHideBg = "http://localhost:3845/assets/9352f1fdf7a94db40e06174c88807fb2d5ac6fcc.svg";
+
+export default function Dashboard() {
+  return (
+    <div className="bg-white relative size-full" data-node-id="2791:32584" data-name="Dashboard  # 2">
+      <div className="absolute inset-[0_-0.07%_0_16.6%]" data-node-id="2791:32585" data-name="Main Bg Color">
+        <div className="absolute bg-[#f5f6fa] inset-0" data-node-id="I2791:32585;0:40455" data-name="Main Bg" />
+      </div>
+      <div className="absolute inset-[0_0.03%_0_16.6%]" data-node-id="2791:32586" data-name="Separator">
+        <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgSeparator} />
+      </div>
+      <div className="absolute contents inset-[63.08%_2.08%_2.8%_72.92%]" data-node-id="2791:32589" data-name="Featured Product">
+        <div className="absolute bg-white inset-[63.08%_2.08%_2.8%_72.92%] rounded-[14px] shadow-[6px_6px_54px_0px_rgba(0,0,0,0.05)]" data-node-id="2791:32590" data-name="Bg" />
+        <div className="absolute inset-[71.68%_3.4%_7.01%_75.83%]" data-node-id="2791:32591" data-name="Profit">
+          <div className="absolute inset-[-0.31%_-0.23%]">
+            <img alt="" className="block max-w-none size-full" src={imgProfit} />
+          </div>
+        </div>
+        <div className="absolute inset-[70.84%_4.79%_12.52%_75.83%]" data-node-id="2791:32604" data-name="Sales">
+          <div className="absolute inset-[-0.39%_-0.25%]">
+            <img alt="" className="block max-w-none size-full" src={imgSales} />
+          </div>
+        </div>
+        <div className="absolute inset-[92.52%_3.19%_7.38%_76.11%]" data-node-id="2791:32617">
+          <div className="absolute inset-[35%_0]">
+            <img alt="" className="block max-w-none size-full" src={imgLine2} />
+          </div>
+        </div>
+        <div className="absolute inset-[87.01%_3.19%_12.9%_76.11%]" data-node-id="2791:32618">
+          <div className="absolute inset-[35%_0]">
+            <img alt="" className="block max-w-none size-full" src={imgLine3} />
+          </div>
+        </div>
+        <div className="absolute inset-[81.5%_3.19%_18.41%_76.11%]" data-node-id="2791:32619">
+          <div className="absolute inset-[35%_0]">
+            <img alt="" className="block max-w-none size-full" src={imgLine3} />
+          </div>
+        </div>
+        <div className="absolute inset-[75.98%_3.19%_23.93%_76.11%]" data-node-id="2791:32620">
+          <div className="absolute inset-[35%_0]">
+            <img alt="" className="block max-w-none size-full" src={imgLine3} />
+          </div>
+        </div>
+        <div className="absolute inset-[70.47%_3.19%_29.44%_76.11%]" data-node-id="2791:32621">
+          <div className="absolute inset-[35%_0]">
+            <img alt="" className="block max-w-none size-full" src={imgLine3} />
+          </div>
+        </div>
+        <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[94.79%] right-[3.19%] text-[12px] text-[rgba(41,44,47,0.4)] top-[calc(50%+476px)] whitespace-nowrap" data-node-id="2791:32622" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+          2026
+        </p>
+        <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[90%] right-[7.99%] text-[12px] text-[rgba(41,44,47,0.4)] top-[calc(50%+476px)] whitespace-nowrap" data-node-id="2791:32623" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+          2018
+        </p>
+        <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[85.21%] right-[12.78%] text-[12px] text-[rgba(41,44,47,0.4)] top-[calc(50%+476px)] whitespace-nowrap" data-node-id="2791:32624" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+          2017
+        </p>
+        <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[80.42%] right-[17.57%] text-[12px] text-[rgba(41,44,47,0.4)] top-[calc(50%+476px)] whitespace-nowrap" data-node-id="2791:32625" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+          2016
+        </p>
+        <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[75.63%] right-[22.36%] text-[12px] text-[rgba(41,44,47,0.4)] top-[calc(50%+476px)] whitespace-nowrap" data-node-id="2791:32626" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+          2015
+        </p>
+        <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-3/4 right-[24.44%] text-[12px] text-[rgba(41,44,47,0.4)] text-right top-[calc(50%+451px)] whitespace-nowrap" data-node-id="2791:32627" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+          0
+        </p>
+        <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[74.51%] right-[24.44%] text-[12px] text-[rgba(41,44,47,0.4)] text-right top-[calc(50%+392px)] whitespace-nowrap" data-node-id="2791:32628" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+          25
+        </p>
+        <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[74.51%] right-[24.44%] text-[12px] text-[rgba(41,44,47,0.4)] text-right top-[calc(50%+333px)] whitespace-nowrap" data-node-id="2791:32629" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+          50
+        </p>
+        <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[74.51%] right-[24.44%] text-[12px] text-[rgba(41,44,47,0.4)] text-right top-[calc(50%+274px)] whitespace-nowrap" data-node-id="2791:32630" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+          75
+        </p>
+        <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[74.03%] right-[24.44%] text-[12px] text-[rgba(41,44,47,0.4)] text-right top-[calc(50%+215px)] whitespace-nowrap" data-node-id="2791:32631" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+          100
+        </p>
+        <div className="[word-break:break-word] absolute font-['Nunito_Sans:Bold'] font-bold leading-[0] left-[74.58%] right-[14.72%] text-[#202224] text-[22px] top-[calc(50%+164px)] whitespace-nowrap" data-node-id="2791:32632" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+          <p className="leading-[20px] mb-0">Sales Analytics</p>
+          <p className="leading-[20px]">​</p>
+        </div>
+      </div>
+      <div className="absolute contents inset-[63.08%_29.17%_2.8%_45.83%]" data-node-id="2791:32633" data-name="Featured Product">
+        <div className="absolute bg-white inset-[63.08%_29.17%_2.8%_45.83%] rounded-[14px] shadow-[6px_6px_54px_0px_rgba(0,0,0,0.05)]" data-node-id="2791:32634" data-name="Bg" />
+        <div className="absolute inset-[78.22%_30.28%_17.94%_66.88%]" data-node-id="2791:32635" data-name="Right arrow">
+          <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgRightArrow} />
+        </div>
+        <div className="absolute flex inset-[78.22%_50.21%_17.94%_46.94%] items-center justify-center" style={{ containerType: "size" }}>
+          <div className="-scale-x-100 flex-none h-[100cqh] w-[100cqw]">
+            <div className="relative size-full" data-node-id="2791:32639" data-name="Left">
+              <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgLeft} />
+            </div>
+          </div>
+        </div>
+        <div className="absolute inset-[69.35%_36.53%_13.28%_53.26%]" data-node-id="2791:32643" data-name="Bitmap" />
+        <p className="[word-break:break-word] absolute font-['Nunito_Sans:Bold'] font-bold leading-[20px] left-[51.53%] right-[34.79%] text-[#282d32] text-[18px] top-[calc(50%+432px)] whitespace-nowrap" data-node-id="2791:32644" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+          Beats Headphone 2026
+        </p>
+        <p className="[word-break:break-word] absolute font-['Nunito_Sans:Bold'] font-bold leading-[20px] left-[56.53%] opacity-70 right-[39.86%] text-[#4880ff] text-[16px] top-[calc(50%+460px)] whitespace-nowrap" data-node-id="2791:32645" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+          $89.00
+        </p>
+        <p className="[word-break:break-word] absolute font-['Nunito_Sans:Bold'] font-bold leading-[20px] left-[47.5%] right-[40.28%] text-[#202224] text-[22px] top-[calc(50%+164px)] whitespace-nowrap" data-node-id="2791:32646" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+          Featured Product
+        </p>
+      </div>
+      <div className="absolute contents inset-[63.08%_56.25%_2.8%_18.75%]" data-node-id="2791:32647" data-name="Customers">
+        <div className="absolute bg-white inset-[63.08%_56.25%_2.8%_18.75%] rounded-[14px] shadow-[6px_6px_54px_0px_rgba(0,0,0,0.05)]" data-node-id="2791:32648" data-name="Bg" />
+        <div className="absolute contents inset-[70.7%_63.65%_15.65%_26.22%]" data-node-id="2791:32649" data-name="body">
+          <div className="absolute inset-[70.7%_63.65%_15.65%_26.22%]" data-node-id="2791:32650" data-name="BG Color">
+            <div className="absolute inset-[-5.14%]">
+              <img alt="" className="block max-w-none size-full" src={imgBgColor} />
+            </div>
+          </div>
+          <div className="absolute inset-[70.7%_63.65%_15.65%_26.22%]" data-node-id="2791:32652" data-name="Main Color">
+            <div className="absolute inset-[-5.14%]">
+              <img alt="" className="block max-w-none size-full" src={imgMainColor} />
+            </div>
+          </div>
+        </div>
+        <div className="absolute contents inset-[88.04%_68.96%_5.79%_21.6%]" data-node-id="2791:32654" data-name="New Customers">
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[20px] left-[22.99%] opacity-80 right-[68.96%] text-[#282d32] text-[16px] top-[calc(50%+453px)] whitespace-nowrap" data-node-id="2791:32655" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            New Customers
+          </p>
+          <div className="absolute inset-[92.71%_77.57%_6.17%_21.6%]" data-node-id="2791:32656" data-name="Oval">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgOval} />
+          </div>
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:Bold'] font-bold leading-[normal] left-[22.99%] right-[70.35%] text-[#202224] text-[28px] top-[calc(50%+407px)] tracking-[1px] whitespace-nowrap" data-node-id="2791:32657" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            34,249
+          </p>
+        </div>
+        <div className="absolute contents inset-[88.04%_59.24%_5.79%_34.51%]" data-node-id="2791:32658" data-name="Repeated">
+          <div className="absolute contents inset-[92.34%_59.24%_5.79%_34.51%]" data-node-id="2791:32659" data-name="Group">
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[20px] left-[35.9%] opacity-80 right-[59.24%] text-[#282d32] text-[16px] top-[calc(50%+453px)] whitespace-nowrap" data-node-id="2791:32660" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              Repeated
+            </p>
+            <div className="absolute inset-[92.71%_64.65%_6.17%_34.51%]" data-node-id="2791:32661" data-name="Oval">
+              <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgOval1} />
+            </div>
+          </div>
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:Bold'] font-bold leading-[normal] left-[35.21%] right-[59.86%] text-[#202224] text-[28px] text-center top-[calc(50%+407px)] tracking-[1px] whitespace-nowrap" data-node-id="2791:32662" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            1420
+          </p>
+        </div>
+        <p className="[word-break:break-word] absolute font-['Nunito_Sans:Bold'] font-bold leading-[20px] left-[20.42%] right-[72.01%] text-[#202224] text-[22px] top-[calc(50%+164px)] whitespace-nowrap" data-node-id="2791:32663" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+          Customers
+        </p>
+      </div>
+      <div className="absolute contents inset-[15.61%_2.22%_39.72%_18.75%]" data-node-id="2791:32664" data-name="Revenue">
+        <div className="absolute inset-[15.61%_2.22%_39.72%_18.75%]" data-node-id="2791:32665" data-name="card">
+          <div className="absolute inset-[-10.04%_-5.27%_-12.55%_-4.22%]">
+            <img alt="" className="block max-w-none size-full" src={imgCard} />
+          </div>
+        </div>
+        <div className="absolute contents inset-[55.51%_34.86%_42.62%_60.28%]" data-node-id="2791:32666" data-name="Profit">
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:Bold'] font-bold leading-[20px] left-[62.22%] right-[34.86%] text-[#282d32] text-[16px] top-[calc(50%+59px)] whitespace-nowrap" data-node-id="2791:32667" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            Profit
+          </p>
+          <div className="absolute inset-[55.79%_38.89%_43.08%_60.28%]" data-node-id="2791:32668" data-name="Oval">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgOval2} />
+          </div>
+        </div>
+        <div className="absolute contents inset-[55.51%_43.82%_42.62%_51.46%]" data-node-id="2791:32669" data-name="Sales">
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:Bold'] font-bold leading-[20px] left-[53.4%] right-[43.82%] text-[#282d32] text-[16px] top-[calc(50%+59px)] whitespace-nowrap" data-node-id="2791:32670" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            Sales
+          </p>
+          <div className="absolute inset-[55.79%_47.71%_43.08%_51.46%]" data-node-id="2791:32671" data-name="Oval">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgOval3} />
+          </div>
+        </div>
+        <div className="absolute contents inset-[25.7%_4.44%_48.32%_20.97%]" data-node-id="2791:32672" data-name="units">
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[67.64%] right-[30.9%] text-[12px] text-[rgba(43,48,52,0.4)] text-center top-[calc(50%+9px)] whitespace-nowrap" data-node-id="2791:32673" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            40k
+          </p>
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[73.61%] right-[24.93%] text-[12px] text-[rgba(43,48,52,0.4)] text-center top-[calc(50%+9px)] whitespace-nowrap" data-node-id="2791:32674" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            45k
+          </p>
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[79.58%] right-[18.96%] text-[12px] text-[rgba(43,48,52,0.4)] text-center top-[calc(50%+9px)] whitespace-nowrap" data-node-id="2791:32675" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            50k
+          </p>
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[85.56%] right-[12.99%] text-[12px] text-[rgba(43,48,52,0.4)] text-center top-[calc(50%+9px)] whitespace-nowrap" data-node-id="2791:32676" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            55k
+          </p>
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[91.53%] right-[7.01%] text-[12px] text-[rgba(43,48,52,0.4)] text-center top-[calc(50%+9px)] whitespace-nowrap" data-node-id="2791:32677" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            60k
+          </p>
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[26.25%] right-[72.78%] text-[12px] text-[rgba(43,48,52,0.4)] text-center top-[calc(50%+9px)] whitespace-nowrap" data-node-id="2791:32678" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            5k
+          </p>
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[31.77%] right-[66.77%] text-[12px] text-[rgba(43,48,52,0.4)] text-center top-[calc(50%+9px)] whitespace-nowrap" data-node-id="2791:32679" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            10k
+          </p>
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[37.74%] right-[60.8%] text-[12px] text-[rgba(43,48,52,0.4)] text-center top-[calc(50%+9px)] whitespace-nowrap" data-node-id="2791:32680" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            15k
+          </p>
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[43.72%] right-[54.83%] text-[12px] text-[rgba(43,48,52,0.4)] text-center top-[calc(50%+9px)] whitespace-nowrap" data-node-id="2791:32681" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            20k
+          </p>
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[49.69%] right-[48.85%] text-[12px] text-[rgba(43,48,52,0.4)] text-center top-[calc(50%+9px)] whitespace-nowrap" data-node-id="2791:32682" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            25k
+          </p>
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[61.67%] right-[36.88%] text-[12px] text-[rgba(43,48,52,0.4)] text-center top-[calc(50%+9px)] whitespace-nowrap" data-node-id="2791:32683" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            35k
+          </p>
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[55.66%] right-[42.88%] text-[12px] text-[rgba(43,48,52,0.4)] text-center top-[calc(50%+9px)] whitespace-nowrap" data-node-id="2791:32684" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            30k
+          </p>
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[20.97%] right-[77.99%] text-[12px] text-[rgba(43,48,52,0.4)] top-[calc(50%-24px)] whitespace-nowrap" data-node-id="2791:32685" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            20
+          </p>
+          <div className="absolute inset-[26.07%_4.44%_51.78%_26.25%]" data-node-id="2791:32686" data-name="Line">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgLine} />
+          </div>
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[20.97%] right-[77.99%] text-[12px] text-[rgba(43,48,52,0.4)] top-[calc(50%-83px)] whitespace-nowrap" data-node-id="2791:32692" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            40
+          </p>
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[20.97%] right-[77.99%] text-[12px] text-[rgba(43,48,52,0.4)] top-[calc(50%-142px)] whitespace-nowrap" data-node-id="2791:32693" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            60
+          </p>
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[20.97%] right-[77.99%] text-[12px] text-[rgba(43,48,52,0.4)] top-[calc(50%-201px)] whitespace-nowrap" data-node-id="2791:32694" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            80
+          </p>
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[9px] left-[20.97%] right-[77.5%] text-[12px] text-[rgba(43,48,52,0.4)] top-[calc(50%-260px)] whitespace-nowrap" data-node-id="2791:32695" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            100
+          </p>
+        </div>
+        <div className="absolute inset-[28.59%_4.17%_51.87%_26.53%]" data-node-id="2791:32696" data-name="Graph">
+          <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgGraph} />
+        </div>
+        <div className="absolute contents inset-[18.6%_4.44%_78.79%_88.33%]" data-node-id="2791:32699" data-name="Month selector">
+          <div className="absolute bg-[#fcfdfd] border-[#d5d5d5] border-[0.6px] border-solid inset-[18.6%_4.44%_78.79%_88.33%] rounded-[4px]" data-node-id="2791:32700" data-name="Rectangle" />
+          <div className="absolute contents inset-[19.44%_5.56%_79.63%_89.51%]" data-node-id="2791:32701" data-name="Month">
+            <div className="absolute inset-[19.44%_5.56%_79.63%_93.75%]" data-node-id="2791:32702" data-name="icon_chevron-down">
+              <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgIconChevronDown} />
+            </div>
+            <p className="[word-break:break-word] absolute font-['Circular_Std:Medium'] leading-[10px] left-[89.51%] not-italic right-[7.29%] text-[12px] text-[rgba(43,48,52,0.4)] text-right top-[calc(50%-327px)] whitespace-nowrap" data-node-id="2791:32705">
+              October
+            </p>
+          </div>
+        </div>
+        <p className="[word-break:break-word] absolute font-['Nunito_Sans:Bold'] font-bold leading-[20px] left-[20.97%] right-[72.36%] text-[#202224] text-[24px] top-[calc(50%-331px)] whitespace-nowrap" data-node-id="2791:32706" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+          Revenue
+        </p>
+      </div>
+      <p className="[word-break:break-word] absolute font-['Nunito_Sans:Bold'] font-bold leading-[normal] left-[18.75%] right-[70.07%] text-[#202224] text-[32px] top-[calc(50%-435px)] tracking-[-0.1143px] whitespace-nowrap" data-node-id="2791:32707" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+        Dashboard
+      </p>
+      <div className="absolute inset-[0_-0.07%_93.46%_16.67%]" data-node-id="2791:32708" data-name="Navigation / Top Bar #1">
+        <div className="absolute contents inset-0" data-node-id="I2791:32708;0:40370" data-name="Navigation / Top Bar #1">
+          <div className="absolute bg-white inset-0" data-node-id="I2791:32708;0:40371" data-name="Top Bar Bg" />
+          <div className="absolute contents inset-[18.57%_2.58%_18.57%_83.35%]" data-node-id="I2791:32708;0:40372" data-name="Profile">
+            <div className="absolute inset-[37.14%_2.58%_37.14%_95.92%]" data-node-id="I2791:32708;0:40373" data-name="More">
+              <div className="absolute inset-[-1.11%]">
+                <img alt="" className="block max-w-none size-full" src={imgMore} />
+              </div>
+            </div>
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:Bold'] font-bold leading-[normal] left-[88.68%] right-[6.24%] text-[#404040] text-[14px] top-[calc(50%-19px)] whitespace-nowrap" data-node-id="I2791:32708;0:40378" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              Moni Roy
+            </p>
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[normal] left-[88.68%] right-[8.24%] text-[#565656] text-[12px] top-[calc(50%+3px)] whitespace-nowrap" data-node-id="I2791:32708;0:40379" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              Admin
+            </p>
+            <div className="absolute contents inset-[18.57%_12.99%_18.57%_83.35%]" data-node-id="I2791:32708;0:40380" data-name="man-438081_960_720">
+              <div className="absolute inset-[18.57%_12.99%_18.57%_83.35%]" data-node-id="I2791:32708;0:40382" data-name="Mask">
+                <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgMask} />
+              </div>
+              <div className="absolute inset-[11.43%_12.66%_14.29%_83.18%] mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[2px_5px] mask-size-[44px_44px]" data-node-id="I2791:32708;0:40383" style={{ maskImage: `url("${imgALLEFVINICIUS343875Unsplash}")` }} data-name="a-l-l-e-f-v-i-n-i-c-i-u-s-343875-unsplash">
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <img alt="" className="absolute left-0 max-w-none size-full top-0" src={imgALLEFVINICIUS343875Unsplash1} />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="absolute contents inset-[31.43%_18.89%_30%_70.86%]" data-node-id="I2791:32708;0:40384" data-name="English">
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[normal] left-[75.52%] right-[20.48%] text-[#646464] text-[14px] top-[calc(50%-8px)] whitespace-nowrap" data-node-id="I2791:32708;0:40385" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              English
+            </p>
+            <div className="absolute inset-[45.24%_18.89%_48.1%_80.43%]" data-node-id="I2791:32708;0:40386" data-name="Drop Down">
+              <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgDropDown} />
+            </div>
+            <div className="absolute contents inset-[31.43%_25.81%_30%_70.86%]" data-node-id="I2791:32708;0:40389" data-name="Flag">
+              <div className="absolute bg-[#d8d8d8] inset-[31.43%_25.81%_30%_70.86%] rounded-[5px]" data-node-id="I2791:32708;0:40391" data-name="Mask" />
+              <div className="absolute inset-[31.43%_25.81%_30%_70.86%] mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-size-[40px_27px]" data-node-id="I2791:32708;0:40392" style={{ maskImage: `url("${imgUkFlag}")` }} data-name="UK Flag">
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <img alt="" className="absolute left-0 max-w-none size-full top-0" src={imgUkFlag1} />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="absolute contents inset-[27.14%_31.31%_29.29%_66.28%]" data-node-id="I2791:32708;0:40394" data-name="Icon">
+            <div className="absolute inset-[34.29%_31.72%_29.29%_66.28%]" data-node-id="I2791:32708;0:40395" data-name="icon">
+              <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgIcon} />
+            </div>
+            <div className="absolute bottom-1/2 left-[67.36%] right-[31.31%] top-[27.14%]" data-node-id="I2791:32708;0:40400" data-name="Oval">
+              <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgOval4} />
+            </div>
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:Bold'] font-bold leading-[normal] left-[67.69%] right-[31.64%] text-[12px] text-white top-[calc(50%-16px)] whitespace-nowrap" data-node-id="I2791:32708;0:40401" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              6
+            </p>
+          </div>
+          <div className="absolute inset-[25.71%_31.22%_48.57%_67.28%]" data-node-id="I2791:32708;0:40402" data-name="Oval">
+            <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgOval5} />
+          </div>
+          <div className="absolute contents inset-[32.86%_95.5%_30%_2.5%]" data-node-id="I2791:32708;0:40403" data-name="Icon">
+            <div className="absolute inset-[32.86%_95.5%_32.86%_2.5%] opacity-90" data-node-id="I2791:32708;0:40404" data-name="Path">
+              <img alt="" className="absolute block inset-0 max-w-none size-full" src={imgPath} />
+            </div>
+            <p className="[word-break:break-word] absolute font-['Gilroy:Medium'] leading-[normal] left-[3.08%] not-italic opacity-90 right-[96%] text-[#202224] text-[22px] text-center top-[calc(50%-12px)] whitespace-nowrap" data-node-id="I2791:32708;0:40405">{`\uF131`}</p>
+          </div>
+          <div className="absolute contents inset-[22.86%_61.2%_22.86%_6.49%]" data-node-id="I2791:32708;0:40406" data-name="Search">
+            <div className="absolute bg-[#f5f6fa] border-[#d5d5d5] border-[0.6px] border-solid inset-[22.86%_61.2%_22.86%_6.49%] rounded-[19px]" data-node-id="I2791:32708;0:40407" data-name="Bg" />
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:Regular'] font-normal leading-[normal] left-[10.24%] opacity-50 right-[86.18%] text-[#202224] text-[14px] text-center top-[calc(50%-9px)] whitespace-nowrap" data-node-id="I2791:32708;0:40408" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              Search
+            </p>
+            <div className="absolute inset-[37.93%_90.88%_40.63%_7.87%]" data-node-id="I2791:32708;0:40409" data-name="search">
+              <div className="absolute inset-[0_-4%_-4%_0]">
+                <img alt="" className="block max-w-none size-full" src={imgSearch} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="absolute contents inset-[0_83.33%_0_0]" data-node-id="2791:32709" data-name="Navigation / Sidebar Menu / Light">
+        <div className="absolute bg-white inset-[0_83.33%_0_0]" data-node-id="2791:32710" data-name="Side Bar Bg" />
+        <div className="absolute inset-[86.82%_83.33%_8.5%_0]" data-node-id="2791:32711" data-name="Navigation / Sidebar Item / Light">
+          <div className="absolute contents inset-0" data-node-id="I2791:32711;0:40355" data-name="Products">
+            <div className="absolute bg-white inset-0 opacity-0" data-node-id="I2791:32711;0:40356" data-name="Hide Bg" />
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[normal] left-[32.5%] right-[47.92%] text-[#202224] text-[14px] top-[calc(50%-9px)] tracking-[0.3px] whitespace-nowrap" data-node-id="I2791:32711;0:40357" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              Logout
+            </p>
+            <p className="[word-break:break-word] absolute font-['Gilroy:Medium'] leading-[normal] left-[19.17%] not-italic right-[76.25%] text-[#202224] text-[22px] text-center top-[calc(50%-12px)] whitespace-nowrap" data-node-id="I2791:32711;0:40358">{`\uF2C6`}</p>
+          </div>
+        </div>
+        <div className="absolute inset-[82.15%_83.33%_13.18%_0]" data-node-id="2791:32712" data-name="Navigation / Sidebar Item / Light">
+          <div className="absolute contents inset-0" data-node-id="I2791:32712;0:40355" data-name="Products">
+            <div className="absolute bg-white inset-0 opacity-0" data-node-id="I2791:32712;0:40356" data-name="Hide Bg" />
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[normal] left-[32.5%] right-[44.58%] text-[#202224] text-[14px] top-[calc(50%-9px)] tracking-[0.3px] whitespace-nowrap" data-node-id="I2791:32712;0:40357" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              Settings
+            </p>
+            <p className="[word-break:break-word] absolute font-['Gilroy:Medium'] leading-[normal] left-[19.17%] not-italic right-[76.25%] text-[#202224] text-[22px] text-center top-[calc(50%-12px)] whitespace-nowrap" data-node-id="I2791:32712;0:40358">{`\uF19A`}</p>
+          </div>
+        </div>
+        <div className="absolute inset-[80.56%_83.33%_19.35%_0]" data-node-id="2791:32713" data-name="Divider">
+          <div className="absolute inset-[20%_0]">
+            <img alt="" className="block max-w-none size-full" src={imgDivider} />
+          </div>
+        </div>
+        <div className="absolute inset-[74.39%_83.33%_20.93%_0]" data-node-id="2791:32714" data-name="Navigation / Sidebar Item / Light">
+          <div className="absolute contents inset-0" data-node-id="I2791:32714;0:40355" data-name="Products">
+            <div className="absolute bg-white inset-0 opacity-0" data-node-id="I2791:32714;0:40356" data-name="Hide Bg" />
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[normal] left-[32.5%] right-[52.08%] text-[#202224] text-[14px] top-[calc(50%-9px)] tracking-[0.3px] whitespace-nowrap" data-node-id="I2791:32714;0:40357" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              Table
+            </p>
+            <p className="[word-break:break-word] absolute font-['Gilroy:Medium'] leading-[normal] left-[19.17%] not-italic right-[76.25%] text-[#202224] text-[22px] text-center top-[calc(50%-12px)] whitespace-nowrap" data-node-id="I2791:32714;0:40358">{`\uF32D`}</p>
+          </div>
+        </div>
+        <div className="absolute inset-[69.72%_83.33%_25.61%_0]" data-node-id="2791:32715" data-name="Navigation / Sidebar Item / Light">
+          <div className="absolute contents inset-0" data-node-id="I2791:32715;0:40355" data-name="Products">
+            <div className="absolute bg-white inset-0 opacity-0" data-node-id="I2791:32715;0:40356" data-name="Hide Bg" />
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[normal] left-[32.5%] right-[52.5%] text-[#202224] text-[14px] top-[calc(50%-9px)] tracking-[0.3px] whitespace-nowrap" data-node-id="I2791:32715;0:40357" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              Team
+            </p>
+            <p className="[word-break:break-word] absolute font-['Gilroy:Medium'] leading-[normal] left-[19.17%] not-italic right-[76.25%] text-[#202224] text-[22px] text-center top-[calc(50%-12px)] whitespace-nowrap" data-node-id="I2791:32715;0:40358">{`\uF364`}</p>
+          </div>
+        </div>
+        <div className="absolute inset-[65.05%_83.33%_30.28%_0]" data-node-id="2791:32716" data-name="Navigation / Sidebar Item / Light">
+          <div className="absolute contents inset-0" data-node-id="I2791:32716;0:40355" data-name="Products">
+            <div className="absolute bg-white inset-0 opacity-0" data-node-id="I2791:32716;0:40356" data-name="Hide Bg" />
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[normal] left-[32.5%] right-[33.75%] text-[#202224] text-[14px] top-[calc(50%-9px)] tracking-[0.3px] whitespace-nowrap" data-node-id="I2791:32716;0:40357" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              UI Elements
+            </p>
+            <p className="[word-break:break-word] absolute font-['Gilroy:Medium'] leading-[normal] left-[19.17%] not-italic right-[76.25%] text-[#202224] text-[22px] text-center top-[calc(50%-12px)] whitespace-nowrap" data-node-id="I2791:32716;0:40358">{`\uF12E`}</p>
+          </div>
+        </div>
+        <div className="absolute inset-[60.37%_83.33%_34.95%_0]" data-node-id="2791:32717" data-name="Navigation / Sidebar Item / Light">
+          <div className="absolute contents inset-0" data-node-id="I2791:32717;0:40355" data-name="Products">
+            <div className="absolute bg-white inset-0 opacity-0" data-node-id="I2791:32717;0:40356" data-name="Hide Bg" />
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[normal] left-[32.5%] right-[48.33%] text-[#202224] text-[14px] top-[calc(50%-9px)] tracking-[0.3px] whitespace-nowrap" data-node-id="I2791:32717;0:40357" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              Invoice
+            </p>
+            <p className="[word-break:break-word] absolute font-['Gilroy:Medium'] leading-[normal] left-[19.17%] not-italic right-[76.25%] text-[#202224] text-[22px] text-center top-[calc(50%-12px)] whitespace-nowrap" data-node-id="I2791:32717;0:40358">{`\uF294`}</p>
+          </div>
+        </div>
+        <div className="absolute inset-[55.7%_83.33%_39.63%_0]" data-node-id="2791:32718" data-name="Navigation / Sidebar Item / Light">
+          <div className="absolute contents inset-0" data-node-id="I2791:32718;0:40355" data-name="Products">
+            <div className="absolute bg-white inset-0 opacity-0" data-node-id="I2791:32718;0:40356" data-name="Hide Bg" />
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[normal] left-[32.5%] right-[45.83%] text-[#202224] text-[14px] top-[calc(50%-9px)] tracking-[0.3px] whitespace-nowrap" data-node-id="I2791:32718;0:40357" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              Contact
+            </p>
+            <p className="[word-break:break-word] absolute font-['Gilroy:Medium'] leading-[normal] left-[19.17%] not-italic right-[76.25%] text-[#202224] text-[22px] text-center top-[calc(50%-12px)] whitespace-nowrap" data-node-id="I2791:32718;0:40358">{`\uF369`}</p>
+          </div>
+        </div>
+        <div className="absolute inset-[51.03%_83.33%_44.3%_0]" data-node-id="2791:32719" data-name="Navigation / Sidebar Item / Light">
+          <div className="absolute contents inset-0" data-node-id="I2791:32719;0:40355" data-name="Products">
+            <div className="absolute bg-white inset-0 opacity-0" data-node-id="I2791:32719;0:40356" data-name="Hide Bg" />
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[normal] left-[32.5%] right-1/2 text-[#202224] text-[14px] top-[calc(50%-9px)] tracking-[0.3px] whitespace-nowrap" data-node-id="I2791:32719;0:40357" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              To-Do
+            </p>
+            <p className="[word-break:break-word] absolute font-['Gilroy:Medium'] leading-[normal] left-[19.17%] not-italic right-[76.25%] text-[#202224] text-[22px] text-center top-[calc(50%-12px)] whitespace-nowrap" data-node-id="I2791:32719;0:40358">{`\uF18E`}</p>
+          </div>
+        </div>
+        <div className="absolute inset-[46.36%_83.33%_48.97%_0]" data-node-id="2791:32720" data-name="Navigation / Sidebar Item / Light">
+          <div className="absolute contents inset-0" data-node-id="I2791:32720;0:40355" data-name="Products">
+            <div className="absolute bg-white inset-0 opacity-0" data-node-id="I2791:32720;0:40356" data-name="Hide Bg" />
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[normal] left-[32.5%] right-[42.5%] text-[#202224] text-[14px] top-[calc(50%-9px)] tracking-[0.3px] whitespace-nowrap" data-node-id="I2791:32720;0:40357" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              Calender
+            </p>
+            <p className="[word-break:break-word] absolute font-['Gilroy:Medium'] leading-[normal] left-[19.17%] not-italic right-[76.25%] text-[#202224] text-[22px] text-center top-[calc(50%-12px)] whitespace-nowrap" data-node-id="I2791:32720;0:40358">{`\uF15C`}</p>
+          </div>
+        </div>
+        <div className="absolute inset-[41.68%_83.33%_53.64%_0]" data-node-id="2791:32721" data-name="Navigation / Sidebar Item / Light">
+          <div className="absolute contents inset-0" data-node-id="I2791:32721;0:40355" data-name="Products">
+            <div className="absolute bg-white inset-0 opacity-0" data-node-id="I2791:32721;0:40356" data-name="Hide Bg" />
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[normal] left-[32.5%] right-[48.33%] text-[#202224] text-[14px] top-[calc(50%-9px)] tracking-[0.3px] whitespace-nowrap" data-node-id="I2791:32721;0:40357" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              Pricing
+            </p>
+            <p className="[word-break:break-word] absolute font-['Gilroy:Medium'] leading-[normal] left-[19.17%] not-italic right-[76.25%] text-[#202224] text-[22px] text-center top-[calc(50%-12px)] whitespace-nowrap" data-node-id="I2791:32721;0:40358">{`\uF212`}</p>
+          </div>
+        </div>
+        <p className="[word-break:break-word] absolute font-['Nunito_Sans:Bold'] font-bold leading-[normal] left-[2.78%] opacity-60 right-[94.38%] text-[#202224] text-[12px] top-[calc(50%-121px)] tracking-[0.2571px] whitespace-nowrap" data-node-id="2791:32722" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+          PAGES
+        </p>
+        <div className="absolute inset-[37.1%_83.33%_62.8%_0]" data-node-id="2791:32723" data-name="Divider">
+          <div className="absolute inset-[20%_0]">
+            <img alt="" className="block max-w-none size-full" src={imgDivider} />
+          </div>
+        </div>
+        <div className="absolute inset-[30.93%_83.33%_64.39%_0]" data-node-id="2791:32724" data-name="Navigation / Sidebar Item / Light">
+          <div className="absolute contents inset-0" data-node-id="I2791:32724;0:40355" data-name="Products">
+            <div className="absolute bg-white inset-0 opacity-0" data-node-id="I2791:32724;0:40356" data-name="Hide Bg" />
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[normal] left-[32.5%] right-[28.75%] text-[#202224] text-[14px] top-[calc(50%-9px)] tracking-[0.3px] whitespace-nowrap" data-node-id="I2791:32724;0:40357" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              Product Stock
+            </p>
+            <p className="[word-break:break-word] absolute font-['Gilroy:Medium'] leading-[normal] left-[19.17%] not-italic right-[76.25%] text-[#202224] text-[22px] text-center top-[calc(50%-12px)] whitespace-nowrap" data-node-id="I2791:32724;0:40358">{`\uF1B4`}</p>
+          </div>
+        </div>
+        <div className="absolute inset-[26.26%_83.33%_69.07%_0]" data-node-id="2791:32725" data-name="Navigation / Sidebar Item / Light">
+          <div className="absolute contents inset-0" data-node-id="I2791:32725;0:40355" data-name="Products">
+            <div className="absolute bg-white inset-0 opacity-0" data-node-id="I2791:32725;0:40356" data-name="Hide Bg" />
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[normal] left-[32.5%] right-[36.67%] text-[#202224] text-[14px] top-[calc(50%-9px)] tracking-[0.3px] whitespace-nowrap" data-node-id="I2791:32725;0:40357" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              Order Lists
+            </p>
+            <p className="[word-break:break-word] absolute font-['Gilroy:Medium'] leading-[normal] left-[19.17%] not-italic right-[76.25%] text-[#202224] text-[22px] text-center top-[calc(50%-12px)] whitespace-nowrap" data-node-id="I2791:32725;0:40358">{`\uF26D`}</p>
+          </div>
+        </div>
+        <div className="absolute inset-[21.59%_83.33%_73.74%_0]" data-node-id="2791:32726" data-name="Navigation / Sidebar Item / Light">
+          <div className="absolute contents inset-0" data-node-id="I2791:32726;0:40355" data-name="Products">
+            <div className="absolute bg-white inset-0 opacity-0" data-node-id="I2791:32726;0:40356" data-name="Hide Bg" />
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[normal] left-[32.5%] right-[52.08%] text-[#202224] text-[14px] top-[calc(50%-9px)] tracking-[0.3px] whitespace-nowrap" data-node-id="I2791:32726;0:40357" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              Inbox
+            </p>
+            <p className="[word-break:break-word] absolute font-['Gilroy:Medium'] leading-[normal] left-[19.17%] not-italic right-[76.25%] text-[#202224] text-[22px] text-center top-[calc(50%-12px)] whitespace-nowrap" data-node-id="I2791:32726;0:40358">{`\uF1A2`}</p>
+          </div>
+        </div>
+        <div className="absolute inset-[16.92%_83.33%_78.41%_0]" data-node-id="2791:32727" data-name="Navigation / Sidebar Item / Light">
+          <div className="absolute contents inset-0" data-node-id="I2791:32727;0:40355" data-name="Products">
+            <div className="absolute bg-white inset-0 opacity-0" data-node-id="I2791:32727;0:40356" data-name="Hide Bg" />
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[normal] left-[32.5%] right-[42.08%] text-[#202224] text-[14px] top-[calc(50%-9px)] tracking-[0.3px] whitespace-nowrap" data-node-id="I2791:32727;0:40357" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              Favorites
+            </p>
+            <p className="[word-break:break-word] absolute font-['Gilroy:Medium'] leading-[normal] left-[19.17%] not-italic right-[76.25%] text-[#202224] text-[22px] text-center top-[calc(50%-12px)] whitespace-nowrap" data-node-id="I2791:32727;0:40358">{`\uF234`}</p>
+          </div>
+        </div>
+        <div className="absolute inset-[12.24%_83.33%_83.08%_0]" data-node-id="2791:32728" data-name="Navigation / Sidebar Item / Light">
+          <div className="absolute contents inset-0" data-node-id="I2791:32728;0:40355" data-name="Products">
+            <div className="absolute bg-white inset-0 opacity-0" data-node-id="I2791:32728;0:40356" data-name="Hide Bg" />
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[normal] left-[32.5%] right-[42.92%] text-[#202224] text-[14px] top-[calc(50%-9px)] tracking-[0.3px] whitespace-nowrap" data-node-id="I2791:32728;0:40357" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              Products
+            </p>
+            <p className="[word-break:break-word] absolute font-['Gilroy:Medium'] leading-[normal] left-[19.17%] not-italic right-[76.25%] text-[#202224] text-[22px] text-center top-[calc(50%-12px)] whitespace-nowrap" data-node-id="I2791:32728;0:40358">{`\uF33A`}</p>
+          </div>
+        </div>
+        <div className="absolute inset-[7.57%_83.33%_87.76%_0]" data-node-id="2791:32729" data-name="Navigation / Sidebar Item / Light">
+          <div className="absolute contents inset-0" data-node-id="I2791:32729;0:40332" data-name="Products">
+            <div className="absolute contents inset-0" data-node-id="I2791:32729;0:40333" data-name="Hide Bg + Hide Bg Copy Mask">
+              <div className="absolute bg-white inset-0 opacity-0" data-node-id="I2791:32729;0:40335" data-name="Mask" />
+              <div className="absolute bg-[#4880ff] inset-[0_10%] mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[-24px_0px] mask-size-[240px_50px] rounded-[6px]" data-node-id="I2791:32729;0:40336" style={{ maskImage: `url("${imgHideBg}")` }} data-name="Hide Bg" />
+              <div className="absolute bg-[#4880ff] inset-[0_98.33%_0_-2.08%] mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[5px_0px] mask-size-[240px_50px] rounded-[4px]" data-node-id="I2791:32729;0:40337" style={{ maskImage: `url("${imgHideBg}")` }} data-name="Hide Bg Copy" />
+            </div>
+            <p className="[word-break:break-word] absolute font-['Nunito_Sans:SemiBold'] font-semibold leading-[normal] left-[32.5%] right-[37.08%] text-[14px] text-white top-[calc(50%-9px)] tracking-[0.3px] whitespace-nowrap" data-node-id="I2791:32729;0:40338" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+              Dashboard
+            </p>
+            <p className="[word-break:break-word] absolute font-['Gilroy:Medium'] leading-[normal] left-[19.17%] not-italic right-[76.25%] text-[22px] text-center text-white top-[calc(50%-12px)] whitespace-nowrap" data-node-id="I2791:32729;0:40339">{`\uF1B2`}</p>
+          </div>
+        </div>
+        <div className="-translate-y-1/2 absolute h-[27px] left-[4.58%] right-[86.46%] top-[calc(50%-497.5px)]" data-node-id="2791:32730" data-name="Logo">
+          <p className="[word-break:break-word] absolute font-['Nunito_Sans:ExtraBold'] font-extrabold leading-[0] left-0 right-[6.48%] text-[#4880ff] text-[20px] top-[calc(50%-13.5px)]" data-node-id="I2791:32730;0:40368" style={{ fontVariationSettings: '"YTLC" 500, "wdth" 100' }}>
+            <span className="leading-[normal]">Dash</span>
+            <span className="leading-[normal] text-[#202224]">Stack</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

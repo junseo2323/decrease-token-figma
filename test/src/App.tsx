@@ -1,10 +1,10 @@
-import ChatScreen from './components/ChatScreen';
+import DashboardScreen from './components/DashboardScreen';
 
 function App() {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-200">
-      <div className="w-full max-w-[393px] min-h-[852px] bg-[#e9e6e2] shadow-2xl overflow-hidden">
-        <ChatScreen />
+      <div className="w-[1024px] h-[761px] shadow-2xl overflow-hidden">
+        <DashboardScreen />
       </div>
     </div>
   );
