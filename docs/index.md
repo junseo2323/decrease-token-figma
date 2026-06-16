@@ -46,6 +46,32 @@ figma-bridge
 }
 ```
 
+## Codex and Claude Code Setup
+
+Run these commands from the app project root so `FIGMA_BRIDGE_ROOT` points to the right filesystem location.
+
+```bash
+codex mcp add figma-cost-optimizer-bridge \
+  --env FIGMA_BRIDGE_ROOT="$PWD" \
+  -- npx -y decrease-token-figma
+```
+
+```bash
+claude mcp add -s local figma-cost-optimizer-bridge \
+  -e FIGMA_BRIDGE_ROOT="$PWD" \
+  -- npx -y decrease-token-figma
+```
+
+Check or remove the server:
+
+```bash
+codex mcp list
+claude mcp list
+
+codex mcp remove figma-cost-optimizer-bridge
+claude mcp remove figma-cost-optimizer-bridge
+```
+
 ## Why It Runs Locally
 
 This is not a hosted web service. The bridge needs access to:

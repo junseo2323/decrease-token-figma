@@ -105,6 +105,44 @@ GitHub 버전을 바로 실행하려면:
 }
 ```
 
+### Codex CLI
+
+브리지가 에셋과 캐시를 저장할 앱 프로젝트 루트에서 실행하세요.
+
+```bash
+codex mcp add figma-cost-optimizer-bridge \
+  --env FIGMA_BRIDGE_ROOT="$PWD" \
+  -- npx -y decrease-token-figma
+
+codex mcp list
+```
+
+나중에 제거하려면:
+
+```bash
+codex mcp remove figma-cost-optimizer-bridge
+```
+
+### Claude Code
+
+브리지가 에셋과 캐시를 저장할 앱 프로젝트 루트에서 실행하세요.
+
+```bash
+claude mcp add -s local figma-cost-optimizer-bridge \
+  -e FIGMA_BRIDGE_ROOT="$PWD" \
+  -- npx -y decrease-token-figma
+
+claude mcp list
+```
+
+나중에 제거하려면:
+
+```bash
+claude mcp remove figma-cost-optimizer-bridge
+```
+
+설정 후 Figma Desktop을 local MCP가 켜진 상태로 실행하고 노드를 선택한 뒤, Codex 또는 Claude Code에서 `get_optimized_figma_handoff`를 호출하면 됩니다.
+
 ## 필수 조건
 
 - Figma Desktop이 실행 중이어야 합니다.

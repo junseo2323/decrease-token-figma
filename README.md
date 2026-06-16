@@ -105,6 +105,44 @@ To run the GitHub version directly:
 }
 ```
 
+### Codex CLI
+
+From the app project you want the bridge to write assets/cache into:
+
+```bash
+codex mcp add figma-cost-optimizer-bridge \
+  --env FIGMA_BRIDGE_ROOT="$PWD" \
+  -- npx -y decrease-token-figma
+
+codex mcp list
+```
+
+To remove it later:
+
+```bash
+codex mcp remove figma-cost-optimizer-bridge
+```
+
+### Claude Code
+
+From the app project you want the bridge to write assets/cache into:
+
+```bash
+claude mcp add -s local figma-cost-optimizer-bridge \
+  -e FIGMA_BRIDGE_ROOT="$PWD" \
+  -- npx -y decrease-token-figma
+
+claude mcp list
+```
+
+To remove it later:
+
+```bash
+claude mcp remove figma-cost-optimizer-bridge
+```
+
+After setup, keep Figma Desktop running with local MCP enabled, select a node, then ask Codex or Claude Code to call `get_optimized_figma_handoff`.
+
 ## Requirements
 
 - Figma Desktop is running.

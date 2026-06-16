@@ -46,6 +46,32 @@ figma-bridge
 }
 ```
 
+## Codex와 Claude Code 설정
+
+`FIGMA_BRIDGE_ROOT`가 올바른 파일시스템 위치를 가리키도록, 구현할 앱 프로젝트 루트에서 실행하세요.
+
+```bash
+codex mcp add figma-cost-optimizer-bridge \
+  --env FIGMA_BRIDGE_ROOT="$PWD" \
+  -- npx -y decrease-token-figma
+```
+
+```bash
+claude mcp add -s local figma-cost-optimizer-bridge \
+  -e FIGMA_BRIDGE_ROOT="$PWD" \
+  -- npx -y decrease-token-figma
+```
+
+등록 확인 또는 제거:
+
+```bash
+codex mcp list
+claude mcp list
+
+codex mcp remove figma-cost-optimizer-bridge
+claude mcp remove figma-cost-optimizer-bridge
+```
+
 ## 왜 로컬에서 실행하나요?
 
 이 브리지는 호스팅 웹 서비스가 아닙니다. 다음에 접근해야 합니다.
