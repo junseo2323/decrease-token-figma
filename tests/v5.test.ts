@@ -6,10 +6,12 @@ import * as path from 'path';
 
 import { hashRawText, NodeCacheManager } from '../cache-manager.js';
 import { ComponentRegistry } from '../component-registry.js';
+import { FigmaNormalizer } from '../figma-normalizer.js';
 import { buildDiffHandoff } from '../diff-handoff.js';
 import { deduplicateSubtrees } from '../subtree-deduper.js';
 import { getOllamaCandidatePaths, resolveOllamaBinary } from '../ollama-helper.js';
 import { ensureAgentRuleFiles, FIGMA_BRIDGE_AGENT_RULE } from '../agent-rules.js';
+import { buildInstructionBlock, getProfileHandoffFilename, resolveProfile } from '../target-profiles.js';
 
 const repeatedCode = `function ChatScreen() {
   return (
@@ -161,6 +163,71 @@ export function Button({ label }: ButtonProps) { return <button>{label}</button>
 
     assert.equal(data.components[0].name, 'Button');
     assert.deepEqual(data.components[0].props, ['label', 'disabled']);
+});
+
+test('target profiles default to React Tailwind and generate target instructions', () => {
+    const fallback = resolveProfile();
+    assert.equal(fallback.framework, 'react');
+    assert.equal(fallback.styling, 'tailwind');
+    assert.equal(fallback.codeFenceLang, 'tsx');
+    assert.equal(getProfileHandoffFilename(fallback), 'handoff.md');
+
+    const vue = resolveProfile('vue', 'emotion');
+    assert.equal(vue.label, 'Vue');
+    assert.equal(vue.codeFenceLang, 'vue');
+    assert.deepEqual(vue.componentExtensions, ['.vue']);
+    assert.equal(getProfileHandoffFilename(vue), 'handoff.vue-emotion.md');
+
+    const instructions = buildInstructionBlock(vue);
+    assert.match(instructions, /lucide-vue-next/);
+    assert.match(instructions, /Emotion `css` prop/);
+    assert.match(instructions, /중간표현 주석 처리/);
+});
+
+test('handoff markdown uses profile title fence and styling guidance', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'figma-bridge-profile-handoff-'));
+    const outputPath = path.join(root, 'handoff.vue-emotion.md');
+    const profile = resolveProfile('vue', 'emotion');
+    const normalizer = new FigmaNormalizer(root, 'llama3.2', { profile, requireOllama: false });
+
+    await normalizer.generateHandoffMarkdown({
+        component_name: 'ProfileCard',
+        cleaned_code: 'function ProfileCard() { return <div className="text-[#282d32] p-4">Hello</div>; }',
+        ollama: null,
+    }, { outputPath, profile });
+
+    const handoff = await fs.readFile(outputPath, 'utf-8');
+    assert.match(handoff, /# 🎨 Optimized Figma Vue Code: ProfileCard/);
+    assert.match(handoff, /```vue/);
+    assert.match(handoff, /lucide-vue-next/);
+    assert.match(handoff, /Emotion `css` prop/);
+});
+
+test('component registry scans vue and svelte component files by target extensions', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'figma-bridge-registry-sfc-'));
+    const cacheDir = path.join(root, '.figma_cache');
+    const componentsDir = path.join(root, 'src', 'components');
+    await fs.mkdir(componentsDir, { recursive: true });
+    await fs.writeFile(path.join(componentsDir, 'UserCard.vue'), `
+<script setup lang="ts">
+defineProps<{ name: string; avatarUrl?: string }>();
+</script>
+`, 'utf-8');
+    await fs.writeFile(path.join(componentsDir, 'StatusBadge.svelte'), `
+<script lang="ts">
+export let label: string;
+export let tone = 'neutral';
+</script>
+`, 'utf-8');
+
+    const vueRegistry = new ComponentRegistry(root, cacheDir, ['.vue']);
+    const vueData = await vueRegistry.syncFromSourceComponents();
+    assert.equal(vueData.components.find(component => component.name === 'UserCard')?.filePath, path.join('src', 'components', 'UserCard.vue'));
+    assert.deepEqual(vueData.components.find(component => component.name === 'UserCard')?.props, ['name', 'avatarUrl']);
+
+    const svelteRegistry = new ComponentRegistry(root, cacheDir, ['.svelte']);
+    const svelteData = await svelteRegistry.syncFromSourceComponents();
+    assert.deepEqual(svelteData.components.find(component => component.name === 'StatusBadge')?.props, ['label', 'tone']);
 });
 
 test('registry upsert keeps entries with same generic name but different structure hashes', async () => {

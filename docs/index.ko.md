@@ -1,12 +1,12 @@
 # Figma Cost Optimizer Bridge
 
 <div align="right">
-  <a href="./index.html">English</a> | <strong>한국어</strong>
+  <a href="./index.md">English</a> | <strong>한국어</strong>
 </div>
 
-![Figma Cost Optimizer Bridge 시스템 개요](./assets/system-overview-kr.png)
+![Figma Cost Optimizer Bridge 시스템 개요](./assets/system-overview-kr.svg)
 
-Figma Desktop 디자인 컨텍스트를 LLM 코딩 에이전트가 구현하기 좋은 토큰 효율적인 React handoff로 압축하는 로컬 MCP 브리지입니다.
+Figma Desktop 디자인 컨텍스트를 LLM 코딩 에이전트가 구현하기 좋은 토큰 효율적인 다중 웹 프레임워크 handoff로 압축하는 로컬 MCP 브리지입니다.
 
 ## 벤치마크 요약
 
@@ -19,7 +19,7 @@ Figma Desktop 디자인 컨텍스트를 LLM 코딩 에이전트가 구현하기 
 
 **추정 입력 토큰 절감률: 51.65%** — 게다가 bridge 쪽이 평균 +1.65 pp 더 정확했습니다.
 
-[전체 벤치마크 리포트 보기](./BENCHMARK_RESULTS_KR.html)
+[전체 벤치마크 리포트 보기](./BENCHMARK_RESULTS_KR.md)
 
 ![Bridge 렌더](./assets/benchmarks/dashstack-dashboard/bridge.png)
 
@@ -80,7 +80,7 @@ claude mcp remove figma-cost-optimizer-bridge
 
 - Figma Desktop local MCP: `127.0.0.1:3845`
 - 캐시와 에셋을 저장할 사용자의 프로젝트 파일시스템
-- 선택적인 로컬 Ollama 분석
+- 자동 준비되며 handoff 생성에 필요한 로컬 Ollama 분석
 
 실제 설치와 실행은 npm 또는 GitHub를 사용하세요. GitHub Pages는 문서와 벤치마크 리포트 공개용입니다.
 
@@ -88,4 +88,4 @@ claude mcp remove figma-cost-optimizer-bridge
 
 - [GitHub 저장소](https://github.com/junseo2323/decrease-token-figma)
 - [npm 패키지](https://www.npmjs.com/package/decrease-token-figma)
-- [English page](./index.html)
+- [English page](./index.md)

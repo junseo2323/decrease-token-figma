@@ -4,11 +4,11 @@
   <a href="./README.md">English</a> | <strong>한국어</strong>
 </div>
 
-![Figma Cost Optimizer Bridge 시스템 개요](./docs/assets/system-overview-kr.png)
+![Figma Cost Optimizer Bridge 시스템 개요](./docs/assets/system-overview-kr.svg)
 
-Figma Cost Optimizer Bridge는 Figma Desktop의 디자인 컨텍스트를 LLM 코딩 에이전트가 구현하기 좋은 작고 실용적인 React handoff로 바꾸는 로컬 MCP 서버입니다.
+Figma Cost Optimizer Bridge는 Figma Desktop의 디자인 컨텍스트를 LLM 코딩 에이전트가 구현하기 좋은 작고 실용적인 웹 handoff로 바꾸는 로컬 MCP 서버입니다.
 
-이 브리지는 MCP 클라이언트와 Figma Desktop의 로컬 MCP 엔드포인트 사이에 위치합니다. 메타데이터, 절대 좌표, 반복되는 class 문자열, 인라인 SVG로 가득한 원본 `get_design_context` 출력을 그대로 넘기지 않고, 정제된 React 뼈대 코드, 디자인 토큰, 재사용 가능한 반복 구조, 스크린샷 경로가 담긴 작은 Markdown handoff를 반환합니다.
+이 브리지는 MCP 클라이언트와 Figma Desktop의 로컬 MCP 엔드포인트 사이에 위치합니다. 메타데이터, 절대 좌표, 반복되는 class 문자열, 인라인 SVG로 가득한 원본 `get_design_context` 출력을 그대로 넘기지 않고, 정제된 JSX 중간표현 뼈대 코드, 디자인 토큰, 재사용 가능한 반복 구조, 스크린샷 경로가 담긴 작은 Markdown handoff를 반환합니다. Handoff는 React, Vue, Svelte, HTML과 Tailwind, styled-components, Emotion, CSS Modules, inline style을 타겟으로 지정할 수 있습니다.
 
 결과적으로 입력 토큰 비용과 컨텍스트 노이즈를 줄이면서도, 코딩 에이전트가 UI를 정확하게 구현하는 데 필요한 정보는 보존합니다.
 
@@ -33,7 +33,8 @@ Figma Cost Optimizer Bridge는 Figma Desktop의 디자인 컨텍스트를 LLM �
 - **해시 캐시:** raw Figma 응답이 바뀌지 않았으면 이전 handoff를 재사용합니다.
 - **Diff handoff:** 이미 본 컴포넌트는 변경된 줄만 반환하고, 변경량이 너무 크면 자동으로 전체 handoff로 폴백합니다.
 - **로컬 컴포넌트 레지스트리:** 추출되었거나 프로젝트에서 스캔한 컴포넌트를 기록하고 이후 handoff에서 재사용을 제안합니다.
-- **선택적 Ollama 사전 분석:** 로컬 Ollama가 있으면 색상, 텍스트, 요약 분석을 추가합니다. Ollama가 없어도 파이프라인은 계속 동작합니다.
+- **Target profile:** React, Vue, Svelte, HTML과 Tailwind, styled-components, Emotion, CSS Modules, inline style에 맞는 지시문을 생성합니다.
+- **필수 Ollama 사전 분석:** 로컬 Ollama로 색상, 텍스트, 요약 분석을 추가합니다. MCP 서버가 시작 시 Ollama를 준비하며, 분석을 실행할 수 없으면 handoff 생성은 실패합니다.
 - **벤치마크 하니스:** raw vs bridge 입력 토큰, Playwright 렌더 결과, `pixelmatch` 픽셀 유사도를 측정합니다.
 
 ## 설치
@@ -168,10 +169,12 @@ IMPORTANT: For Figma design-to-code work, use only the `figma-cost-optimizer-bri
 | `screenshot` | `path` / `inline` / `none` | `path` | `path`는 PNG를 캐시에 저장하고 절대 경로만 반환합니다. `inline`은 파일 접근이 없는 클라이언트용입니다 |
 | `mode` | `auto` / `full` / `diff` | `auto` | 이전 버전이 있으면 diff, 없으면 full handoff를 반환합니다 |
 | `force_refresh` | boolean | `false` | raw 해시가 같아도 캐시를 무시하고 다시 캡처합니다 |
+| `target` | `react` / `vue` / `svelte` / `html` | `react` | handoff 지시문과 코드펜스에 사용할 타겟 웹 프레임워크 |
+| `styling` | `tailwind` / `styled-components` / `emotion` / `css-modules` / `inline` | `tailwind` | 디자인 토큰 변환 지시에 사용할 스타일링 방식 |
 
 ### `sync_component_registry`
 
-`<projectRoot>/src/components/*.tsx`를 스캔해 로컬 컴포넌트 레지스트리를 갱신합니다. 이후 handoff에서 이 레지스트리를 바탕으로 컴포넌트 재사용을 제안하거나 강제할 수 있습니다.
+`<projectRoot>/src/components`를 target profile의 컴포넌트 확장자 기준으로 스캔해 로컬 컴포넌트 레지스트리를 갱신합니다. React는 `.tsx`/`.jsx`, Vue는 `.vue`, Svelte는 `.svelte`, HTML은 `.html`을 스캔합니다. 이후 handoff에서 이 레지스트리를 바탕으로 컴포넌트 재사용을 제안하거나 강제할 수 있습니다.
 
 ## 작동 흐름
 
@@ -179,7 +182,7 @@ IMPORTANT: For Figma design-to-code work, use only the `figma-cost-optimizer-bri
 2. LLM이 `get_optimized_figma_handoff`를 호출합니다.
 3. 브리지가 로컬 Figma MCP 엔드포인트에서 raw design context와 screenshot을 가져옵니다.
 4. 이미지 에셋을 `src/assets` 또는 설정된 asset directory에 저장합니다.
-5. raw TSX를 정제하고 반복 구조를 압축한 뒤, 선택적으로 Ollama 분석을 추가합니다.
+5. raw TSX를 정제하고 반복 구조를 압축한 뒤, 필수 Ollama 분석을 추가합니다.
 6. LLM은 handoff Markdown과 screenshot을 기반으로 UI를 구현합니다.
 
 ## 캐시 구조
@@ -263,7 +266,7 @@ npm run benchmark:blind -- dashstack-dashboard \
 
 ## 런타임 모델
 
-이 프로젝트는 원격 웹 서비스로 실행하는 것이 주목적이 아닙니다. 브리지는 사용자의 로컬 Figma Desktop 선택, 로컬 파일시스템, 선택적 로컬 Ollama 서버에 접근해야 합니다. 실제 런타임은 npm 또는 GitHub 설치로 실행하고, GitHub Pages는 문서와 벤치마크 리포트 공개 용도로 사용하세요.
+이 프로젝트는 원격 웹 서비스로 실행하는 것이 주목적이 아닙니다. 브리지는 사용자의 로컬 Figma Desktop 선택, 로컬 파일시스템, 로컬 Ollama 서버에 접근해야 합니다. 실제 런타임은 npm 또는 GitHub 설치로 실행하고, GitHub Pages는 문서와 벤치마크 리포트 공개 용도로 사용하세요.
 
 문서:
 

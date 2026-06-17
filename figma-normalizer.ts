@@ -2,6 +2,12 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { ComponentRegistry } from './component-registry.js';
 import { deduplicateSubtrees, DeduplicationResult } from './subtree-deduper.js';
+import {
+    buildInstructionBlock,
+    getPrimaryComponentExtension,
+    resolveProfile,
+    TargetProfile,
+} from './target-profiles.js';
 
 interface OllamaAnalysis {
     summary: string;
@@ -16,6 +22,7 @@ interface FigmaNormalizerOptions {
     projectRoot?: string;
     enableDeduplication?: boolean;
     requireOllama?: boolean;
+    profile?: TargetProfile;
 }
 
 export interface ExtractedFigmaTokens {
@@ -29,6 +36,7 @@ export interface HandoffMarkdownOptions {
     outputPath?: string;
     screenshotPaths?: string[];
     registryHints?: string[];
+    profile?: TargetProfile;
 }
 
 export class FigmaNormalizer {
@@ -39,6 +47,7 @@ export class FigmaNormalizer {
     private projectRoot?: string;
     private enableDeduplication: boolean;
     private requireOllama: boolean;
+    private profile: TargetProfile;
 
     constructor(cacheDir: string = './.figma_cache', model: string = 'llama3.2', options?: FigmaNormalizerOptions) {
         this.cacheDir = cacheDir;
@@ -48,6 +57,7 @@ export class FigmaNormalizer {
         this.projectRoot = options?.projectRoot;
         this.enableDeduplication = options?.enableDeduplication ?? true;
         this.requireOllama = options?.requireOllama ?? true;
+        this.profile = options?.profile ?? resolveProfile();
     }
 
     private async analyzeWithOllama(code: string): Promise<OllamaAnalysis | null> {
@@ -56,7 +66,7 @@ export class FigmaNormalizer {
             ? code.substring(0, 4000) + '\n...(truncated)'
             : code;
 
-        const prompt = `You are a UI component analyzer. Analyze this React skeleton code and return ONLY a raw JSON object. No markdown, no explanation, no code blocks.
+        const prompt = `You are a UI component analyzer. Analyze this UI skeleton code and return ONLY a raw JSON object. No markdown, no explanation, no code blocks.
 
 Code:
 ${truncated}
@@ -117,7 +127,9 @@ Return exactly this JSON structure:
         } catch (error) {
             const errorMsg = (error as Error).message;
             if (errorMsg.includes('fetch failed') || errorMsg.includes('timeout')) {
-                console.error(`⚠️  Ollama 서버 연결 실패. 디자인 토큰 분석을 건너뜁니다.`);
+                console.error(this.requireOllama
+                    ? `⚠️  Ollama 서버 연결 실패. 필수 디자인 토큰 분석을 실행할 수 없습니다.`
+                    : `⚠️  Ollama 서버 연결 실패. 디자인 토큰 분석을 건너뜁니다.`);
             } else if (errorMsg.includes('No JSON found')) {
                 console.error(`⚠️  Ollama 가 JSON 이 아닌 다른 형식을 반환했습니다.`);
             } else if (errorMsg.includes('JSON.parse')) {
@@ -217,7 +229,9 @@ Return exactly this JSON structure:
                 // 2. 인라인 <svg> 태그 추출 (모드별 처리)
                 const svgList: Array<{ name: string; description: string }> = [];
 
-                if (this.convertSvgToComponent) {
+                const shouldConvertSvgToComponent = this.convertSvgToComponent && this.profile.framework === 'react';
+
+                if (shouldConvertSvgToComponent) {
                     // Component 모드: SVG 를 React 컴포넌트로 변환
                     const svgRegex = /<svg[^>]*data-name="([^"]+)"([\s\S]*?)<\/svg>/g;
                     let svgMatch;
@@ -273,7 +287,7 @@ const ${componentNameSvg} = (props: React.SVGProps<SVGSVGElement>) => (
                         .replace(/^[a-z]/, (m: string) => m.toUpperCase());
                     svgList.push({ name: pascal, description: name });
 
-                    if (this.convertSvgToComponent) {
+                    if (shouldConvertSvgToComponent) {
                         // Component 모드: 컴포넌트로 치환
                         const componentNameSvg = svgDownloads.get(pascal);
                         return componentNameSvg ? `<${componentNameSvg} />` : `{/* SVG Icon: ${pascal} */}`;
@@ -302,8 +316,8 @@ const ${componentNameSvg} = (props: React.SVGProps<SVGSVGElement>) => (
                 }
 
                 // Compact 모드: SVG 목록을 코드 상단에 주석으로 추가
-                if (svgList.length > 0 && !this.convertSvgToComponent) {
-                    const svgComment = `\n/**\n * 🎨 필요한 SVG 아이콘 목록:\n${svgList.map(s => ` * - ${s.name}: "${s.description}" 아이콘을 사용하세요 (예: lucide-react 의 <${s.name} />)`).join('\n')}\n * \n * 📦 설치 방법: npm install lucide-react\n */\n`;
+                if (svgList.length > 0 && !shouldConvertSvgToComponent) {
+                    const svgComment = `\n/**\n * 🎨 필요한 SVG 아이콘 목록:\n${svgList.map(s => ` * - ${s.name}: "${s.description}" 아이콘을 ${this.profile.label} 타겟에 맞게 대체하세요.`).join('\n')}\n * \n * ${this.profile.iconGuidance}\n */\n`;
                     finalCode = svgComment + finalCode;
                     console.error(`✅ ${svgList.length}개의 SVG 를 주석으로 변환했습니다 (Compact 모드)!`);
                 }
@@ -330,7 +344,7 @@ const ${componentNameSvg} = (props: React.SVGProps<SVGSVGElement>) => (
             let deduplication: DeduplicationResult | undefined;
             if (!isXml && this.enableDeduplication) {
                 const registry = this.projectRoot
-                    ? new ComponentRegistry(this.projectRoot, this.cacheDir)
+                    ? new ComponentRegistry(this.projectRoot, this.cacheDir, this.profile.componentExtensions)
                     : undefined;
                 const registryData = registry ? await registry.pruneMissing() : undefined;
                 deduplication = deduplicateSubtrees(finalCode, registryData);
@@ -341,7 +355,7 @@ const ${componentNameSvg} = (props: React.SVGProps<SVGSVGElement>) => (
                         if (component.reusedFrom) continue;
                         await registry.upsert({
                             name: component.name,
-                            filePath: path.join('src', 'components', `${component.name}.tsx`),
+                            filePath: path.join('src', 'components', `${component.name}${getPrimaryComponentExtension(this.profile)}`),
                             structureHash: component.structureHash,
                             props: component.props,
                             source: 'bridge',
@@ -365,6 +379,7 @@ const ${componentNameSvg} = (props: React.SVGProps<SVGSVGElement>) => (
     }
 
     public async generateHandoffMarkdown(data: ExtractedFigmaTokens, options: HandoffMarkdownOptions = {}) {
+        const profile = options.profile ?? this.profile;
         let ollamaSection = '';
         if (data.ollama) {
             const colors = data.ollama.colors.length
@@ -418,20 +433,13 @@ ${hints.map(hint => `- ${hint}`).join('\n')}
             ? `\n${data.deduplication.instanceDataMarkdown}\n`
             : '';
 
-        const mdContent = `# 🎨 Optimized Figma React Code: ${data.component_name}
+        const mdContent = `# 🎨 Optimized Figma ${profile.label} Code: ${data.component_name}
 ${ollamaSection}
 ${screenshotSection}
 ${registryHintSection}
-> 🚨 **[매우 중요] LLM 행동 교정 지시사항 (CRITICAL INSTRUCTION)** 🚨
-> 너는 지금 전달받은 스크린샷과 아래의 뼈대 코드를 결합하여 완벽한 UI를 구현해야 한다. 코드를 작성하기 전, 반드시 아래의 5가지 원칙을 100% 준수해라.
->
-> 1. **레이아웃(배치)은 '비전' 기반:** 요소들의 가로/세로 배치(flex, grid 등)와 전체적인 여백의 비율은 함께 전달된 **'스크린샷 이미지'를 눈으로 직접 확인**하고 구성해라.
-> 2. **정확한 수치(디자인 토큰)는 '텍스트' 기반:** 색상, 폰트 크기, 패딩, 둥글기 값은 네가 임의로 기본 클래스(bg-gray-100 등)로 때려 맞추지 마라. **반드시 아래 '뼈대 코드'에 하드코딩되어 있는 정확한 값(Hex 코드, 패딩 수치 등)을 100% 그대로 복사해서 사용해라.**
-> 3. **문구 및 데이터 보존:** 뼈대 코드에 있는 실제 텍스트(서비스 고유 명사 등)는 절대 환각으로 지어내지 말고 그대로 적용해라.
-> 4. **에셋 변수명 리팩토링 필수:** 상단에 import 된 무의미한 변수명(\`imgVariant\` 등)은 컴포넌트에 적용할 때 반드시 \`avatarImage\`, \`logoIcon\` 등 역할에 맞는 시맨틱한 이름으로 변경해라.
-> 5. **인라인 SVG 금지:** 주석 처리된 \`{/* SVG Icon: 이름 */}\` 부분은 무조건 \`lucide-react\` 컴포넌트로 대체하라. 픽셀이 조금 다르다는 이유로 절대 \`<svg>\` 태그를 직접 하드코딩하지 마라.
+${buildInstructionBlock(profile)}
 
-\`\`\`tsx
+\`\`\`${profile.codeFenceLang}
 ${data.cleaned_code}
 \`\`\`
 ${repeatedDataSection}

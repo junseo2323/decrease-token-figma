@@ -1,7 +1,7 @@
 # 벤치마크 결과: DashStack Dashboard
 
 <div align="right">
-  <a href="./BENCHMARK_RESULTS.html">English</a> | <strong>한국어</strong>
+  <a href="./BENCHMARK_RESULTS.md">English</a> | <strong>한국어</strong>
 </div>
 
 Figma Cost Optimizer Bridge의 현재 재현 가능한 벤치마크 기록입니다.
@@ -95,7 +95,7 @@ benchmarks/results/dashstack-dashboard/
 
 - 사용자의 로컬 Figma Desktop MCP 엔드포인트(`127.0.0.1:3845`)
 - 에셋과 캐시를 위한 로컬 프로젝트 파일시스템
-- 선택적 로컬 Ollama 사전 분석
+- 필수 로컬 Ollama 사전 분석
 
 권장 배포:
 

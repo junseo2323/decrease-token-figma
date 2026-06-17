@@ -17,7 +17,11 @@ export interface ComponentRegistryData {
 export class ComponentRegistry {
     private registryPath: string;
 
-    constructor(private projectRoot: string, private cacheDir: string) {
+    constructor(
+        private projectRoot: string,
+        private cacheDir: string,
+        private componentExtensions: string[] = ['.tsx'],
+    ) {
         this.registryPath = path.join(cacheDir, 'registry.json');
     }
 
@@ -96,11 +100,13 @@ export class ComponentRegistry {
     async syncFromSourceComponents(): Promise<ComponentRegistryData> {
         const componentsDir = path.join(this.projectRoot, 'src', 'components');
         const files = await fs.readdir(componentsDir).catch(() => []);
-        const tsxFiles = files.filter(file => file.endsWith('.tsx'));
+        const componentFiles = files.filter(file =>
+            this.componentExtensions.some(extension => file.endsWith(extension))
+        );
         const data = await this.read();
         const now = new Date().toISOString();
 
-        for (const file of tsxFiles) {
+        for (const file of componentFiles) {
             const absolute = path.join(componentsDir, file);
             const source = await fs.readFile(absolute, 'utf-8').catch(() => '');
             const relative = path.relative(this.projectRoot, absolute);
@@ -135,7 +141,21 @@ function normalizeName(name: string): string {
 function discoverComponents(source: string, file: string): Array<{ name: string; props: string[] }> {
     const results: Array<{ name: string; props: string[] }> = [];
     const seen = new Set<string>();
-    const baseName = file.replace(/\.tsx$/, '');
+    const extension = path.extname(file);
+    const baseName = file.slice(0, -extension.length);
+
+    if (extension === '.vue') {
+        return [{ name: baseName, props: extractVueProps(source) }];
+    }
+
+    if (extension === '.svelte') {
+        return [{ name: baseName, props: extractSvelteProps(source) }];
+    }
+
+    if (extension === '.html') {
+        return [{ name: baseName, props: [] }];
+    }
+
     const patterns = [
         /export\s+function\s+([A-Z][A-Za-z0-9_]*)\s*\(([^)]*)\)/g,
         /export\s+const\s+([A-Z][A-Za-z0-9_]*)\s*[:=]/g,
@@ -156,6 +176,50 @@ function discoverComponents(source: string, file: string): Array<{ name: string;
     }
 
     return results;
+}
+
+function extractVueProps(source: string): string[] {
+    const props = new Set<string>();
+
+    const genericDefineProps = source.match(/defineProps\s*<\s*\{([\s\S]*?)\}\s*>\s*\(/m);
+    if (genericDefineProps) {
+        collectObjectShapeProps(genericDefineProps[1], props);
+    }
+
+    const arrayDefineProps = source.match(/defineProps\s*\(\s*\[([\s\S]*?)\]\s*\)/m);
+    if (arrayDefineProps) {
+        for (const match of arrayDefineProps[1].matchAll(/['"]([A-Za-z_][A-Za-z0-9_]*)['"]/g)) {
+            props.add(match[1]);
+        }
+    }
+
+    const objectDefineProps = source.match(/defineProps\s*\(\s*\{([\s\S]*?)\}\s*\)/m);
+    if (objectDefineProps) {
+        for (const match of objectDefineProps[1].matchAll(/([A-Za-z_][A-Za-z0-9_]*)\s*:/g)) {
+            props.add(match[1]);
+        }
+    }
+
+    const optionsProps = source.match(/props\s*:\s*(?:\[([\s\S]*?)\]|\{([\s\S]*?)\})/m);
+    if (optionsProps?.[1]) {
+        for (const match of optionsProps[1].matchAll(/['"]([A-Za-z_][A-Za-z0-9_]*)['"]/g)) {
+            props.add(match[1]);
+        }
+    } else if (optionsProps?.[2]) {
+        for (const match of optionsProps[2].matchAll(/([A-Za-z_][A-Za-z0-9_]*)\s*:/g)) {
+            props.add(match[1]);
+        }
+    }
+
+    return [...props];
+}
+
+function extractSvelteProps(source: string): string[] {
+    const props = new Set<string>();
+    for (const match of source.matchAll(/export\s+let\s+([A-Za-z_][A-Za-z0-9_]*)/g)) {
+        props.add(match[1]);
+    }
+    return [...props];
 }
 
 function extractProps(source: string, componentName: string, signature = ''): string[] {
@@ -181,4 +245,10 @@ function extractProps(source: string, componentName: string, signature = ''): st
     }
 
     return [...props];
+}
+
+function collectObjectShapeProps(body: string, props: Set<string>): void {
+    for (const prop of body.matchAll(/([A-Za-z_][A-Za-z0-9_]*)\??\s*:/g)) {
+        props.add(prop[1]);
+    }
 }

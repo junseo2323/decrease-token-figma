@@ -13,6 +13,7 @@ import { hashRawText, NodeCacheManager } from './cache-manager.js';
 import { ComponentRegistry } from './component-registry.js';
 import { buildDiffHandoff } from './diff-handoff.js';
 import { ensureAgentRuleFiles } from './agent-rules.js';
+import { getProfileHandoffFilename, resolveProfile } from './target-profiles.js';
 
 type ScreenshotMode = 'path' | 'inline' | 'none';
 type HandoffMode = 'auto' | 'full' | 'diff';
@@ -22,6 +23,14 @@ interface HandoffArgs {
     screenshot?: ScreenshotMode;
     force_refresh?: boolean;
     mode?: HandoffMode;
+    target?: string;
+    styling?: string;
+}
+
+interface RegistryArgs {
+    projectRoot?: string;
+    target?: string;
+    styling?: string;
 }
 
 const server = new Server(
@@ -37,7 +46,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         tools: [
             {
                 name: "get_optimized_figma_handoff",
-                description: "피그마에서 현재 선택된 요소의 '정제된 React 코드'와 '스크린샷 이미지'를 가져와 완벽한 시각적/구조적 정보를 제공합니다.",
+                description: "피그마에서 현재 선택된 요소를 토큰 최적화 핸드오프로 변환합니다. 타겟 웹 프레임워크와 스타일링 방식을 지정할 수 있습니다.",
                 inputSchema: {
                     type: "object",
                     properties: {
@@ -60,18 +69,38 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
                             default: "auto",
                             description: "auto는 이전 버전이 있으면 diff, 없으면 full 핸드오프를 반환합니다.",
                         },
+                        target: {
+                            enum: ["react", "vue", "svelte", "html"],
+                            default: "react",
+                            description: "핸드오프를 생성할 타겟 웹 프레임워크입니다.",
+                        },
+                        styling: {
+                            enum: ["tailwind", "styled-components", "emotion", "css-modules", "inline"],
+                            default: "tailwind",
+                            description: "뼈대 코드의 디자인 토큰을 최종 구현으로 변환할 스타일링 방식입니다.",
+                        },
                     },
                 },
             },
             {
                 name: "sync_component_registry",
-                description: "프로젝트의 src/components/*.tsx를 스캔해 로컬 컴포넌트 레지스트리를 갱신합니다.",
+                description: "프로젝트의 src/components 아래 컴포넌트를 타겟 프레임워크 확장자 기준으로 스캔해 로컬 컴포넌트 레지스트리를 갱신합니다.",
                 inputSchema: {
                     type: "object",
                     properties: {
                         projectRoot: {
                             type: "string",
                             description: "스캔할 프로젝트 루트. 생략하면 FIGMA_BRIDGE_ROOT 또는 현재 cwd를 사용합니다.",
+                        },
+                        target: {
+                            enum: ["react", "vue", "svelte", "html"],
+                            default: "react",
+                            description: "스캔할 컴포넌트 확장자를 결정하는 타겟 프레임워크입니다.",
+                        },
+                        styling: {
+                            enum: ["tailwind", "styled-components", "emotion", "css-modules", "inline"],
+                            default: "tailwind",
+                            description: "프로필 해석용 스타일링 방식입니다. 레지스트리 스캔에서는 확장자 결정 외 영향이 없습니다.",
                         },
                     },
                 },
@@ -82,15 +111,16 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
     if (request.params.name === "sync_component_registry") {
-        const args = request.params.arguments as { projectRoot?: string } | undefined;
+        const args = request.params.arguments as RegistryArgs | undefined;
+        const profile = resolveProfile(args?.target, args?.styling);
         const bridgePaths = resolveBridgePaths(args?.projectRoot);
         await ensureAgentRules(bridgePaths.projectRoot);
-        const registry = new ComponentRegistry(bridgePaths.projectRoot, bridgePaths.cacheDir);
+        const registry = new ComponentRegistry(bridgePaths.projectRoot, bridgePaths.cacheDir, profile.componentExtensions);
         const data = await registry.syncFromSourceComponents();
         return {
             content: [{
                 type: "text",
-                text: `레지스트리 동기화 완료: ${data.components.length}개 컴포넌트\n파일: ${path.join(bridgePaths.cacheDir, 'registry.json')}`,
+                text: `레지스트리 동기화 완료(${profile.label}, ${profile.componentExtensions.join(', ')}): ${data.components.length}개 컴포넌트\n파일: ${path.join(bridgePaths.cacheDir, 'registry.json')}`,
             }],
         };
     }
@@ -100,6 +130,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
 
     const args = request.params.arguments as HandoffArgs | undefined;
+    const profile = resolveProfile(args?.target, args?.styling);
+    const handoffFilename = getProfileHandoffFilename(profile);
     const bridgePaths = resolveBridgePaths(args?.projectRoot);
     await ensureAgentRules(bridgePaths.projectRoot);
     const cacheDir = bridgePaths.cacheDir;
@@ -109,6 +141,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const normalizer = new FigmaNormalizer(cacheDir, 'llama3.2', {
         assetDir: bridgePaths.assetDir,
         projectRoot: bridgePaths.projectRoot,
+        profile,
     });
     const nodeCache = new NodeCacheManager(cacheDir);
 
@@ -119,12 +152,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const componentName = FigmaProxy.extractComponentName(rawText);
         const hash = hashRawText(rawText);
         const nodeDir = nodeCache.getNodeDir(componentName, hash);
-        const cached = await nodeCache.exists(componentName, hash);
+        const cached = await handoffExists(nodeDir, handoffFilename);
 
         if (cached && !args?.force_refresh) {
             console.error(`⚡ 해시 캐시 히트: ${componentName}_${hash}`);
             await proxy.disconnect();
-            const mdContent = await fs.readFile(path.join(nodeDir, 'handoff.md'), 'utf-8');
+            const mdContent = await fs.readFile(path.join(nodeDir, handoffFilename), 'utf-8');
             const screenshotPaths = await listScreenshotPaths(nodeDir);
             return { content: await buildToolContent(mdContent, screenshotMode, screenshotPaths) };
         }
@@ -156,16 +189,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
         // 3. 코드 정제 (V3 무손실 압축)
         const tokens = await normalizer.extractTokens(componentName, rawText);
-        const fullHandoffPath = path.join(nodeDir, 'handoff.md');
+        const fullHandoffPath = path.join(nodeDir, handoffFilename);
         await normalizer.generateHandoffMarkdown(tokens, {
             outputPath: fullHandoffPath,
             screenshotPaths: screenshotMode === 'path' ? screenshotPaths : undefined,
+            profile,
         });
 
         let mdContent = await fs.readFile(fullHandoffPath, 'utf-8');
-        const shouldDiff = mode === 'diff' || (mode === 'auto' && previous);
-        if (shouldDiff && previous) {
-            const previousMd = await fs.readFile(path.join(previous.dir, 'handoff.md'), 'utf-8');
+        const previousMd = previous ? await readHandoffIfExists(previous.dir, handoffFilename) : null;
+        const shouldDiff = mode === 'diff' || (mode === 'auto' && previousMd);
+        if (shouldDiff && previous && previousMd) {
             const diff = buildDiffHandoff({
                 componentName,
                 previousHash: previous.meta.hash,
@@ -189,6 +223,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             nodeIds,
             createdAt: new Date().toISOString(),
             figmaName: componentName,
+            target: profile.framework,
+            styling: profile.styling,
         });
         await nodeCache.prune(componentName, 2);
 
@@ -228,6 +264,23 @@ async function listScreenshotPaths(nodeDir: string): Promise<string[]> {
         .filter(file => /^screenshot(?:_\d+)?\.png$/.test(file))
         .sort()
         .map(file => path.join(nodeDir, file));
+}
+
+async function handoffExists(nodeDir: string, filename: string): Promise<boolean> {
+    try {
+        await fs.access(path.join(nodeDir, filename));
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+async function readHandoffIfExists(nodeDir: string, filename: string): Promise<string | null> {
+    try {
+        return await fs.readFile(path.join(nodeDir, filename), 'utf-8');
+    } catch {
+        return null;
+    }
 }
 
 async function buildToolContent(

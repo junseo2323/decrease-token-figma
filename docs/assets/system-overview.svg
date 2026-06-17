@@ -1,6 +1,6 @@
 <svg width="1280" height="640" viewBox="0 0 1280 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
   <title id="title">Figma Cost Optimizer Bridge local architecture</title>
-  <desc id="desc">Dark architecture diagram showing MCP clients and Figma Desktop feeding a local bridge pipeline, which captures Figma data, normalizes it, compresses repeated structures, reuses cache and returns compact React-ready handoffs.</desc>
+  <desc id="desc">Dark architecture diagram showing MCP clients and Figma Desktop feeding a local bridge pipeline, which captures Figma data, normalizes it, compresses repeated structures, reuses cache and returns compact multi-framework web handoffs.</desc>
   <defs>
     <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(650 310) rotate(90) scale(390 620)">
       <stop stop-color="#0F766E" stop-opacity="0.32"/>
@@ -46,7 +46,7 @@
   <rect x="28" y="28" width="1224" height="584" rx="26" stroke="#1E293B"/>
 
   <text x="70" y="82" class="sans title">Figma Cost Optimizer Bridge</text>
-  <text x="70" y="116" class="sans subtitle">Local MCP middleware for compact, React-ready Figma handoffs.</text>
+  <text x="70" y="116" class="sans subtitle">Local MCP middleware for compact, multi-framework Figma handoffs.</text>
   <g transform="translate(946 58)">
     <rect width="246" height="48" rx="24" fill="#2A170B" stroke="#FB923C"/>
     <text x="123" y="31" text-anchor="middle" class="sans badge">51.65% fewer tokens</text>
@@ -90,7 +90,7 @@
       <rect width="340" height="44" rx="14" fill="#0F172A" fill-opacity="0.72" stroke="#A7F3D0" stroke-opacity="0.65"/>
       <circle cx="24" cy="22" r="12" fill="#A7F3D0"/>
       <text x="48" y="20" class="sans stageTitle">3. Compress</text>
-      <text x="182" y="20" class="sans stageCopy">repeat JSX to props</text>
+      <text x="182" y="20" class="sans stageCopy">repeat UI to props</text>
     </g>
     <g transform="translate(470 458)">
       <rect width="340" height="44" rx="14" fill="#0F172A" fill-opacity="0.72" stroke="#FBBF24" stroke-opacity="0.75"/>
@@ -105,7 +105,7 @@
     <text x="960" y="232" class="sans eyebrow">OUTPUT</text>
     <text x="960" y="270" class="sans outputTitle">Optimized Handoff</text>
     <text x="960" y="312" class="sans outputCopy">Compact Markdown</text>
-    <text x="960" y="348" class="sans outputCopy">Clean React skeleton</text>
+    <text x="960" y="348" class="sans outputCopy">Target profile guidance</text>
     <text x="960" y="384" class="sans outputCopy">Design tokens</text>
     <text x="960" y="420" class="sans outputCopy">Screenshot file paths</text>
   </g>

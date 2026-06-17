@@ -4,11 +4,11 @@
   <strong>English</strong> | <a href="./README_KR.md">한국어</a>
 </div>
 
-![Figma Cost Optimizer Bridge system overview](./docs/assets/system-overview.png)
+![Figma Cost Optimizer Bridge system overview](./docs/assets/system-overview.svg)
 
-Figma Cost Optimizer Bridge is a local MCP server that turns Figma Desktop design context into compact, implementation-ready React handoffs for LLM coding agents.
+Figma Cost Optimizer Bridge is a local MCP server that turns Figma Desktop design context into compact, implementation-ready web handoffs for LLM coding agents.
 
-It sits between an MCP client and the local Figma Desktop MCP endpoint. Instead of forwarding raw `get_design_context` output full of metadata, absolute coordinates, repeated class strings, and inline SVG, the bridge returns a smaller Markdown handoff with cleaned React skeleton code, design tokens, reusable repeated structures, and a screenshot path.
+It sits between an MCP client and the local Figma Desktop MCP endpoint. Instead of forwarding raw `get_design_context` output full of metadata, absolute coordinates, repeated class strings, and inline SVG, the bridge returns a smaller Markdown handoff with cleaned JSX intermediate skeleton code, design tokens, reusable repeated structures, and a screenshot path. The handoff can target React, Vue, Svelte, or HTML, with Tailwind, styled-components, Emotion, CSS Modules, or inline styles.
 
 The result is lower input-token cost and less context noise while still preserving the information a coding agent needs to build the UI accurately.
 
@@ -33,7 +33,8 @@ Latest reproducible fixture: `DashStack Dashboard`, Figma node `2791-32584`, mea
 - **Hash cache:** reuses previous handoffs when the raw Figma response has not changed.
 - **Diff handoff:** returns only changed lines for previously seen components, with automatic fallback to full handoff when the diff is too large.
 - **Local component registry:** records extracted or scanned project components and suggests reuse in later handoffs.
-- **Optional Ollama pre-analysis:** uses local Ollama for color, text, and summary analysis when available; the pipeline continues if Ollama is unavailable.
+- **Target profiles:** generates profile-specific guidance for React, Vue, Svelte, and HTML, plus Tailwind, styled-components, Emotion, CSS Modules, and inline styling.
+- **Required Ollama pre-analysis:** uses local Ollama for color, text, and summary analysis. The MCP server prepares Ollama on startup, and handoff generation fails if analysis cannot run.
 - **Benchmark harness:** measures raw vs bridge input tokens, renders outputs in Playwright, and computes pixel similarity with `pixelmatch`.
 
 ## Install
@@ -168,10 +169,12 @@ Fetches the selected Figma node and returns an optimized Markdown handoff plus s
 | `screenshot` | `path` / `inline` / `none` | `path` | `path` stores the PNG in cache and returns only its absolute path. `inline` is for clients without filesystem access |
 | `mode` | `auto` / `full` / `diff` | `auto` | Return a diff when a previous version exists, otherwise a full handoff |
 | `force_refresh` | boolean | `false` | Ignore the cache and capture again even if the raw hash matches |
+| `target` | `react` / `vue` / `svelte` / `html` | `react` | Target web framework for handoff instructions and code fence |
+| `styling` | `tailwind` / `styled-components` / `emotion` / `css-modules` / `inline` | `tailwind` | Styling system for token conversion guidance |
 
 ### `sync_component_registry`
 
-Scans `<projectRoot>/src/components/*.tsx` and updates the local component registry. Later handoffs can use this registry to recommend or enforce component reuse.
+Scans `<projectRoot>/src/components` using the target profile's component extensions and updates the local component registry. React scans `.tsx`/`.jsx`, Vue scans `.vue`, Svelte scans `.svelte`, and HTML scans `.html`. Later handoffs can use this registry to recommend or enforce component reuse.
 
 ## Workflow
 
@@ -179,7 +182,7 @@ Scans `<projectRoot>/src/components/*.tsx` and updates the local component regis
 2. The LLM calls `get_optimized_figma_handoff`.
 3. The bridge fetches raw design context and a screenshot from the local Figma MCP endpoint.
 4. Image assets are written to `src/assets` or the configured asset directory.
-5. Raw TSX is cleaned, repeated structures are deduped, and optional Ollama analysis is added.
+5. Raw TSX is cleaned, repeated structures are deduped, and required Ollama analysis is added.
 6. The LLM implements the UI from the handoff Markdown and screenshot.
 
 ## Cache Layout
@@ -263,7 +266,7 @@ npm run benchmark:blind -- dashstack-dashboard \
 
 ## Runtime Model
 
-This project is not meant to run primarily as a hosted web service. The bridge must access the user's local Figma Desktop selection, local filesystem, and optional local Ollama server. Use npm or GitHub installation for the actual runtime, and use GitHub Pages for documentation and benchmark reports.
+This project is not meant to run primarily as a hosted web service. The bridge must access the user's local Figma Desktop selection, local filesystem, and local Ollama server. Use npm or GitHub installation for the actual runtime, and use GitHub Pages for documentation and benchmark reports.
 
 Documentation:
 

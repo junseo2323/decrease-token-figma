@@ -40,7 +40,6 @@ async function main() {
         const normalizer = new FigmaNormalizer(cacheDir, process.env.OLLAMA_MODEL ?? 'llama3.2', {
             assetDir: path.join(fixtureDir, 'assets'),
             projectRoot: ROOT,
-            requireOllama: false,
         });
         const tokens = await normalizer.extractTokens(componentName, rawText);
         await normalizer.generateHandoffMarkdown(tokens, {

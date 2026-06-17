@@ -1,6 +1,6 @@
 <svg width="1280" height="640" viewBox="0 0 1280 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
   <title id="title">Figma Cost Optimizer Bridge 로컬 아키텍처</title>
-  <desc id="desc">MCP 클라이언트와 Figma Desktop이 로컬 브리지 파이프라인으로 들어가고, 브리지가 캡처, 정규화, 압축, 캐시를 거쳐 작은 React handoff를 반환하는 검정 배경 기술 다이어그램입니다.</desc>
+  <desc id="desc">MCP 클라이언트와 Figma Desktop이 로컬 브리지 파이프라인으로 들어가고, 브리지가 캡처, 정규화, 압축, 캐시를 거쳐 작은 다중 웹 프레임워크 handoff를 반환하는 검정 배경 기술 다이어그램입니다.</desc>
   <defs>
     <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(650 310) rotate(90) scale(390 620)">
       <stop stop-color="#0F766E" stop-opacity="0.32"/>
@@ -46,7 +46,7 @@
   <rect x="28" y="28" width="1224" height="584" rx="26" stroke="#1E293B"/>
 
   <text x="70" y="82" class="sans title">Figma Cost Optimizer Bridge</text>
-  <text x="70" y="116" class="sans subtitle">Figma 컨텍스트를 작고 구현하기 좋은 React handoff로 바꾸는 로컬 MCP 미들웨어입니다.</text>
+  <text x="70" y="116" class="sans subtitle">Figma 컨텍스트를 작고 구현하기 좋은 다중 웹 프레임워크 handoff로 바꿉니다.</text>
   <g transform="translate(946 58)">
     <rect width="246" height="48" rx="24" fill="#2A170B" stroke="#FB923C"/>
     <text x="123" y="31" text-anchor="middle" class="sans badge">입력 토큰 51.65% 절감</text>
@@ -90,7 +90,7 @@
       <rect width="340" height="44" rx="14" fill="#0F172A" fill-opacity="0.72" stroke="#A7F3D0" stroke-opacity="0.65"/>
       <circle cx="24" cy="22" r="12" fill="#A7F3D0"/>
       <text x="48" y="20" class="sans stageTitle">3. 압축</text>
-      <text x="146" y="20" class="sans stageCopy">반복 JSX를 props로</text>
+      <text x="146" y="20" class="sans stageCopy">반복 UI를 props로</text>
     </g>
     <g transform="translate(470 458)">
       <rect width="340" height="44" rx="14" fill="#0F172A" fill-opacity="0.72" stroke="#FBBF24" stroke-opacity="0.75"/>
@@ -105,7 +105,7 @@
     <text x="960" y="232" class="sans eyebrow">OUTPUT</text>
     <text x="960" y="270" class="sans outputTitle">최적화된 Handoff</text>
     <text x="960" y="312" class="sans outputCopy">작은 Markdown</text>
-    <text x="960" y="348" class="sans outputCopy">정리된 React 뼈대</text>
+    <text x="960" y="348" class="sans outputCopy">타겟 프로파일 지시</text>
     <text x="960" y="384" class="sans outputCopy">디자인 토큰</text>
     <text x="960" y="420" class="sans outputCopy">스크린샷 파일 경로</text>
   </g>

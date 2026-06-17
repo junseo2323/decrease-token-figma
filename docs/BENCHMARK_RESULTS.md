@@ -1,7 +1,7 @@
 # Benchmark Results: DashStack Dashboard
 
 <div align="right">
-  <strong>English</strong> | <a href="./BENCHMARK_RESULTS_KR.html">한국어</a>
+  <strong>English</strong> | <a href="./BENCHMARK_RESULTS_KR.md">한국어</a>
 </div>
 
 This report records the current reproducible benchmark for Figma Cost Optimizer Bridge.
@@ -95,7 +95,7 @@ This project should run locally, not primarily as a hosted web service. The MCP 
 
 - the user's local Figma Desktop MCP endpoint at `127.0.0.1:3845`
 - the user's local project filesystem for assets and cache
-- optional local Ollama for pre-analysis
+- local Ollama for required pre-analysis
 
 Recommended distribution:
 

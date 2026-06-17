@@ -8,6 +8,8 @@ export interface NodeCacheMeta {
     nodeIds: string[];
     createdAt: string;
     figmaName?: string;
+    target?: string;
+    styling?: string;
 }
 
 export interface NodeCacheEntry {

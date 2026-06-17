@@ -1,12 +1,12 @@
 # Figma Cost Optimizer Bridge
 
 <div align="right">
-  <strong>English</strong> | <a href="./index.ko.html">한국어</a>
+  <strong>English</strong> | <a href="./index.ko.md">한국어</a>
 </div>
 
-![Figma Cost Optimizer Bridge system overview](./assets/system-overview.png)
+![Figma Cost Optimizer Bridge system overview](./assets/system-overview.svg)
 
-Local MCP bridge that compresses Figma Desktop design context into token-efficient React handoffs for LLM coding agents.
+Local MCP bridge that compresses Figma Desktop design context into token-efficient multi-framework web handoffs for LLM coding agents.
 
 ## Benchmark Snapshot
 
@@ -19,7 +19,7 @@ Latest fixture: `DashStack Dashboard`, measured on `2026-06-16` (blind 3-run, `c
 
 **Estimated input-token saving: 51.65%** — and the bridge arm was +1.65 pp more similar to the reference on average.
 
-[Read the full benchmark report](./BENCHMARK_RESULTS.html)
+[Read the full benchmark report](./BENCHMARK_RESULTS.md)
 
 ![Bridge render](./assets/benchmarks/dashstack-dashboard/bridge.png)
 
@@ -80,7 +80,7 @@ This is not a hosted web service. The bridge needs access to:
 
 - Figma Desktop local MCP on `127.0.0.1:3845`
 - the user's project filesystem for cache and assets
-- optional local Ollama analysis
+- local Ollama analysis, prepared automatically and required for handoff generation
 
 Use npm or GitHub for installation. Use GitHub Pages for docs and benchmark reports.
 
@@ -88,4 +88,4 @@ Use npm or GitHub for installation. Use GitHub Pages for docs and benchmark repo
 
 - [GitHub repository](https://github.com/junseo2323/decrease-token-figma)
 - [npm package](https://www.npmjs.com/package/decrease-token-figma)
-- [Korean page](./index.ko.html)
+- [Korean page](./index.ko.md)

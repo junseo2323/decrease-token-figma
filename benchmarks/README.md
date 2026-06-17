@@ -33,7 +33,7 @@ npm run build
 npm run benchmark:capture -- dashstack-dashboard 2791-32584 WlvYAu5ONnUe7kVcDtmuqk
 ```
 
-The capture script writes the official raw context, a reference screenshot, metadata, and the bridge handoff. It uses `requireOllama: false`, so the handoff still generates if Ollama is offline.
+The capture script writes the official raw context, a reference screenshot, metadata, and the bridge handoff. Ollama must be available because the bridge handoff includes the required pre-analysis step.
 
 ## Measure Tokens
 
