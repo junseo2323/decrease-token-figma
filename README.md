@@ -142,6 +142,19 @@ claude mcp remove figma-cost-optimizer-bridge
 
 After setup, keep Figma Desktop running with local MCP enabled, select a node, then ask Codex or Claude Code to call `get_optimized_figma_handoff`.
 
+### Avoiding Official Figma MCP Tool Conflicts
+
+Do not register the official `figma-mcp` server alongside this bridge. If both tools are available, an LLM may choose the raw official `get_design_context` tool before the optimized bridge handoff.
+
+Use the built-in doctor and migration helper:
+
+```bash
+figma-bridge doctor
+figma-bridge migrate-config --yes
+```
+
+`doctor` inspects known Claude Desktop, Cursor, workspace MCP, and Codex config locations. `migrate-config --yes` backs up JSON configs, removes competing official Figma MCP entries, and ensures `figma-cost-optimizer-bridge` is the Figma MCP server in that config. Codex TOML configs are reported but not rewritten automatically; remove official Figma MCP entries there with the Codex CLI.
+
 When the bridge starts, it also ensures `AGENTS.md` and `CLAUDE.md` exist in `FIGMA_BRIDGE_ROOT` and prepends this guardrail as the first line:
 
 ```text
@@ -171,6 +184,15 @@ Fetches the selected Figma node and returns an optimized Markdown handoff plus s
 | `force_refresh` | boolean | `false` | Ignore the cache and capture again even if the raw hash matches |
 | `target` | `react` / `vue` / `svelte` / `html` | `react` | Target web framework for handoff instructions and code fence |
 | `styling` | `tailwind` / `styled-components` / `emotion` / `css-modules` / `inline` | `tailwind` | Styling system for token conversion guidance |
+
+### Compatibility aliases
+
+The bridge also exposes `get_design_context` and `get_figma_context` as optimized handoff aliases. These names are intentionally compatible with common Figma MCP workflows, but they return bridge handoff Markdown rather than raw official Figma context.
+
+Escape hatches:
+
+- `get_raw_figma_context`: returns raw Figma selected-node context.
+- `get_screenshot` / `get_figma_screenshot`: pass-through screenshot helpers.
 
 ### `sync_component_registry`
 

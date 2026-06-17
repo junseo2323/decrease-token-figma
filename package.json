@@ -1,6 +1,6 @@
 {
   "name": "decrease-token-figma",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Local MCP bridge that compresses Figma design context into token-efficient multi-framework web handoffs with screenshots.",
   "main": "build/index.js",
   "bin": {

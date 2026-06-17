@@ -74,6 +74,17 @@ claude mcp remove figma-cost-optimizer-bridge
 
 On startup, the bridge prepends a guardrail to `AGENTS.md` and `CLAUDE.md` in `FIGMA_BRIDGE_ROOT` so agents use only `figma-cost-optimizer-bridge` for Figma work and do not fall back to the official Figma MCP. Set `FIGMA_BRIDGE_WRITE_AGENT_RULES=0` to disable this.
 
+## Avoid Tool Conflicts
+
+Do not keep the official `figma-mcp` server registered next to this bridge. Use:
+
+```bash
+figma-bridge doctor
+figma-bridge migrate-config --yes
+```
+
+The bridge also exposes compatibility aliases such as `get_design_context`, `get_figma_context`, and `get_screenshot`, so it can replace the official Figma MCP server in normal workflows.
+
 ## Why It Runs Locally
 
 This is not a hosted web service. The bridge needs access to:

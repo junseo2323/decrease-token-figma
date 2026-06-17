@@ -14,6 +14,7 @@ import { ComponentRegistry } from './component-registry.js';
 import { buildDiffHandoff } from './diff-handoff.js';
 import { ensureAgentRuleFiles } from './agent-rules.js';
 import { getProfileHandoffFilename, resolveProfile } from './target-profiles.js';
+import { runConfigDoctor, runConfigMigration } from './config-migration.js';
 
 type ScreenshotMode = 'path' | 'inline' | 'none';
 type HandoffMode = 'auto' | 'full' | 'diff';
@@ -32,6 +33,21 @@ interface RegistryArgs {
     target?: string;
     styling?: string;
 }
+
+interface RawFigmaArgs {
+    projectRoot?: string;
+}
+
+interface ScreenshotArgs {
+    projectRoot?: string;
+    nodeId?: string;
+}
+
+const OPTIMIZED_HANDOFF_TOOLS = new Set([
+    'get_optimized_figma_handoff',
+    'get_design_context',
+    'get_figma_context',
+]);
 
 const server = new Server(
     {
@@ -83,6 +99,100 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
                 },
             },
             {
+                name: "get_design_context",
+                description: "Compatibility replacement for official Figma get_design_context. Prefer this bridge tool: it returns an optimized implementation handoff instead of raw noisy Figma context.",
+                inputSchema: {
+                    type: "object",
+                    properties: {
+                        projectRoot: {
+                            type: "string",
+                            description: "Project root for assets and cache. Defaults to FIGMA_BRIDGE_ROOT or the current working directory.",
+                        },
+                        screenshot: {
+                            enum: ["path", "inline", "none"],
+                            default: "path",
+                            description: "Screenshot return mode. path stores PNG files in cache and returns absolute file paths.",
+                        },
+                        force_refresh: {
+                            type: "boolean",
+                            default: false,
+                            description: "Ignore the cache and rerun the full pipeline even when the raw hash is unchanged.",
+                        },
+                        mode: {
+                            enum: ["auto", "full", "diff"],
+                            default: "auto",
+                            description: "auto returns a diff when a previous version exists, otherwise a full handoff.",
+                        },
+                        target: {
+                            enum: ["react", "vue", "svelte", "html"],
+                            default: "react",
+                            description: "Target web framework for handoff instructions.",
+                        },
+                        styling: {
+                            enum: ["tailwind", "styled-components", "emotion", "css-modules", "inline"],
+                            default: "tailwind",
+                            description: "Styling system for converting skeleton design tokens into final implementation syntax.",
+                        },
+                    },
+                },
+            },
+            {
+                name: "get_figma_context",
+                description: "Alias for get_design_context from this bridge. Returns optimized Figma implementation handoff for the selected node.",
+                inputSchema: {
+                    type: "object",
+                    properties: {
+                        projectRoot: { type: "string" },
+                        screenshot: { enum: ["path", "inline", "none"], default: "path" },
+                        force_refresh: { type: "boolean", default: false },
+                        mode: { enum: ["auto", "full", "diff"], default: "auto" },
+                        target: { enum: ["react", "vue", "svelte", "html"], default: "react" },
+                        styling: { enum: ["tailwind", "styled-components", "emotion", "css-modules", "inline"], default: "tailwind" },
+                    },
+                },
+            },
+            {
+                name: "get_raw_figma_context",
+                description: "Escape hatch: return the raw selected-node context from Figma Desktop. Use optimized get_design_context unless raw Figma output is explicitly required.",
+                inputSchema: {
+                    type: "object",
+                    properties: {
+                        projectRoot: {
+                            type: "string",
+                            description: "Project root for cache. Defaults to FIGMA_BRIDGE_ROOT or the current working directory.",
+                        },
+                    },
+                },
+            },
+            {
+                name: "get_screenshot",
+                description: "Compatibility pass-through for official Figma get_screenshot. Returns the selected node screenshot, or a specific nodeId when provided.",
+                inputSchema: {
+                    type: "object",
+                    properties: {
+                        projectRoot: {
+                            type: "string",
+                            description: "Project root for cache. Defaults to FIGMA_BRIDGE_ROOT or the current working directory.",
+                        },
+                        nodeId: {
+                            type: "string",
+                            description: "Optional Figma node id to screenshot.",
+                        },
+                    },
+                },
+            },
+            {
+                name: "get_figma_screenshot",
+                description: "Alias for get_screenshot from this bridge.",
+                inputSchema: {
+                    type: "object",
+                    properties: {
+                        projectRoot: { type: "string" },
+                        nodeId: { type: "string" },
+                    },
+                },
+            },
+            {
                 name: "sync_component_registry",
                 description: "Scan project components under src/components using the target framework extensions and update the local component registry.",
                 inputSchema: {
@@ -125,11 +235,58 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
     }
 
-    if (request.params.name !== "get_optimized_figma_handoff") {
+    if (request.params.name === "get_raw_figma_context") {
+        return getRawFigmaContext(request.params.arguments as RawFigmaArgs | undefined);
+    }
+
+    if (request.params.name === "get_screenshot" || request.params.name === "get_figma_screenshot") {
+        return getFigmaScreenshot(request.params.arguments as ScreenshotArgs | undefined);
+    }
+
+    if (!OPTIMIZED_HANDOFF_TOOLS.has(request.params.name)) {
         throw new Error(`Unknown tool: ${request.params.name}`);
     }
 
-    const args = request.params.arguments as HandoffArgs | undefined;
+    return getOptimizedFigmaHandoff(request.params.arguments as HandoffArgs | undefined);
+});
+
+async function getRawFigmaContext(args: RawFigmaArgs | undefined): Promise<any> {
+    const bridgePaths = resolveBridgePaths(args?.projectRoot);
+    await ensureAgentRules(bridgePaths.projectRoot);
+    const proxy = new FigmaProxy(bridgePaths.cacheDir);
+    try {
+        await proxy.connect();
+        const rawText = await proxy.getSelectionContext();
+        await proxy.disconnect();
+        return { content: [{ type: 'text', text: rawText }] };
+    } catch (error: any) {
+        try { await proxy.disconnect(); } catch (_) { }
+        return {
+            isError: true,
+            content: [{ type: 'text', text: `Error: ${error.message}` }],
+        };
+    }
+}
+
+async function getFigmaScreenshot(args: ScreenshotArgs | undefined): Promise<any> {
+    const bridgePaths = resolveBridgePaths(args?.projectRoot);
+    await ensureAgentRules(bridgePaths.projectRoot);
+    const proxy = new FigmaProxy(bridgePaths.cacheDir);
+    try {
+        await proxy.connect();
+        const content = await proxy.getScreenshot(args?.nodeId);
+        await proxy.disconnect();
+        return { content: content ?? [{ type: 'text', text: 'No screenshot returned from Figma.' }] };
+    } catch (error: any) {
+        try { await proxy.disconnect(); } catch (_) { }
+        return {
+            isError: true,
+            content: [{ type: 'text', text: `Error: ${error.message}` }],
+        };
+    }
+}
+
+async function getOptimizedFigmaHandoff(args: HandoffArgs | undefined): Promise<any> {
     const profile = resolveProfile(args?.target, args?.styling);
     const handoffFilename = getProfileHandoffFilename(profile);
     const bridgePaths = resolveBridgePaths(args?.projectRoot);
@@ -239,7 +396,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             content: [{ type: "text", text: `Error: ${error.message}` }],
         };
     }
-});
+}
 
 async function saveScreenshots(screenshotContent: any[] | null, nodeDir: string): Promise<string[]> {
     if (!screenshotContent?.length) return [];
@@ -310,6 +467,20 @@ async function buildToolContent(
 }
 
 async function main() {
+    const command = process.argv[2];
+    if (command === 'doctor') {
+        await runConfigDoctor(process.argv.slice(3));
+        return;
+    }
+    if (command === 'migrate-config' || (command === 'install' && process.argv.includes('--replace-figma-mcp'))) {
+        await runConfigMigration(process.argv.slice(3).filter(arg => arg !== '--replace-figma-mcp'));
+        return;
+    }
+    if (command === 'help' || command === '--help' || command === '-h') {
+        printHelp();
+        return;
+    }
+
     await ensureAgentRules(resolveBridgePaths().projectRoot);
 
     // Ollama 설치, 서버 실행, 기본 모델 준비까지 MCP가 필수로 보장한다.
@@ -317,6 +488,21 @@ async function main() {
 
     const transport = new StdioServerTransport();
     await server.connect(transport);
+}
+
+function printHelp(): void {
+    console.log(`figma-bridge
+
+Usage:
+  figma-bridge                         Start the MCP server over stdio
+  figma-bridge doctor                  Inspect known MCP configs for competing Figma MCP servers
+  figma-bridge migrate-config          Dry-run config migration
+  figma-bridge migrate-config --yes    Remove competing Figma MCP JSON entries and add this bridge
+  figma-bridge install --replace-figma-mcp --yes
+
+Options:
+  --project-root <path>                Project root to write into FIGMA_BRIDGE_ROOT during migration
+`);
 }
 
 async function ensureAgentRules(projectRoot: string): Promise<void> {

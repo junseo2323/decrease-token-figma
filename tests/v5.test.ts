@@ -12,6 +12,7 @@ import { deduplicateSubtrees } from '../subtree-deduper.js';
 import { getOllamaCandidatePaths, resolveOllamaBinary } from '../ollama-helper.js';
 import { ensureAgentRuleFiles, FIGMA_BRIDGE_AGENT_RULE } from '../agent-rules.js';
 import { buildInstructionBlock, getProfileHandoffFilename, resolveProfile } from '../target-profiles.js';
+import { isBridgeServer, isOfficialFigmaServer, knownConfigTargets } from '../config-migration.js';
 
 const repeatedCode = `function ChatScreen() {
   return (
@@ -76,6 +77,18 @@ test('agent rule files are created idempotently with the bridge rule first', asy
 
     const agents = await fs.readFile(agentsPath, 'utf-8');
     assert.equal(agents.match(new RegExp(escapeRegExp(FIGMA_BRIDGE_AGENT_RULE), 'g'))?.length, 1);
+});
+
+test('config migration detection distinguishes bridge from competing figma mcp servers', () => {
+    assert.equal(isOfficialFigmaServer('figma-mcp', { command: 'npx', args: ['-y', 'figma-mcp'] }), true);
+    assert.equal(isOfficialFigmaServer('figma-developer-mcp', { command: 'npx', args: ['-y', '@figma/mcp-server'] }), true);
+    assert.equal(isOfficialFigmaServer('figma-cost-optimizer-bridge', { command: 'npx', args: ['-y', 'decrease-token-figma'] }), false);
+    assert.equal(isBridgeServer('figma-cost-optimizer-bridge', { command: 'npx', args: ['-y', 'decrease-token-figma'] }), true);
+
+    const targets = knownConfigTargets('/tmp/project', '/tmp/home', 'darwin');
+    assert.ok(targets.some(target => target.filePath.endsWith('claude_desktop_config.json')));
+    assert.ok(targets.some(target => target.filePath.endsWith(path.join('.cursor', 'mcp.json'))));
+    assert.ok(targets.some(target => target.filePath.endsWith(path.join('.codex', 'config.toml'))));
 });
 
 function escapeRegExp(value: string): string {

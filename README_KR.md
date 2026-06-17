@@ -142,6 +142,19 @@ claude mcp remove figma-cost-optimizer-bridge
 
 설정 후 Figma Desktop을 local MCP가 켜진 상태로 실행하고 노드를 선택한 뒤, Codex 또는 Claude Code에서 `get_optimized_figma_handoff`를 호출하면 됩니다.
 
+### 공식 Figma MCP와의 도구 충돌 방지
+
+공식 `figma-mcp` 서버와 이 브리지를 동시에 등록하지 않는 것을 권장합니다. 둘 다 있으면 LLM이 최적화된 bridge handoff보다 raw official `get_design_context`를 먼저 고를 수 있습니다.
+
+내장 doctor/migration helper를 사용하세요.
+
+```bash
+figma-bridge doctor
+figma-bridge migrate-config --yes
+```
+
+`doctor`는 Claude Desktop, Cursor, workspace MCP, Codex config 위치를 점검합니다. `migrate-config --yes`는 JSON config를 백업한 뒤 competing official Figma MCP entry를 제거하고, 해당 config에서 `figma-cost-optimizer-bridge`가 Figma MCP 서버가 되도록 보장합니다. Codex TOML config는 보고만 하고 자동 수정하지 않습니다. 해당 항목은 Codex CLI로 official Figma MCP entry를 제거하세요.
+
 브리지가 시작되면 `FIGMA_BRIDGE_ROOT`의 `AGENTS.md`와 `CLAUDE.md`를 만들거나 갱신하고, 아래 가드레일을 맨 윗줄에 넣습니다.
 
 ```text
@@ -171,6 +184,15 @@ IMPORTANT: For Figma design-to-code work, use only the `figma-cost-optimizer-bri
 | `force_refresh` | boolean | `false` | raw 해시가 같아도 캐시를 무시하고 다시 캡처합니다 |
 | `target` | `react` / `vue` / `svelte` / `html` | `react` | handoff 지시문과 코드펜스에 사용할 타겟 웹 프레임워크 |
 | `styling` | `tailwind` / `styled-components` / `emotion` / `css-modules` / `inline` | `tailwind` | 디자인 토큰 변환 지시에 사용할 스타일링 방식 |
+
+### Compatibility aliases
+
+브리지는 `get_design_context`, `get_figma_context`도 optimized handoff alias로 제공합니다. 이름은 일반 Figma MCP workflow와 호환되지만, 반환값은 raw official Figma context가 아니라 bridge handoff Markdown입니다.
+
+Escape hatch:
+
+- `get_raw_figma_context`: raw Figma selected-node context를 반환합니다.
+- `get_screenshot` / `get_figma_screenshot`: screenshot pass-through helper입니다.
 
 ### `sync_component_registry`
 
