@@ -48,7 +48,7 @@ export async function resolveOllamaBinary(env: NodeJS.ProcessEnv = process.env):
 }
 
 /**
- * Ollama 서버가 실행 중인지 확인
+ * Check whether the Ollama server is running.
  */
 export async function isOllamaRunning(): Promise<boolean> {
     try {
@@ -62,7 +62,7 @@ export async function isOllamaRunning(): Promise<boolean> {
 }
 
 /**
- * Ollama 설치, 서버 실행, 모델 준비까지 MCP 부팅 과정에서 필수로 보장한다.
+ * Ensure Ollama is installed, running, and has the required model before MCP startup.
  */
 export async function ensureOllamaReady(options: OllamaReadyOptions = {}): Promise<OllamaReadyResult> {
     const modelName = options.modelName ?? process.env.FIGMA_BRIDGE_OLLAMA_MODEL ?? 'llama3.2';
@@ -74,17 +74,17 @@ export async function ensureOllamaReady(options: OllamaReadyOptions = {}): Promi
     if (!binaryPath) {
         if (!autoInstall) {
             throw new OllamaSetupError(
-                'Ollama가 설치되어 있지 않습니다. FIGMA_BRIDGE_OLLAMA_AUTO_INSTALL=0 상태에서는 자동 설치할 수 없습니다.'
+                'Ollama is not installed. Automatic installation is disabled because FIGMA_BRIDGE_OLLAMA_AUTO_INSTALL=0.'
             );
         }
 
-        console.error('⏳ Ollama가 없어 자동 설치를 시작합니다...');
+        console.error('⏳ Ollama is not installed. Starting automatic installation...');
         await installOllama();
         binaryPath = await resolveOllamaBinary();
     }
 
     if (!binaryPath) {
-        throw new OllamaSetupError('Ollama 설치 후에도 실행 파일을 찾지 못했습니다. OLLAMA_BIN=/absolute/path/to/ollama 를 설정하세요.');
+        throw new OllamaSetupError('Could not find the Ollama executable after installation. Set OLLAMA_BIN=/absolute/path/to/ollama.');
     }
 
     await ensureOllamaRunning(binaryPath, startupTimeoutMs);
@@ -94,22 +94,22 @@ export async function ensureOllamaReady(options: OllamaReadyOptions = {}): Promi
 }
 
 /**
- * Ollama 서버 자동 시작
+ * Start the Ollama server when it is not already running.
  */
 export async function ensureOllamaRunning(binaryPath?: string, startupTimeoutMs: number = 30000): Promise<void> {
     const isRunning = await isOllamaRunning();
 
     if (isRunning) {
-        console.error('✅ Ollama 서버가 이미 실행 중입니다.');
+        console.error('✅ Ollama server is already running.');
         return;
     }
 
     const resolvedBinary = binaryPath ?? await resolveOllamaBinary();
     if (!resolvedBinary) {
-        throw new OllamaSetupError('Ollama 실행 파일을 찾지 못해 서버를 시작할 수 없습니다.');
+        throw new OllamaSetupError('Could not find the Ollama executable, so the server cannot be started.');
     }
 
-    console.error('⏳ Ollama 서버를 시작합니다...');
+    console.error('⏳ Starting Ollama server...');
 
     const child = spawn(resolvedBinary, ['serve'], {
         detached: true,
@@ -124,16 +124,16 @@ export async function ensureOllamaRunning(binaryPath?: string, startupTimeoutMs:
         await sleep(500);
         const running = await isOllamaRunning();
         if (running) {
-            console.error('✅ Ollama 서버 시작 완료.');
+            console.error('✅ Ollama server started.');
             return;
         }
     }
 
-    throw new OllamaSetupError('Ollama 서버 시작에 실패했습니다. `ollama serve` 실행 권한과 포트 11434 사용 여부를 확인하세요.');
+    throw new OllamaSetupError('Failed to start the Ollama server. Check `ollama serve` permissions and whether port 11434 is available.');
 }
 
 /**
- * Ollama 모델 확인. 없으면 MCP가 직접 다운로드한다.
+ * Ensure the required Ollama model exists. Pull it automatically when needed.
  */
 export async function ensureOllamaModel(
     modelName: string = 'llama3.2',
@@ -142,7 +142,7 @@ export async function ensureOllamaModel(
 ): Promise<boolean> {
     const resolvedBinary = binaryPath ?? await resolveOllamaBinary();
     if (!resolvedBinary) {
-        throw new OllamaSetupError('Ollama 실행 파일을 찾지 못해 모델을 준비할 수 없습니다.');
+        throw new OllamaSetupError('Could not find the Ollama executable, so the model cannot be prepared.');
     }
 
     try {
@@ -155,21 +155,21 @@ export async function ensureOllamaModel(
         const hasModel = data.models.some(m => m.name === modelName || m.name.startsWith(`${modelName}:`));
 
         if (hasModel) {
-            console.error(`✅ ${modelName} 모델이 준비되어 있습니다.`);
+            console.error(`✅ ${modelName} model is ready.`);
             return true;
         }
 
         if (!autoPullModel) {
-            throw new OllamaSetupError(`${modelName} 모델이 없습니다. FIGMA_BRIDGE_OLLAMA_AUTO_PULL=0 상태에서는 자동 다운로드할 수 없습니다.`);
+            throw new OllamaSetupError(`${modelName} model is missing. Automatic model download is disabled because FIGMA_BRIDGE_OLLAMA_AUTO_PULL=0.`);
         }
 
-        console.error(`⏳ ${modelName} 모델을 다운로드합니다... (처음엔 시간이 걸립니다)`);
+        console.error(`⏳ Downloading ${modelName} model... (this can take a while the first time)`);
         await runCommand(resolvedBinary, ['pull', modelName]);
-        console.error(`✅ ${modelName} 모델 다운로드 완료.`);
+        console.error(`✅ ${modelName} model downloaded.`);
         return true;
     } catch (error) {
         if (error instanceof OllamaSetupError) throw error;
-        throw new OllamaSetupError(`Ollama 모델 준비 실패: ${(error as Error).message}`);
+        throw new OllamaSetupError(`Failed to prepare Ollama model: ${(error as Error).message}`);
     }
 }
 
@@ -179,7 +179,7 @@ async function installOllama(): Promise<void> {
     if (platform === 'darwin') {
         const brew = await resolveExecutable('brew');
         if (!brew) {
-            throw new OllamaSetupError('macOS 자동 설치에는 Homebrew가 필요합니다. Homebrew 설치 후 다시 실행하거나 Ollama를 수동 설치하세요.');
+            throw new OllamaSetupError('Automatic installation on macOS requires Homebrew. Install Homebrew and retry, or install Ollama manually.');
         }
 
         try {
@@ -198,13 +198,13 @@ async function installOllama(): Promise<void> {
     if (platform === 'win32') {
         const winget = await resolveExecutable('winget');
         if (!winget) {
-            throw new OllamaSetupError('Windows 자동 설치에는 winget이 필요합니다. winget 설치 후 다시 실행하거나 Ollama를 수동 설치하세요.');
+            throw new OllamaSetupError('Automatic installation on Windows requires winget. Install winget and retry, or install Ollama manually.');
         }
         await runCommand(winget, ['install', '--id', 'Ollama.Ollama', '-e', '--accept-source-agreements', '--accept-package-agreements']);
         return;
     }
 
-    throw new OllamaSetupError(`${platform} 환경은 Ollama 자동 설치를 지원하지 않습니다. Ollama를 수동 설치한 뒤 OLLAMA_BIN을 설정하세요.`);
+    throw new OllamaSetupError(`Automatic Ollama installation is not supported on ${platform}. Install Ollama manually and set OLLAMA_BIN.`);
 }
 
 async function resolveExecutable(name: string): Promise<string | null> {

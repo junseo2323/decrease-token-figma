@@ -1,7 +1,7 @@
 # Benchmark Results: DashStack Dashboard
 
 <div align="right">
-  <strong>English</strong> | <a href="./BENCHMARK_RESULTS_KR.md">한국어</a>
+  <strong>English</strong> | <a href="./BENCHMARK_RESULTS_KR.md">Korean</a>
 </div>
 
 This report records the current reproducible benchmark for Figma Cost Optimizer Bridge.

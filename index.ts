@@ -304,7 +304,7 @@ async function getOptimizedFigmaHandoff(args: HandoffArgs | undefined): Promise<
 
     try {
         await proxy.connect();
-        // 1. 코드 가져오기
+        // 1. Fetch code.
         const rawText = await proxy.getSelectionContext();
         const componentName = FigmaProxy.extractComponentName(rawText);
         const hash = hashRawText(rawText);
@@ -312,14 +312,14 @@ async function getOptimizedFigmaHandoff(args: HandoffArgs | undefined): Promise<
         const cached = await handoffExists(nodeDir, handoffFilename);
 
         if (cached && !args?.force_refresh) {
-            console.error(`⚡ 해시 캐시 히트: ${componentName}_${hash}`);
+            console.error(`⚡ Hash cache hit: ${componentName}_${hash}`);
             await proxy.disconnect();
             const mdContent = await fs.readFile(path.join(nodeDir, handoffFilename), 'utf-8');
             const screenshotPaths = await listScreenshotPaths(nodeDir);
             return { content: await buildToolContent(mdContent, screenshotMode, screenshotPaths) };
         }
 
-        // 2. 스크린샷 가져오기 — XML(복수 선택)이면 최상위 프레임별로 각각 캡처
+        // 2. Fetch screenshots. For XML multi-selection, capture each top-level frame separately.
         const isXml = rawText.trimStart().startsWith('<');
         let screenshotContent: any[] | null = null;
         const nodeIds = isXml
@@ -327,9 +327,9 @@ async function getOptimizedFigmaHandoff(args: HandoffArgs | undefined): Promise<
             : [];
 
         if (screenshotMode !== 'none' && isXml) {
-            // 들여쓰기 없이 시작하는 최상위 <frame id="..."> 추출
+            // Top-level frames start at the beginning of a line.
             if (nodeIds.length > 1) {
-                console.error(`🖼️  복수 선택 감지 (${nodeIds.length}개) — 각 프레임 스크린샷 개별 캡처`);
+                console.error(`🖼️  Multi-selection detected (${nodeIds.length} nodes). Capturing each frame separately.`);
                 screenshotContent = await proxy.getScreenshots(nodeIds);
             } else {
                 screenshotContent = await proxy.getScreenshot(nodeIds[0]);
@@ -344,7 +344,7 @@ async function getOptimizedFigmaHandoff(args: HandoffArgs | undefined): Promise<
         const screenshotPaths = await saveScreenshots(screenshotContent, nodeDir);
         const previous = await nodeCache.findPrevious(componentName, hash);
 
-        // 3. 코드 정제 (V3 무손실 압축)
+        // 3. Clean and optimize code.
         const tokens = await normalizer.extractTokens(componentName, rawText);
         const fullHandoffPath = path.join(nodeDir, handoffFilename);
         await normalizer.generateHandoffMarkdown(tokens, {
@@ -366,12 +366,12 @@ async function getOptimizedFigmaHandoff(args: HandoffArgs | undefined): Promise<
                 screenshotPaths: screenshotMode === 'path' ? screenshotPaths : undefined,
             });
             mdContent = diff.markdown;
-            // 캐시의 handoff.md는 항상 전체본을 유지한다 — diff는 별도 파일로만 저장
-            // (덮어쓰면 캐시 히트와 다음 diff 비교가 diff 문서를 기준으로 동작해 깨진다)
+            // Keep the cached handoff as the full version. Store diffs separately so
+            // cache hits and later diff comparisons do not use a diff as the baseline.
             await fs.writeFile(path.join(nodeDir, 'diff.md'), mdContent, 'utf-8');
             console.error(diff.fallback
-                ? `↩️  변경량 ${(diff.changedLineRatio * 100).toFixed(1)}%로 전체 핸드오프를 반환합니다.`
-                : `✅ Diff 핸드오프 생성 완료 (${(diff.changedLineRatio * 100).toFixed(1)}% 변경)`);
+                ? `↩️  Change ratio is ${(diff.changedLineRatio * 100).toFixed(1)}%, returning the full handoff.`
+                : `✅ Diff handoff generated (${(diff.changedLineRatio * 100).toFixed(1)}% changed).`);
         }
 
         await nodeCache.writeMeta(nodeDir, {
@@ -483,7 +483,7 @@ async function main() {
 
     await ensureAgentRules(resolveBridgePaths().projectRoot);
 
-    // Ollama 설치, 서버 실행, 기본 모델 준비까지 MCP가 필수로 보장한다.
+    // MCP startup requires Ollama to be installed, running, and ready with the default model.
     await ensureOllamaReady({ modelName: 'llama3.2' });
 
     const transport = new StdioServerTransport();
@@ -509,10 +509,10 @@ async function ensureAgentRules(projectRoot: string): Promise<void> {
     try {
         const files = await ensureAgentRuleFiles(projectRoot);
         if (files.length) {
-            console.error(`🧭 에이전트 규칙 파일 갱신: ${files.map(file => path.basename(file)).join(', ')}`);
+            console.error(`🧭 Updated agent rule file(s): ${files.map(file => path.basename(file)).join(', ')}`);
         }
     } catch (error) {
-        console.error(`⚠️  에이전트 규칙 파일 작성 실패: ${(error as Error).message}`);
+        console.error(`⚠️  Failed to write agent rule files: ${(error as Error).message}`);
     }
 }
 

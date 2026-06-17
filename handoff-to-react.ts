@@ -14,52 +14,52 @@ async function handoff() {
     const testSrcDir = path.join(bridgePaths.projectRoot, 'test', 'src', 'components');
     
     try {
-        // 1. Figma 에서 데이터 가져오기
-        console.log("1️⃣  Figma 에서 컴포넌트 추출 중...\n");
+        // 1. Fetch data from Figma.
+        console.log("1️⃣  Extracting component from Figma...\n");
         const proxy = new FigmaProxy(cacheDir);
         
         await proxy.connect();
         const rawText = await proxy.getSelectionContext();
         
-        // 스크린샷도 가져오기
+        // Also fetch a screenshot.
         const screenshot = await proxy.getScreenshot();
         
         await proxy.disconnect();
         
         const componentName = FigmaProxy.extractComponentName(rawText, 'Component');
         
-        console.log(`✅ 선택된 컴포넌트: ${componentName}\n`);
+        console.log(`✅ Selected component: ${componentName}\n`);
         
-        // 3. 코드 정제 및 최적화
-        console.log("2️⃣  코드 최적화 중...\n");
+        // 3. Clean and optimize code.
+        console.log("2️⃣  Optimizing code...\n");
         const normalizer = new FigmaNormalizer(cacheDir, 'llama3.2', {
-            convertSvgToComponent: false, // Compact 모드로 SVG 주석 처리
+            convertSvgToComponent: false, // Compact mode: keep SVG replacement comments.
             assetDir: bridgePaths.assetDir,
         });
         
         const tokens = await normalizer.extractTokens(componentName);
         await normalizer.generateHandoffMarkdown(tokens);
         
-        // 4. handoff.md 읽기
+        // 4. Read handoff.md.
         const mdContent = await fs.readFile(path.join(cacheDir, 'handoff.md'), 'utf-8');
         
-        // 5. test 폴더에 컴포넌트 파일 생성
-        console.log("3️⃣  React 컴포넌트 생성 중...\n");
+        // 5. Create a component file in the test folder.
+        console.log("3️⃣  Creating React component...\n");
         await fs.mkdir(testSrcDir, { recursive: true });
         
-        // 코드 블록 추출
+        // Extract the code block.
         const codeMatch = mdContent.match(/```tsx\n([\s\S]*?)\n```/);
         let componentCode = codeMatch ? codeMatch[1] : mdContent;
         
-        // import 문 정리 (상대 경로 수정)
+        // Fix relative asset imports.
         componentCode = componentCode.replace(/from '\.\/assets\//g, "from '../assets/");
         
-        // 컴포넌트 파일 저장
+        // Save the component file.
         const componentPath = path.join(testSrcDir, `${componentName}.tsx`);
         await fs.writeFile(componentPath, componentCode, 'utf-8');
-        console.log(`✅ 컴포넌트 저장: ${componentPath}\n`);
+        console.log(`✅ Component saved: ${componentPath}\n`);
         
-        // 6. 스크린샷 저장 (있는 경우)
+        // 6. Save screenshots if available.
         if (screenshot && screenshot.length > 0) {
             const screenshotDir = path.join(bridgePaths.projectRoot, 'test', 'public', 'screenshots');
             await fs.mkdir(screenshotDir, { recursive: true });
@@ -70,28 +70,28 @@ async function handoff() {
                     const screenshotPath = path.join(screenshotDir, `${componentName}_${i}.png`);
                     const buffer = Buffer.from(shot.data, 'base64');
                     await fs.writeFile(screenshotPath, buffer);
-                    console.log(`✅ 스크린샷 저장: ${screenshotPath}`);
+                    console.log(`✅ Screenshot saved: ${screenshotPath}`);
                 }
             }
         }
         
-        // 7. handoff.md 도 test 폴더에 복사
+        // 7. Copy handoff.md into the test folder.
         await fs.writeFile(path.join(testSrcDir, `${componentName}_handoff.md`), mdContent, 'utf-8');
-        console.log(`\n✅ Handoff 문서 저장: ${testSrcDir}/${componentName}_handoff.md`);
+        console.log(`\n✅ Handoff document saved: ${testSrcDir}/${componentName}_handoff.md`);
         
         console.log("\n" + "=".repeat(70));
-        console.log("🎉 완료!\n");
-        console.log("📁 생성된 파일:");
+        console.log("🎉 Done!\n");
+        console.log("📁 Generated files:");
         console.log(`   - ${componentPath}`);
         console.log(`   - ${testSrcDir}/${componentName}_handoff.md`);
-        console.log("\n🚀 다음 단계:");
-        console.log("   1. test/src/components 폴더에서 컴포넌트 확인");
-        console.log("   2. App.tsx 에서 컴포넌트 import 하여 사용");
-        console.log("   3. http://localhost:5173 에서 결과 확인");
+        console.log("\n🚀 Next steps:");
+        console.log("   1. Review the component in test/src/components");
+        console.log("   2. Import and use the component in App.tsx");
+        console.log("   3. Check the result at http://localhost:5173");
         console.log("=".repeat(70));
         
     } catch (error) {
-        console.error("\n❌ 에러 발생:", error);
+        console.error("\n❌ Error:", error);
         process.exit(1);
     }
 }

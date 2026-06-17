@@ -70,8 +70,8 @@ export class ComponentRegistry {
     async upsert(component: Omit<RegistryComponent, 'lastSeen'> & { lastSeen?: string }): Promise<void> {
         const data = await this.read();
         const now = component.lastSeen ?? new Date().toISOString();
-        // 구조 해시가 있으면 해시로만 매칭한다 — 추출 이름이 RepeatedDiv처럼 제네릭해서
-        // 이름 매칭을 허용하면 다른 화면의 다른 구조가 서로의 항목을 덮어쓴다
+        // When a structure hash exists, match only by hash. Extracted names are often
+        // generic (for example, RepeatedDiv), so name matching can overwrite unrelated UI.
         const index = data.components.findIndex(existing =>
             component.structureHash
                 ? existing.structureHash === component.structureHash

@@ -16,7 +16,7 @@ interface OllamaAnalysis {
 }
 
 interface FigmaNormalizerOptions {
-    /** SVG 를 React 컴포넌트로 변환할지, 주석으로만 남길지 (기본값: true) */
+    /** Convert SVGs into React components instead of leaving icon comments. Default: true. */
     convertSvgToComponent?: boolean;
     assetDir?: string;
     projectRoot?: string;
@@ -61,7 +61,7 @@ export class FigmaNormalizer {
     }
 
     private async analyzeWithOllama(code: string): Promise<OllamaAnalysis | null> {
-        // 소형 모델 과부하 방지: 4000자 초과 시 잘라냄
+        // Keep small local models responsive by truncating long inputs.
         const truncated = code.length > 4000
             ? code.substring(0, 4000) + '\n...(truncated)'
             : code;
@@ -75,7 +75,7 @@ Return exactly this JSON structure:
 {"summary":"1-2 sentence description of what this UI component is and does","colors":["list every unique hex or rgba color value found in className strings"],"texts":["list every unique user-visible text string"]}`;
 
         try {
-            // Ollama 서버 상태 확인
+            // Check Ollama server health before asking for analysis.
             const healthCheck = await fetch('http://localhost:11434/api/tags', {
                 signal: AbortSignal.timeout(3000),
             });
@@ -84,7 +84,7 @@ Return exactly this JSON structure:
                 throw new Error(`Ollama health check failed: HTTP ${healthCheck.status}`);
             }
 
-            console.error(`🤖 Ollama 에 분석 요청 중...`);
+            console.error(`🤖 Requesting analysis from Ollama...`);
             const startTime = Date.now();
 
             const response = await fetch('http://localhost:11434/api/generate', {
@@ -94,7 +94,7 @@ Return exactly this JSON structure:
                     model: this.model,
                     prompt,
                     stream: false,
-                    // 소형 모델이 JSON 외 형식을 섞어 반환하는 것을 막는다
+                    // Prevent small models from mixing in non-JSON prose.
                     format: 'json',
                 }),
                 signal: AbortSignal.timeout(90000),
@@ -105,7 +105,7 @@ Return exactly this JSON structure:
             const data = await response.json() as { response: string };
             const elapsed = Date.now() - startTime;
 
-            // JSON 추출 시도 (여러 패턴)
+            // Try several response shapes in case the local model wraps JSON.
             const jsonPatterns = [
                 /\{[\s\S]*\}/,
                 /```json\s*([\s\S]*?)\s*```/,
@@ -119,7 +119,7 @@ Return exactly this JSON structure:
             }
 
             if (!jsonMatch) {
-                console.error(`⚠️  JSON 을 찾을 수 없음. Ollama 응답: ${data.response.substring(0, 200)}...`);
+                console.error(`⚠️  Could not find JSON in the Ollama response: ${data.response.substring(0, 200)}...`);
                 throw new Error('No JSON found in Ollama response');
             }
 
@@ -128,50 +128,50 @@ Return exactly this JSON structure:
             const errorMsg = (error as Error).message;
             if (errorMsg.includes('fetch failed') || errorMsg.includes('timeout')) {
                 console.error(this.requireOllama
-                    ? `⚠️  Ollama 서버 연결 실패. 필수 디자인 토큰 분석을 실행할 수 없습니다.`
-                    : `⚠️  Ollama 서버 연결 실패. 디자인 토큰 분석을 건너뜁니다.`);
+                    ? `⚠️  Failed to connect to the Ollama server. Required design-token analysis cannot run.`
+                    : `⚠️  Failed to connect to the Ollama server. Skipping design-token analysis.`);
             } else if (errorMsg.includes('No JSON found')) {
-                console.error(`⚠️  Ollama 가 JSON 이 아닌 다른 형식을 반환했습니다.`);
+                console.error(`⚠️  Ollama returned a non-JSON response.`);
             } else if (errorMsg.includes('JSON.parse')) {
-                console.error(`⚠️  JSON 파싱 실패: ${errorMsg}`);
+                console.error(`⚠️  Failed to parse JSON: ${errorMsg}`);
             } else {
-                console.error(`⚠️  Ollama 분석 실패: ${errorMsg}`);
+                console.error(`⚠️  Ollama analysis failed: ${errorMsg}`);
             }
             if (this.requireOllama) {
-                throw new Error(`Ollama 분석은 필수입니다. MCP 부팅 시 설치/실행/모델 준비가 완료되어야 합니다. 원인: ${errorMsg}`);
+                throw new Error(`Ollama analysis is required. MCP startup must install Ollama, start it, and prepare the model first. Cause: ${errorMsg}`);
             }
             return null;
         }
     }
 
-    // Figma가 XML 레이아웃 구조를 반환하는지 감지 (복수 선택, Dev Mode 미설정 등)
+    // Detect XML layout data from Figma, such as multi-selection or non-Dev-Mode output.
     private isXmlLayout(text: string): boolean {
         return text.trimStart().startsWith('<');
     }
 
-    // XML 레이아웃 데이터 정제: 좌표/장식 제거 후 구조 + 텍스트만 남김
+    // Clean XML layout data by removing coordinates and decoration while keeping structure and text.
     private cleanXmlLayout(rawXml: string): string {
         let xml = rawXml;
 
-        // 숨겨진 요소 제거
+        // Remove hidden elements.
         xml = xml.replace(/<[^>]* hidden="true"[^>]*\/>/g, '');
         xml = xml.replace(/<[^>]* hidden="true"[^>]*>[\s\S]*?<\/[a-z]+>/g, '');
 
-        // 순수 장식 요소 제거 (vector, line, ellipse — 절대좌표 기반 도형)
+        // Remove purely decorative absolute-positioned shapes.
         xml = xml.replace(/<vector[^>]*\/>/g, '');
         xml = xml.replace(/<line[^>]*\/>/g, '');
         xml = xml.replace(/<ellipse[^>]*\/>/g, '');
 
-        // 절대 좌표 / 크기 속성 제거
+        // Remove absolute coordinates and size attributes.
         xml = xml.replace(/\s+x="[^"]*"/g, '');
         xml = xml.replace(/\s+y="[^"]*"/g, '');
         xml = xml.replace(/\s+width="[^"]*"/g, '');
         xml = xml.replace(/\s+height="[^"]*"/g, '');
 
-        // id 속성 제거 (노이즈)
+        // Remove noisy id attributes.
         xml = xml.replace(/\s+id="[^"]*"/g, '');
 
-        // 빈 줄 정리
+        // Normalize blank lines.
         xml = xml.replace(/^\s*[\r\n]/gm, '').trim();
 
         return xml;
@@ -182,28 +182,28 @@ Return exactly this JSON structure:
 
         try {
             const rawText = providedRawText || await fs.readFile(sourcePath, 'utf-8');
-            console.error(`\n⏳ 피그마 에셋 추출 및 코드 최적화 중...`);
+            console.error(`\n⏳ Extracting Figma assets and optimizing code...`);
 
             const isXml = this.isXmlLayout(rawText);
             let finalCode: string = "";
 
             if (isXml) {
-                // --- XML 포맷 처리 (복수 선택 / Dev Mode 미설정) ---
-                console.error(`ℹ️  XML 레이아웃 포맷 감지 (${componentName}). 구조 정제 중...`);
+                // --- XML format handling (multi-selection / non-Dev-Mode output) ---
+                console.error(`ℹ️  XML layout format detected (${componentName}). Cleaning structure...`);
                 finalCode = this.cleanXmlLayout(rawText);
             } else {
-                // --- JSX 포맷 처리 (단일 선택, 기존 로직) ---
+                // --- JSX format handling (single selection) ---
 
-                // 에셋 자동 다운로드
+                // Download external assets.
                 const assetDir = this.assetDir;
                 await fs.mkdir(assetDir, { recursive: true }).catch(() => { });
 
                 const importStatements: string[] = [];
-                const svgComponents: string[] = []; // SVG React 컴포넌트 정의
+                const svgComponents: string[] = []; // SVG React component definitions.
                 const downloadPromises: Promise<void>[] = [];
-                const svgDownloads: Map<string, string> = new Map(); // SVG 이름 → 컴포넌트명 매핑
+                const svgDownloads: Map<string, string> = new Map(); // SVG name to component name map.
 
-                // 1. const 변수 선언에서 에셋 URL 추출 (png, jpg 만 - SVG 는 제외)
+                // 1. Extract asset URLs from const declarations (PNG/JPG only; SVG is handled separately).
                 const assetRegex = /const\s+([a-zA-Z0-9_]+)\s*=\s*"?(http:\/\/localhost:\d+\/assets\/[^"]+\.(png|jpg))"?;/g;
                 let match;
                 while ((match = assetRegex.exec(rawText)) !== null) {
@@ -217,22 +217,22 @@ Return exactly this JSON structure:
                             const res = await fetch(url);
                             const arrayBuffer = await res.arrayBuffer();
                             await fs.writeFile(path.join(assetDir, filename), Buffer.from(arrayBuffer));
-                            console.error(`✅ 에셋 다운로드: ${filename}`);
+                            console.error(`✅ Downloaded asset: ${filename}`);
                         } catch (e) {
-                            console.error(`❌ 에셋 다운로드 실패: ${filename}`);
+                            console.error(`❌ Failed to download asset: ${filename}`);
                         }
                     })());
 
                     importStatements.push(`import ${varName} from './assets/${filename}';`);
                 }
 
-                // 2. 인라인 <svg> 태그 추출 (모드별 처리)
+                // 2. Extract inline <svg> tags according to the current mode.
                 const svgList: Array<{ name: string; description: string }> = [];
 
                 const shouldConvertSvgToComponent = this.convertSvgToComponent && this.profile.framework === 'react';
 
                 if (shouldConvertSvgToComponent) {
-                    // Component 모드: SVG 를 React 컴포넌트로 변환
+                    // Component mode: convert SVGs into React components.
                     const svgRegex = /<svg[^>]*data-name="([^"]+)"([\s\S]*?)<\/svg>/g;
                     let svgMatch;
                     while ((svgMatch = svgRegex.exec(rawText)) !== null) {
@@ -244,7 +244,7 @@ Return exactly this JSON structure:
                             .replace(/^[a-z]/, (m: string) => m.toUpperCase());
                         const componentNameSvg = `Svg${pascalName}`;
 
-                        // SVG 내용을 React 컴포넌트로 변환
+                        // Convert SVG markup into React component syntax.
                         let reactSvgContent = svgContent
                             .replace(/\sdata-name="[^"]+"/g, '')
                             .replace(/\sdata-node-id="[^"]+"/g, '')
@@ -264,13 +264,13 @@ const ${componentNameSvg} = (props: React.SVGProps<SVGSVGElement>) => (
                     }
 
                     if (svgComponents.length > 0) {
-                        console.error(`✅ ${svgComponents.length}개의 SVG 를 React 컴포넌트로 변환했습니다!`);
+                        console.error(`✅ Converted ${svgComponents.length} SVG(s) into React components.`);
                     }
                 }
 
                 if (downloadPromises.length > 0) {
                     await Promise.all(downloadPromises);
-                    console.error(`✅ 총 ${downloadPromises.length}개의 에셋을 ${assetDir} 폴더에 저장했습니다!`);
+                    console.error(`✅ Saved ${downloadPromises.length} asset(s) to ${assetDir}.`);
                 }
 
                 let code = rawText;
@@ -279,7 +279,7 @@ const ${componentNameSvg} = (props: React.SVGProps<SVGSVGElement>) => (
                     code = rawText.substring(funcIndex);
                 }
 
-                // 인라인 <svg> → 모드별로 치환
+                // Replace inline <svg> tags according to the active mode.
                 code = code.replace(/<svg[^>]*data-name="([^"]+)"[\s\S]*?<\/svg>/g, (_, name) => {
                     const pascal = name
                         .trim()
@@ -288,26 +288,26 @@ const ${componentNameSvg} = (props: React.SVGProps<SVGSVGElement>) => (
                     svgList.push({ name: pascal, description: name });
 
                     if (shouldConvertSvgToComponent) {
-                        // Component 모드: 컴포넌트로 치환
+                        // Component mode: replace with a component call.
                         const componentNameSvg = svgDownloads.get(pascal);
                         return componentNameSvg ? `<${componentNameSvg} />` : `{/* SVG Icon: ${pascal} */}`;
                     } else {
-                        // Compact 모드: 주석으로만 남김
+                        // Compact mode: keep an implementation hint only.
                         return `{/* SVG Icon: ${pascal} */}`;
                     }
                 });
-                // data-name 이 없는 SVG 는 주석 처리
+                // Turn SVGs without data-name into comments.
                 code = code.replace(/<svg[\s\S]*?<\/svg>/g, '{/* SVG Icon */}');
 
-                // 로컬 이미지 변수 선언부 제거 (이미 import 로 변환됨)
+                // Remove local image declarations now that imports were generated.
                 code = code.replace(/const\s+[a-zA-Z0-9_]+\s*=\s*"http:\/\/localhost[^"]*";\n/g, '');
 
-                // SVG 컴포넌트를 함수 밖에 정의 (함수 분리)
+                // Define generated SVG components outside the main function.
                 finalCode = code;
 
                 if (svgComponents.length > 0) {
                     const funcStartIndex = code.indexOf('function ');
-                    // function 이전에 SVG 컴포넌트 삽입
+                    // Insert SVG components before the function declaration.
                     if (funcStartIndex >= 0) {
                         finalCode = svgComponents.join('\n\n') + '\n\n' + code;
                     } else {
@@ -315,24 +315,24 @@ const ${componentNameSvg} = (props: React.SVGProps<SVGSVGElement>) => (
                     }
                 }
 
-                // Compact 모드: SVG 목록을 코드 상단에 주석으로 추가
+                // Compact mode: add the required SVG list as a comment at the top.
                 if (svgList.length > 0 && !shouldConvertSvgToComponent) {
                     const svgComment = `\n/**\n * Required SVG icon replacements:\n${svgList.map(s => ` * - ${s.name}: replace the "${s.description}" icon for the ${this.profile.label} target.`).join('\n')}\n *\n * ${this.profile.iconGuidance}\n */\n`;
                     finalCode = svgComment + finalCode;
-                    console.error(`✅ ${svgList.length}개의 SVG 를 주석으로 변환했습니다 (Compact 모드)!`);
+                    console.error(`✅ Converted ${svgList.length} SVG(s) into compact icon comments.`);
                 }
 
-                // data-node-id 삭제
+                // Remove data-node-id attributes.
                 finalCode = finalCode.replace(/\sdata-node-id="[^"]+"/g, '');
 
-                // className 값 내부에서 절대 좌표 및 고정 픽셀 제거
+                // Remove absolute positioning and fixed pixel sizing from className values.
                 finalCode = finalCode.replace(/className="([^"]*)"/g, (_, classStr) => {
                     let cleaned = classStr;
-                    // absolute, relative, fixed 등 제거
+                    // Remove positioning utility classes.
                     cleaned = cleaned.replace(/\b(absolute|relative|fixed|shrink-0|flex-none)\b/g, '');
-                    // top-, left-, right-, bottom-, w-, h- 등 제거 (대괄호 포함)
+                    // Remove positional and fixed-size utility classes, including bracketed values.
                     cleaned = cleaned.replace(/\b(top|bottom|left|right|inset-x|inset-y|-translate-x|-translate-y|z|w|h|min-w|min-h|max-w|max-h|size)-\[?[^\s]*\]?/g, '');
-                    // 여러 공백을 하나로 정리
+                    // Collapse whitespace.
                     cleaned = cleaned.replace(/\s+/g, ' ').trim();
                     return cleaned ? `className="${cleaned}"` : '';
                 });
@@ -364,16 +364,16 @@ const ${componentNameSvg} = (props: React.SVGProps<SVGSVGElement>) => (
                 }
             }
 
-            // Ollama로 디자인 토큰 분석 (JSX/XML 공통)
-            console.error(`\n🤖 Ollama(${this.model})로 디자인 토큰 분석 중...`);
+            // Analyze design tokens with Ollama for both JSX and XML inputs.
+            console.error(`\n🤖 Analyzing design tokens with Ollama (${this.model})...`);
             const ollamaAnalysis = await this.analyzeWithOllama(finalCode);
             if (ollamaAnalysis) {
-                console.error(`✅ Ollama 분석 완료`);
+                console.error(`✅ Ollama analysis complete.`);
             }
 
             return { component_name: componentName, cleaned_code: finalCode, ollama: ollamaAnalysis, deduplication };
         } catch (error) {
-            console.error("❌ 코드 클리닝 실패:", error);
+            console.error("❌ Code cleanup failed:", error);
             throw error;
         }
     }
@@ -447,6 +447,6 @@ ${repeatedDataSection}
 
         const mdOutputPath = options.outputPath ?? path.join(this.cacheDir, `handoff.md`);
         await fs.writeFile(mdOutputPath, mdContent, 'utf-8');
-        console.error(`✅ Handoff 마크다운 생성 완료: ${mdOutputPath}`);
+        console.error(`✅ Handoff Markdown generated: ${mdOutputPath}`);
     }
 }

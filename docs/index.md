@@ -1,7 +1,7 @@
 # Figma Cost Optimizer Bridge
 
 <div align="right">
-  <strong>English</strong> | <a href="./index.ko.md">한국어</a>
+  <strong>English</strong> | <a href="./index.ko.md">Korean</a>
 </div>
 
 ![Figma Cost Optimizer Bridge system overview](./assets/system-overview.svg)

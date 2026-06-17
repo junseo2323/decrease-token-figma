@@ -40,9 +40,9 @@ interface PropSlot {
     name: string;
     firstValue: string;
     values: string[];
-    /** className 슬롯: 모든 인스턴스에 공통인 클래스 토큰 (템플릿에 1회만 기록) */
+    /** className slot: class tokens shared by every instance and stored once in the template. */
     commonClasses?: string;
-    /** 최빈값 — 컴포넌트 정의의 기본값으로 빠지고, 인스턴스는 다른 값일 때만 prop을 넘긴다 */
+    /** Most common value, used as the component default so instances only pass differences. */
     defaultValue?: string;
 }
 
@@ -268,8 +268,8 @@ function addDifferingSlots(slots: PropSlot[], kind: PropSlot['kind'], matrix: st
             values,
         };
 
-        // className은 인스턴스 간 공통 토큰을 템플릿으로 빼고, prop 값에는 차이 토큰만 남긴다
-        // (긴 Tailwind 문자열이 인스턴스 표 행마다 통째로 반복되는 것을 방지)
+        // Move className tokens shared by every instance into the template, leaving only
+        // differing tokens in props. This avoids repeating long Tailwind strings per row.
         if (kind === 'className') {
             const tokenLists = values.map(value => value.split(/\s+/).filter(Boolean));
             const common = tokenLists[0].filter(token => tokenLists.every(tokens => tokens.includes(token)));
@@ -329,7 +329,7 @@ function buildComponentDefinition(name: string, slots: PropSlot[], template: str
         return `function ${name}() {\n  return (\n${indent(template, 4)}\n  );\n}`;
     }
 
-    // 최빈값을 기본값으로 선언해 인스턴스 호출에서 반복을 제거한다
+    // Use the most common value as the default to remove repetition from instance calls.
     const defaultComment = slots.some(slot => slot.defaultValue !== undefined)
         ? `// Defaults: ${slots
             .filter(slot => slot.defaultValue !== undefined)
@@ -347,7 +347,7 @@ function buildComponentDefinition(name: string, slots: PropSlot[], template: str
 
 function buildInstance(name: string, slots: PropSlot[], index: number, reusedFrom?: RegistryComponent): string {
     const props = slots
-        // 기본값과 같은 값은 생략 — 다른 값일 때만 prop을 넘긴다
+        // Omit values equal to the default. Pass props only when values differ.
         .filter(slot => reusedFrom || (slot.values[index] ?? '') !== slot.defaultValue)
         .map(slot => `${slot.name}=${JSON.stringify(slot.values[index] ?? '')}`)
         .join(' ');

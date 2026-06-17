@@ -29,37 +29,36 @@ export class FigmaProxy {
 
     public async connect() {
         await this.client.connect(this.transport);
-        console.error("✅ 로컬 Figma MCP (포트 3845)에 성공적으로 연결되었습니다.");
+        console.error("✅ Connected to the local Figma MCP server on port 3845.");
     }
 
     public async getSelectionContext() {
         await this.ensureCacheDir();
         try {
-            console.error("⏳ 피그마에서 현재 선택된 요소를 가져오는 중...");
+            console.error("⏳ Fetching the current Figma selection...");
             const response = await this.client.callTool({
                 name: "get_design_context",
                 arguments: {}
             });
             const contentArray = response.content as any[];
             const rawText = contentArray.find((c: any) => c.type === 'text')?.text;
-            if (!rawText) throw new Error("응답이 비어있습니다. 피그마에서 요소를 선택했는지 확인해주세요.");
+            if (!rawText) throw new Error("The response is empty. Make sure an element is selected in Figma.");
 
-            // JSX(function 키워드) 또는 XML(name 속성)에서 컴포넌트명 추출
+            // Extract the component name from JSX (`function`) or XML (`name` attribute).
             const componentName = FigmaProxy.extractComponentName(rawText);
             const cachePath = path.join(this.cacheDir, `selection_${componentName}.tsx`);
 
             await fs.writeFile(cachePath, rawText, 'utf-8');
             return rawText;
         } catch (error) {
-            console.error("❌ 선택된 노드 가져오기 실패:", error);
+            console.error("❌ Failed to fetch the selected node:", error);
             throw error;
         }
     }
 
-    // 💡 새롭게 추가된 스크린샷 캡처 함수!
     public async getScreenshot(nodeId?: string) {
         try {
-            console.error(`📸 피그마 스크린샷 캡처 중...${nodeId ? ` (nodeId: ${nodeId})` : ''}`);
+            console.error(`📸 Capturing Figma screenshot...${nodeId ? ` (nodeId: ${nodeId})` : ''}`);
             const args: Record<string, string> = {};
             if (nodeId) args.nodeId = nodeId;
             const response = await this.client.callTool({
@@ -68,12 +67,12 @@ export class FigmaProxy {
             });
             return response.content as any[];
         } catch (error) {
-            console.error(`❌ 스크린샷 가져오기 실패${nodeId ? ` (${nodeId})` : ''}: ${(error as Error).message}`);
+            console.error(`❌ Failed to capture screenshot${nodeId ? ` (${nodeId})` : ''}: ${(error as Error).message}`);
             return null;
         }
     }
 
-    // 여러 nodeId에 대해 스크린샷을 순차적으로 가져옴
+    // Fetch screenshots sequentially for multiple node IDs.
     public async getScreenshots(nodeIds: string[]): Promise<any[]> {
         const results: any[] = [];
         for (const nodeId of nodeIds) {
@@ -91,11 +90,11 @@ export class FigmaProxy {
 }
 
 export function extractComponentName(text: string, fallback: string = 'UnknownComponent'): string {
-    // JSX 포맷: function ComponentName
+    // JSX format: function ComponentName
     const jsxMatch = text.match(/function\s+([A-Za-z0-9_]+)/);
     if (jsxMatch) return jsxMatch[1];
 
-    // XML 포맷: 첫 번째 name 속성에서 추출 후 유효한 식별자로 변환
+    // XML format: use the first name attribute and convert it into a valid identifier.
     const xmlMatch = text.match(/name="([^"]+)"/);
     if (xmlMatch) {
         return xmlMatch[1]
