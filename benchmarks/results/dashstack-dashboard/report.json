@@ -1,6 +1,6 @@
 {
   "slug": "dashstack-dashboard",
-  "measuredAt": "2026-06-17T00:28:25.005Z",
+  "measuredAt": "2026-06-17T02:12:01.602Z",
   "tokenEstimate": {
     "charsPerToken": 4,
     "imagePixelsPerToken": 750,
@@ -15,10 +15,10 @@
   },
   "bridge": {
     "inputPath": "benchmarks/fixtures/dashstack-dashboard/handoff.md",
-    "inputChars": 26929,
-    "estInputTokens": 6733,
+    "inputChars": 28928,
+    "estInputTokens": 7232,
     "imageTokens": 0,
-    "totalEstTokens": 6733
+    "totalEstTokens": 7232
   },
-  "savingsPct": 51.65
+  "savingsPct": 48.07
 }

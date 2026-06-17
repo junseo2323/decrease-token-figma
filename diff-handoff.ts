@@ -27,7 +27,7 @@ export function buildDiffHandoff(params: {
         return {
             markdown: params.currentMarkdown.replace(
                 /^# /,
-                '# 변경이 많아 전체를 다시 전달합니다\n\n# '
+                '# Too many lines changed; sending the full handoff again\n\n# '
             ),
             fallback: true,
             changedLineRatio,
@@ -39,18 +39,18 @@ export function buildDiffHandoff(params: {
     const addedFragments = collectChangedFragments(changes, 'added');
     const removedFragments = collectChangedFragments(changes, 'removed');
     const screenshotSection = params.screenshotPaths?.length
-        ? `\n## 최신 스크린샷\n${params.screenshotPaths.map(file => `- ${file}`).join('\n')}\n\n> 레이아웃 판단 전 반드시 위 이미지 파일을 Read 도구로 읽어라.\n`
+        ? `\n## Latest Screenshots\n${params.screenshotPaths.map(file => `- ${file}`).join('\n')}\n\n> Before deciding layout, read the image file paths above with the Read tool.\n`
         : '';
 
-    const markdown = `# Diff Handoff: ${params.componentName} (이전 버전 ${params.previousHash} -> 현재 ${params.currentHash})
+    const markdown = `# Diff Handoff: ${params.componentName} (previous ${params.previousHash} -> current ${params.currentHash})
 ${screenshotSection}
-이 화면은 이미 구현되어 있다. 아래 변경 사항만 코드에 반영하라. 나머지는 절대 다시 작성하지 마라.
+This screen has already been implemented. Apply only the changes listed below. Do not rewrite unrelated code.
 
-## 변경 사항
-${formatPairs('텍스트 변경', textPairs)}
-${formatPairs('className 변경', classPairs)}
-${formatFragments('추가된 JSX 조각', addedFragments)}
-${formatFragments('삭제된 JSX 조각', removedFragments)}
+## Changes
+${formatPairs('Text change', textPairs)}
+${formatPairs('className change', classPairs)}
+${formatFragments('Added JSX fragments', addedFragments)}
+${formatFragments('Removed JSX fragments', removedFragments)}
 `;
 
     return { markdown, fallback: false, changedLineRatio };

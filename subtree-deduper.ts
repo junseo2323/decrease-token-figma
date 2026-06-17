@@ -100,7 +100,7 @@ export function deduplicateSubtrees(code: string, registry?: ComponentRegistryDa
         const nameHint = registry?.components.find(component => normalizeName(component.name) === normalizeName(componentName));
 
         if (nameHint && !reusedFrom) {
-            hints.push(`유사 컴포넌트 존재: ${nameHint.filePath} - 먼저 Read 후 재사용 검토`);
+            hints.push(`Similar local component exists: ${nameHint.filePath}. Read it first and consider reusing it.`);
         }
 
         if (!reusedFrom) {
@@ -124,7 +124,7 @@ export function deduplicateSubtrees(code: string, registry?: ComponentRegistryDa
             replacements.push({
                 start: last.end,
                 end: last.end,
-                text: `\n{/* ... 총 ${group.length}개 - 전체 데이터: 아래 반복 인스턴스 데이터 참조 */}`,
+                text: `\n{/* ... ${group.length} total items. See repeated instance data below for the full dataset. */}`,
             });
         }
 
@@ -140,7 +140,7 @@ export function deduplicateSubtrees(code: string, registry?: ComponentRegistryDa
 
     let rewritten = applyReplacements(code, replacements);
     if (definitions.length > 0) {
-        rewritten = `// 반복 컴포넌트 정의\n${definitions.join('\n\n')}\n\n// 화면 구성\n${rewritten}`;
+        rewritten = `// Repeated component definitions\n${definitions.join('\n\n')}\n\n// Screen composition\n${rewritten}`;
     }
 
     return {
@@ -331,7 +331,7 @@ function buildComponentDefinition(name: string, slots: PropSlot[], template: str
 
     // 최빈값을 기본값으로 선언해 인스턴스 호출에서 반복을 제거한다
     const defaultComment = slots.some(slot => slot.defaultValue !== undefined)
-        ? `// 기본값: ${slots
+        ? `// Defaults: ${slots
             .filter(slot => slot.defaultValue !== undefined)
             .map(slot => `${slot.name}=${JSON.stringify(slot.defaultValue)}`)
             .join(', ')}\n`
@@ -352,7 +352,7 @@ function buildInstance(name: string, slots: PropSlot[], index: number, reusedFro
         .map(slot => `${slot.name}=${JSON.stringify(slot.values[index] ?? '')}`)
         .join(' ');
     const reuseComment = reusedFrom
-        ? `{/* 기존 컴포넌트 재사용: ${reusedFrom.filePath} - 새로 만들지 마라 */}\n`
+        ? `{/* Reuse existing component: ${reusedFrom.filePath}. Do not create a duplicate. */}\n`
         : '';
     return `${reuseComment}<${name}${props ? ` ${props}` : ''} />`;
 }
@@ -360,13 +360,13 @@ function buildInstance(name: string, slots: PropSlot[], index: number, reusedFro
 function buildInstanceDataSection(name: string, slots: PropSlot[], count: number): string {
     if (slots.length === 0) return '';
     const rows: string[] = [];
-    rows.push(`## 반복 인스턴스 데이터: ${name}`);
+    rows.push(`## Repeated Instance Data: ${name}`);
     rows.push('');
     const defaults = slots
         .filter(slot => slot.defaultValue !== undefined)
         .map(slot => `${slot.name}=${JSON.stringify(slot.defaultValue)}`);
     if (defaults.length > 0) {
-        rows.push(`기본값: ${defaults.map(value => `\`${value}\``).join(', ')} (표의 \`·\`는 기본값과 동일)`);
+        rows.push(`Defaults: ${defaults.map(value => `\`${value}\``).join(', ')} (a table value of \`·\` means "same as default")`);
         rows.push('');
     }
     rows.push('| # | ' + slots.map(slot => slot.name).join(' | ') + ' |');

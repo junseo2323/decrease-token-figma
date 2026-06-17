@@ -20,15 +20,15 @@ Token columns are a `chars / 4` estimate (vanilla image tokens `width * height /
 | Path | Input chars | Est. text tokens | Image tokens | Total est. tokens | Pixel similarity (mean) |
 |---|---:|---:|---:|---:|---:|
 | Official Figma MCP raw | 51,543 | 12,886 | 1,040 | 13,926 | 83.12% |
-| Bridge handoff | 26,929 | 6,733 | 0 | 6,733 | 84.76% |
+| Bridge handoff | 28,928 | 7,232 | 0 | 7,232 | 84.76% |
 
-**Estimated input-token saving: 51.65%.** Across 3 blind runs the bridge arm was also **+1.65 pp** more similar to the reference on average (range −0.12 to +3.28 pp) — the bridge spent roughly half the input tokens without losing visual accuracy.
+**Estimated input-token saving: 48.07%.** Across 3 blind runs the bridge arm was also **+1.65 pp** more similar to the reference on average (range −0.12 to +3.28 pp) — the bridge spent nearly half the input tokens without losing visual accuracy.
 
 | Run | Savings % | Vanilla sim. | Bridge sim. | Delta pp |
 |---|---:|---:|---:|---:|
-| run-001 | 51.65 | 81.69 | 84.97 | +3.28 |
-| run-002 | 51.65 | 84.34 | 84.22 | −0.12 |
-| run-003 | 51.65 | 83.32 | 85.10 | +1.78 |
+| run-001 | 48.07 | 81.69 | 84.97 | +3.28 |
+| run-002 | 48.07 | 84.34 | 84.22 | −0.12 |
+| run-003 | 48.07 | 83.32 | 85.10 | +1.78 |
 
 The images below are from the representative run (`run-003`).
 

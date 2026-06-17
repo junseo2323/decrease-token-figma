@@ -46,61 +46,61 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         tools: [
             {
                 name: "get_optimized_figma_handoff",
-                description: "피그마에서 현재 선택된 요소를 토큰 최적화 핸드오프로 변환합니다. 타겟 웹 프레임워크와 스타일링 방식을 지정할 수 있습니다.",
+                description: "Convert the currently selected Figma node into a token-optimized implementation handoff. The target web framework and styling system can be specified.",
                 inputSchema: {
                     type: "object",
                     properties: {
                         projectRoot: {
                             type: "string",
-                            description: "에셋과 캐시를 저장할 프로젝트 루트. 생략하면 FIGMA_BRIDGE_ROOT 또는 현재 cwd를 사용합니다.",
+                            description: "Project root for assets and cache. Defaults to FIGMA_BRIDGE_ROOT or the current working directory.",
                         },
                         screenshot: {
                             enum: ["path", "inline", "none"],
                             default: "path",
-                            description: "스크린샷 반환 방식. path는 PNG를 캐시에 저장하고 절대 경로만 전달합니다.",
+                            description: "Screenshot return mode. path stores PNG files in cache and returns absolute file paths.",
                         },
                         force_refresh: {
                             type: "boolean",
                             default: false,
-                            description: "해시가 같아도 캐시를 무시하고 전체 파이프라인을 다시 실행합니다.",
+                            description: "Ignore the cache and rerun the full pipeline even when the raw hash is unchanged.",
                         },
                         mode: {
                             enum: ["auto", "full", "diff"],
                             default: "auto",
-                            description: "auto는 이전 버전이 있으면 diff, 없으면 full 핸드오프를 반환합니다.",
+                            description: "auto returns a diff when a previous version exists, otherwise a full handoff.",
                         },
                         target: {
                             enum: ["react", "vue", "svelte", "html"],
                             default: "react",
-                            description: "핸드오프를 생성할 타겟 웹 프레임워크입니다.",
+                            description: "Target web framework for handoff instructions.",
                         },
                         styling: {
                             enum: ["tailwind", "styled-components", "emotion", "css-modules", "inline"],
                             default: "tailwind",
-                            description: "뼈대 코드의 디자인 토큰을 최종 구현으로 변환할 스타일링 방식입니다.",
+                            description: "Styling system for converting skeleton design tokens into final implementation syntax.",
                         },
                     },
                 },
             },
             {
                 name: "sync_component_registry",
-                description: "프로젝트의 src/components 아래 컴포넌트를 타겟 프레임워크 확장자 기준으로 스캔해 로컬 컴포넌트 레지스트리를 갱신합니다.",
+                description: "Scan project components under src/components using the target framework extensions and update the local component registry.",
                 inputSchema: {
                     type: "object",
                     properties: {
                         projectRoot: {
                             type: "string",
-                            description: "스캔할 프로젝트 루트. 생략하면 FIGMA_BRIDGE_ROOT 또는 현재 cwd를 사용합니다.",
+                            description: "Project root to scan. Defaults to FIGMA_BRIDGE_ROOT or the current working directory.",
                         },
                         target: {
                             enum: ["react", "vue", "svelte", "html"],
                             default: "react",
-                            description: "스캔할 컴포넌트 확장자를 결정하는 타겟 프레임워크입니다.",
+                            description: "Target framework used to choose component file extensions to scan.",
                         },
                         styling: {
                             enum: ["tailwind", "styled-components", "emotion", "css-modules", "inline"],
                             default: "tailwind",
-                            description: "프로필 해석용 스타일링 방식입니다. 레지스트리 스캔에서는 확장자 결정 외 영향이 없습니다.",
+                            description: "Styling system used for profile resolution. Registry scanning only uses the framework extensions.",
                         },
                     },
                 },
@@ -120,13 +120,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return {
             content: [{
                 type: "text",
-                text: `레지스트리 동기화 완료(${profile.label}, ${profile.componentExtensions.join(', ')}): ${data.components.length}개 컴포넌트\n파일: ${path.join(bridgePaths.cacheDir, 'registry.json')}`,
+                text: `Registry sync complete (${profile.label}, ${profile.componentExtensions.join(', ')}): ${data.components.length} components\nFile: ${path.join(bridgePaths.cacheDir, 'registry.json')}`,
             }],
         };
     }
 
     if (request.params.name !== "get_optimized_figma_handoff") {
-        throw new Error(`알 수 없는 도구입니다: ${request.params.name}`);
+        throw new Error(`Unknown tool: ${request.params.name}`);
     }
 
     const args = request.params.arguments as HandoffArgs | undefined;
@@ -236,7 +236,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         try { await proxy.disconnect(); } catch (_) { }
         return {
             isError: true,
-            content: [{ type: "text", text: `에러 발생: ${error.message}` }],
+            content: [{ type: "text", text: `Error: ${error.message}` }],
         };
     }
 });

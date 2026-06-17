@@ -123,7 +123,7 @@ test('instance defaults omit most frequent className props from repeated calls',
     assert.equal(bareInstances.length, 3);
     assert.equal((deduped.code.match(/variant="bg-blue"/g) ?? []).length, 1);
     assert.doesNotMatch(deduped.code, /<RepeatedDiv variant="bg-red"/);
-    assert.match(deduped.instanceDataMarkdown, /기본값: `variant="bg-red"`/);
+    assert.match(deduped.instanceDataMarkdown, /Defaults: `variant="bg-red"`/);
     assert.match(deduped.instanceDataMarkdown, /\| 1 \| `·` \|/);
 });
 
@@ -141,7 +141,7 @@ test('registry hash match replaces repeated component definition with reuse inst
     });
 
     assert.doesNotMatch(reused.code, /function RepeatedDiv/);
-    assert.match(reused.code, /기존 컴포넌트 재사용: src\/components\/MessageBubble\.tsx/);
+    assert.match(reused.code, /Reuse existing component: src\/components\/MessageBubble\.tsx/);
     assert.match(reused.code, /<MessageBubble/);
 });
 
@@ -171,6 +171,8 @@ test('target profiles default to React Tailwind and generate target instructions
     assert.equal(fallback.styling, 'tailwind');
     assert.equal(fallback.codeFenceLang, 'tsx');
     assert.equal(getProfileHandoffFilename(fallback), 'handoff.md');
+    assert.match(buildInstructionBlock(fallback), /CRITICAL IMPLEMENTATION INSTRUCTIONS/);
+    assert.match(buildInstructionBlock(fallback), /lucide-react/);
 
     const vue = resolveProfile('vue', 'emotion');
     assert.equal(vue.label, 'Vue');
@@ -181,7 +183,7 @@ test('target profiles default to React Tailwind and generate target instructions
     const instructions = buildInstructionBlock(vue);
     assert.match(instructions, /lucide-vue-next/);
     assert.match(instructions, /Emotion `css` prop/);
-    assert.match(instructions, /중간표현 주석 처리/);
+    assert.match(instructions, /Intermediate-representation comments/);
 });
 
 test('handoff markdown uses profile title fence and styling guidance', async () => {
@@ -201,6 +203,7 @@ test('handoff markdown uses profile title fence and styling guidance', async () 
     assert.match(handoff, /```vue/);
     assert.match(handoff, /lucide-vue-next/);
     assert.match(handoff, /Emotion `css` prop/);
+    assert.doesNotMatch(handoff, /[가-힣]/);
 });
 
 test('component registry scans vue and svelte component files by target extensions', async () => {
@@ -283,8 +286,8 @@ test('diff handoff summarizes small changes and falls back above forty percent',
     });
 
     assert.equal(diff.fallback, false);
-    assert.match(diff.markdown, /텍스트 변경: "전송" -> "보내기"/);
-    assert.match(diff.markdown, /className 변경: "bg-\[#3B82F6\]" -> "bg-\[#2563EB\]"/);
+    assert.match(diff.markdown, /Text change: "전송" -> "보내기"/);
+    assert.match(diff.markdown, /className change: "bg-\[#3B82F6\]" -> "bg-\[#2563EB\]"/);
 
     const fallback = buildDiffHandoff({
         componentName: 'BigChange',
@@ -295,5 +298,5 @@ test('diff handoff summarizes small changes and falls back above forty percent',
     });
 
     assert.equal(fallback.fallback, true);
-    assert.match(fallback.markdown, /변경이 많아 전체를 다시 전달합니다/);
+    assert.match(fallback.markdown, /Too many lines changed; sending the full handoff again/);
 });

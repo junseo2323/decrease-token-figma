@@ -317,7 +317,7 @@ const ${componentNameSvg} = (props: React.SVGProps<SVGSVGElement>) => (
 
                 // Compact 모드: SVG 목록을 코드 상단에 주석으로 추가
                 if (svgList.length > 0 && !shouldConvertSvgToComponent) {
-                    const svgComment = `\n/**\n * 🎨 필요한 SVG 아이콘 목록:\n${svgList.map(s => ` * - ${s.name}: "${s.description}" 아이콘을 ${this.profile.label} 타겟에 맞게 대체하세요.`).join('\n')}\n * \n * ${this.profile.iconGuidance}\n */\n`;
+                    const svgComment = `\n/**\n * Required SVG icon replacements:\n${svgList.map(s => ` * - ${s.name}: replace the "${s.description}" icon for the ${this.profile.label} target.`).join('\n')}\n *\n * ${this.profile.iconGuidance}\n */\n`;
                     finalCode = svgComment + finalCode;
                     console.error(`✅ ${svgList.length}개의 SVG 를 주석으로 변환했습니다 (Compact 모드)!`);
                 }
@@ -394,10 +394,10 @@ const ${componentNameSvg} = (props: React.SVGProps<SVGSVGElement>) => (
 
 > **Component Summary:** ${data.ollama.summary}
 
-| 항목 | 값 |
+| Item | Value |
 |---|---|
-| 🎨 Colors | ${colors} |
-| 📝 Texts | ${texts} |
+| Colors | ${colors} |
+| Texts | ${texts} |
 
 ---
 `;
@@ -405,11 +405,11 @@ const ${componentNameSvg} = (props: React.SVGProps<SVGSVGElement>) => (
 
         const screenshotSection = options.screenshotPaths?.length
             ? `
-## 스크린샷 파일
+## Screenshot Files
 
 ${options.screenshotPaths.map(file => `- ${file}`).join('\n')}
 
-> 레이아웃 판단 전 반드시 위 이미지 파일을 Read 도구로 읽어라.
+> Before deciding layout, read the image file paths above with the Read tool.
 
 ---
 `
@@ -421,7 +421,7 @@ ${options.screenshotPaths.map(file => `- ${file}`).join('\n')}
         ];
         const registryHintSection = hints.length
             ? `
-## 로컬 컴포넌트 재사용 힌트
+## Local Component Reuse Hints
 
 ${hints.map(hint => `- ${hint}`).join('\n')}
 

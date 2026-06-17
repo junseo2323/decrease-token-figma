@@ -49,7 +49,7 @@
   <text x="70" y="116" class="sans subtitle">Local MCP middleware for compact, multi-framework Figma handoffs.</text>
   <g transform="translate(946 58)">
     <rect width="246" height="48" rx="24" fill="#2A170B" stroke="#FB923C"/>
-    <text x="123" y="31" text-anchor="middle" class="sans badge">51.65% fewer tokens</text>
+    <text x="123" y="31" text-anchor="middle" class="sans badge">48.07% fewer tokens</text>
   </g>
 
   <g filter="url(#shadow)">

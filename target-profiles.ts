@@ -33,18 +33,18 @@ const COMPONENT_EXTENSIONS: Record<TargetFramework, string[]> = {
 };
 
 const ICON_GUIDANCE: Record<TargetFramework, string> = {
-    react: '주석 처리된 `{/* SVG Icon: 이름 */}` 부분은 `lucide-react` 컴포넌트로 대체하라. 픽셀이 조금 다르다는 이유로 `<svg>` 태그를 직접 하드코딩하지 마라.',
-    vue: '주석 처리된 SVG 아이콘 placeholder는 `lucide-vue-next` 같은 Vue 아이콘 컴포넌트로 대체하라. 픽셀이 조금 다르다는 이유로 `<svg>` 태그를 직접 하드코딩하지 마라.',
-    svelte: '주석 처리된 SVG 아이콘 placeholder는 Svelte에서 사용할 수 있는 Lucide/Iconify 계열 아이콘 컴포넌트로 대체하라. 픽셀이 조금 다르다는 이유로 `<svg>` 태그를 직접 하드코딩하지 마라.',
-    html: '주석 처리된 SVG 아이콘 placeholder는 프로젝트에서 쓰는 아이콘 폰트, Iconify, 또는 접근 가능한 inline-safe 아이콘 include 방식으로 대체하라. 원본 Figma `<svg>`를 그대로 복사하지 마라.',
+    react: 'Replace commented `{/* SVG Icon: name */}` placeholders with `lucide-react` components. Do not hardcode raw `<svg>` tags just because the pixels differ slightly.',
+    vue: 'Replace commented SVG icon placeholders with Vue icon components such as `lucide-vue-next`. Do not hardcode raw `<svg>` tags just because the pixels differ slightly.',
+    svelte: 'Replace commented SVG icon placeholders with Svelte-compatible Lucide/Iconify icon components. Do not hardcode raw `<svg>` tags just because the pixels differ slightly.',
+    html: 'Replace commented SVG icon placeholders with the project icon font, Iconify, or an accessible inline-safe icon include pattern. Do not copy the original Figma `<svg>` verbatim.',
 };
 
 const STYLING_GUIDANCE: Record<StylingSystem, string> = {
-    tailwind: '뼈대 코드의 Tailwind 유틸 클래스는 최종 구현에서도 Tailwind 클래스 체계로 옮기되, 임의의 유사 색상/간격으로 바꾸지 말고 bracket token 값을 그대로 보존하라.',
-    'styled-components': '뼈대 코드의 Tailwind 유틸 클래스는 디자인 토큰의 출처로만 보고, 색상/간격/폰트/둥글기 값을 추출해 `styled-components` 템플릿 리터럴 CSS로 변환하라.',
-    emotion: '뼈대 코드의 Tailwind 유틸 클래스는 디자인 토큰의 출처로만 보고, 색상/간격/폰트/둥글기 값을 추출해 Emotion `css` prop 또는 styled API 문법으로 변환하라.',
-    'css-modules': '뼈대 코드의 Tailwind 유틸 클래스는 디자인 토큰의 출처로만 보고, 색상/간격/폰트/둥글기 값을 추출해 CSS Modules 클래스와 별도 `.module.css` 규칙으로 변환하라.',
-    inline: '뼈대 코드의 Tailwind 유틸 클래스는 디자인 토큰의 출처로만 보고, 색상/간격/폰트/둥글기 값을 추출해 타겟 프레임워크의 inline style 문법으로 변환하라.',
+    tailwind: 'Carry the Tailwind utility classes into the final implementation, preserving bracket token values exactly instead of substituting approximate colors or spacing.',
+    'styled-components': 'Treat Tailwind utilities in the skeleton as design-token sources only. Extract colors, spacing, typography, and radii, then convert them to `styled-components` template literal CSS.',
+    emotion: 'Treat Tailwind utilities in the skeleton as design-token sources only. Extract colors, spacing, typography, and radii, then convert them to Emotion `css` prop or styled API syntax.',
+    'css-modules': 'Treat Tailwind utilities in the skeleton as design-token sources only. Extract colors, spacing, typography, and radii, then convert them to CSS Modules classes and separate `.module.css` rules.',
+    inline: 'Treat Tailwind utilities in the skeleton as design-token sources only. Extract colors, spacing, typography, and radii, then convert them to the target framework inline style syntax.',
 };
 
 export function resolveProfile(target?: string, styling?: string): TargetProfile {
@@ -63,27 +63,16 @@ export function resolveProfile(target?: string, styling?: string): TargetProfile
 }
 
 export function buildInstructionBlock(profile: TargetProfile): string {
-    if (profile.framework === 'react' && profile.styling === 'tailwind') {
-        return `> 🚨 **[매우 중요] LLM 행동 교정 지시사항 (CRITICAL INSTRUCTION)** 🚨
-> 너는 지금 전달받은 스크린샷과 아래의 뼈대 코드를 결합하여 완벽한 UI를 구현해야 한다. 코드를 작성하기 전, 반드시 아래의 5가지 원칙을 100% 준수해라.
+    return `> 🚨 **CRITICAL IMPLEMENTATION INSTRUCTIONS** 🚨
+> Combine the attached screenshot with the skeleton code below to implement a pixel-faithful ${profile.label} UI. Before writing code, follow these rules exactly.
 >
-> 1. **레이아웃(배치)은 '비전' 기반:** 요소들의 가로/세로 배치(flex, grid 등)와 전체적인 여백의 비율은 함께 전달된 **'스크린샷 이미지'를 눈으로 직접 확인**하고 구성해라.
-> 2. **정확한 수치(디자인 토큰)는 '텍스트' 기반:** 색상, 폰트 크기, 패딩, 둥글기 값은 네가 임의로 기본 클래스(bg-gray-100 등)로 때려 맞추지 마라. **반드시 아래 '뼈대 코드'에 하드코딩되어 있는 정확한 값(Hex 코드, 패딩 수치 등)을 100% 그대로 복사해서 사용해라.**
-> 3. **문구 및 데이터 보존:** 뼈대 코드에 있는 실제 텍스트(서비스 고유 명사 등)는 절대 환각으로 지어내지 말고 그대로 적용해라.
-> 4. **에셋 변수명 리팩토링 필수:** 상단에 import 된 무의미한 변수명(\`imgVariant\` 등)은 컴포넌트에 적용할 때 반드시 \`avatarImage\`, \`logoIcon\` 등 역할에 맞는 시맨틱한 이름으로 변경해라.
-> 5. **인라인 SVG 금지:** 주석 처리된 \`{/* SVG Icon: 이름 */}\` 부분은 무조건 \`lucide-react\` 컴포넌트로 대체하라. 픽셀이 조금 다르다는 이유로 절대 \`<svg>\` 태그를 직접 하드코딩하지 마라.`;
-    }
-
-    return `> 🚨 **[매우 중요] LLM 행동 교정 지시사항 (CRITICAL INSTRUCTION)** 🚨
-> 너는 지금 전달받은 스크린샷과 아래의 뼈대 코드를 결합하여 완벽한 ${profile.label} UI를 구현해야 한다. 코드를 작성하기 전, 반드시 아래 원칙을 100% 준수해라.
->
-> 1. **레이아웃(배치)은 '비전' 기반:** 요소들의 가로/세로 배치(flex, grid 등)와 전체적인 여백의 비율은 함께 전달된 **'스크린샷 이미지'를 눈으로 직접 확인**하고 구성해라.
-> 2. **정확한 수치(디자인 토큰)는 '텍스트' 기반:** 색상, 폰트 크기, 패딩, 둥글기 값은 네가 임의로 기본 클래스(bg-gray-100 등)로 때려 맞추지 마라. **반드시 아래 '뼈대 코드'에 하드코딩되어 있는 정확한 값(Hex 코드, 패딩 수치 등)을 100% 그대로 복사해서 사용해라.**
-> 3. **문구 및 데이터 보존:** 뼈대 코드에 있는 실제 텍스트(서비스 고유 명사 등)는 절대 환각으로 지어내지 말고 그대로 적용해라.
-> 4. **에셋 변수명 리팩토링 필수:** 상단에 import 된 무의미한 변수명(\`imgVariant\` 등)은 컴포넌트에 적용할 때 반드시 \`avatarImage\`, \`logoIcon\` 등 역할에 맞는 시맨틱한 이름으로 변경해라.
-> 5. **인라인 SVG 금지:** ${profile.iconGuidance}
-> 6. **스타일링 변환:** 아래 뼈대의 \`className\`/Tailwind 유틸 클래스(\`text-[#282d32]\`, \`p-4\`, \`rounded-lg\` 등)는 디자인 토큰의 출처일 뿐이다. ${profile.stylingGuidance}
-> 7. **중간표현 주석 처리:** 반복 컴포넌트 안내용 JSX 주석(\`{/* ... */}\`)은 핸드오프 메모일 뿐이며, 최종 ${profile.label} 출력에서는 타겟 문법에 맞게 제거하거나 자연스럽게 변환하라.`;
+> 1. **Layout comes from vision:** Determine horizontal/vertical arrangement, flex/grid choices, alignment, and spacing rhythm by inspecting the screenshot directly.
+> 2. **Design-token values come from text:** Do not guess with approximate defaults such as \`bg-gray-100\`. Copy exact hardcoded values from the skeleton code, including hex colors, padding, font sizes, and border radii.
+> 3. **Preserve copy and data:** Use the visible text and product-specific strings from the skeleton exactly. Do not invent replacement content.
+> 4. **Rename asset variables semantically:** When applying imported assets with mechanical names such as \`imgVariant\`, rename them in implementation to role-based names such as \`avatarImage\` or \`logoIcon\`.
+> 5. **No raw inline SVG:** ${profile.iconGuidance}
+> 6. **Styling conversion:** Treat \`className\`/Tailwind utilities in the skeleton, such as \`text-[#282d32]\`, \`p-4\`, and \`rounded-lg\`, as design-token carriers. ${profile.stylingGuidance}
+> 7. **Intermediate-representation comments:** JSX comments used for reuse guidance, such as \`{/* ... */}\`, are handoff notes only. Remove them or convert them naturally to the target syntax in the final ${profile.label} output.`;
 }
 
 export function getProfileHandoffFilename(profile: TargetProfile): string {

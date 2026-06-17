@@ -15,9 +15,9 @@ Latest fixture: `DashStack Dashboard`, measured on `2026-06-16` (blind 3-run, `c
 | Path | Total estimated input tokens | Pixel similarity (mean) |
 |---|---:|---:|
 | Official Figma MCP raw | 13,926 | 83.12% |
-| Bridge handoff | 6,733 | 84.76% |
+| Bridge handoff | 7,232 | 84.76% |
 
-**Estimated input-token saving: 51.65%** — and the bridge arm was +1.65 pp more similar to the reference on average.
+**Estimated input-token saving: 48.07%** — and the bridge arm was +1.65 pp more similar to the reference on average.
 
 [Read the full benchmark report](./BENCHMARK_RESULTS.md)
 
